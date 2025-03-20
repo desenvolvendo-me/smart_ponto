@@ -10,7 +10,41 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_20_003759) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_20_004535) do
+  create_table "time_entries", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.date "date"
+    t.time "time"
+    t.string "entry_type"
+    t.string "status"
+    t.text "observation"
+    t.boolean "signature"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["date"], name: "index_time_entries_on_date"
+    t.index ["status"], name: "index_time_entries_on_status"
+    t.index ["user_id", "date"], name: "index_time_entries_on_user_id_and_date"
+    t.index ["user_id"], name: "index_time_entries_on_user_id"
+  end
+
+  create_table "time_sheets", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.date "date"
+    t.string "status"
+    t.decimal "total_hours"
+    t.string "approval_status"
+    t.integer "approved_by"
+    t.datetime "approved_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["approval_status"], name: "index_time_sheets_on_approval_status"
+    t.index ["approved_by"], name: "index_time_sheets_on_approved_by"
+    t.index ["date"], name: "index_time_sheets_on_date"
+    t.index ["status"], name: "index_time_sheets_on_status"
+    t.index ["user_id", "date"], name: "index_time_sheets_on_user_id_and_date", unique: true
+    t.index ["user_id"], name: "index_time_sheets_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -22,7 +56,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_20_003759) do
     t.string "role"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "employee_id"
+    t.string "position"
+    t.date "start_date"
+    t.string "status"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
+
+  add_foreign_key "time_entries", "users"
+  add_foreign_key "time_sheets", "users"
 end
