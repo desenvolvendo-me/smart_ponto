@@ -1,0 +1,221 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Ponto - Calendário</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-4xl mx-auto p-4">
+        <div class="flex items-center mb-4">
+            <button class="text-2xl"><i class="fas fa-arrow-left"></i></button>
+            <h1 class="text-2xl font-bold ml-4">Meu Ponto</h1>
+        </div>
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex space-x-4">
+                <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded">Lista</button>
+                <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded">Calendário</button>
+            </div>
+            <div class="flex space-x-4">
+                <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded flex items-center">
+                    <i class="fas fa-download mr-2"></i> Exportar
+                </button>
+                <button class="bg-black text-white px-4 py-2 rounded flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Registrar Ponto
+                </button>
+            </div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow">
+            <div class="grid grid-cols-7 gap-4 text-center">
+                <div class="font-bold">Dom</div>
+                <div class="font-bold">Seg</div>
+                <div class="font-bold">Ter</div>
+                <div class="font-bold">Qua</div>
+                <div class="font-bold">Qui</div>
+                <div class="font-bold">Sex</div>
+                <div class="font-bold">Sáb</div>
+                <!-- Empty cells for previous month -->
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <!-- Days of the month -->
+                <div class="p-2 border rounded-lg">1</div>
+                <div class="p-2 border rounded-lg relative">
+                    2
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-red-600"><i class="fas fa-times"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    3
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    4
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    5
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    6
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    7
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-red-600"><i class="fas fa-times"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg">8</div>
+                <div class="p-2 border rounded-lg relative">
+                    9
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    10
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    11
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    12
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    13
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    14
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-red-600"><i class="fas fa-times"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg">15</div>
+                <div class="p-2 border rounded-lg relative">
+                    16
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    17
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    18
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    19
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    20
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    21
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    22
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-yellow-600"><i class="fas fa-exclamation"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    23
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-yellow-600"><i class="fas fa-exclamation"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    24
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    25
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    26
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    27
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-yellow-600"><i class="fas fa-exclamation"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    28
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    29
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    30
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-green-600"><i class="fas fa-check"></i></span>
+                    </div>
+                </div>
+                <div class="p-2 border rounded-lg relative">
+                    31
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-red-600"><i class="fas fa-times"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

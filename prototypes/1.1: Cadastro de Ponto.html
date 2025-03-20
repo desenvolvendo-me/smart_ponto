@@ -1,0 +1,142 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Ponto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-4xl mx-auto p-4">
+        <div class="flex items-center mb-4">
+            <button class="text-2xl"><i class="fas fa-arrow-left"></i></button>
+            <h1 class="text-2xl font-bold ml-4">Meu Ponto</h1>
+        </div>
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex space-x-4">
+                <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded">Lista</button>
+                <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded">Calendário</button>
+            </div>
+            <div class="flex space-x-4">
+                <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded flex items-center">
+                    <i class="fas fa-download mr-2"></i> Exportar
+                </button>
+                <button class="bg-black text-white px-4 py-2 rounded flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Registrar Ponto
+                </button>
+            </div>
+        </div>
+        <div class="space-y-4">
+            <div class="bg-white p-4 rounded-lg shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-calendar-alt text-gray-500"></i>
+                        <span class="text-lg font-semibold">24/03/2024</span>
+                    </div>
+                    <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded">Completo</span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <p class="text-lg font-semibold">Entrada</p>
+                        <p class="text-2xl font-bold">08:15</p>
+                        <p class="text-gray-500">Registrado</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <p class="text-lg font-semibold">Saída</p>
+                        <p class="text-2xl font-bold">12:00</p>
+                        <p class="text-gray-500">Registrado</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <p class="text-lg font-semibold">Entrada</p>
+                        <p class="text-2xl font-bold">13:00</p>
+                        <p class="text-gray-500">Registrado</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <p class="text-lg font-semibold">Saída</p>
+                        <p class="text-2xl font-bold">17:00</p>
+                        <p class="text-gray-500">Registrado</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <p class="text-gray-700">Total: 8h 00min</p>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-green-600">✔ Assinado digitalmente</span>
+                        <button class="bg-black text-white px-4 py-2 rounded">Enviar para aprovação</button>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-calendar-alt text-gray-500"></i>
+                        <span class="text-lg font-semibold">23/03/2024</span>
+                    </div>
+                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded">Aprovado</span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <p class="text-lg font-semibold">Entrada</p>
+                        <p class="text-2xl font-bold">08:00</p>
+                        <p class="text-green-600">✔ Aprovado</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <p class="text-lg font-semibold">Saída</p>
+                        <p class="text-2xl font-bold">12:00</p>
+                        <p class="text-green-600">✔ Aprovado</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <p class="text-lg font-semibold">Entrada</p>
+                        <p class="text-2xl font-bold">13:00</p>
+                        <p class="text-green-600">✔ Aprovado</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <p class="text-lg font-semibold">Saída</p>
+                        <p class="text-2xl font-bold">17:00</p>
+                        <p class="text-green-600">✔ Aprovado</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <p class="text-gray-700">Total: 8h 00min</p>
+                    <span class="text-green-600">✔ Assinado digitalmente</span>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-calendar-alt text-gray-500"></i>
+                        <span class="text-lg font-semibold">21/03/2024</span>
+                    </div>
+                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded">Aprovado</span>
+                </div>
+                <p class="text-gray-500 mb-4">Atraso devido a consulta médica</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <p class="text-lg font-semibold">Entrada</p>
+                        <p class="text-2xl font-bold">08:30</p>
+                        <p class="text-green-600">✔ Aprovado</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <p class="text-lg font-semibold">Saída</p>
+                        <p class="text-2xl font-bold">12:00</p>
+                        <p class="text-green-600">✔ Aprovado</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <p class="text-lg font-semibold">Entrada</p>
+                        <p class="text-2xl font-bold">13:00</p>
+                        <p class="text-green-600">✔ Aprovado</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <p class="text-lg font-semibold">Saída</p>
+                        <p class="text-2xl font-bold">17:30</p>
+                        <p class="text-green-600">✔ Aprovado</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <p class="text-gray-700">Total: 8h 00min</p>
+                    <span class="text-green-600">✔ Assinado digitalmente</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
