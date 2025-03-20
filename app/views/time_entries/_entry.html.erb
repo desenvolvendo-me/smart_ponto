@@ -1,0 +1,9 @@
+<div class="bg-gray-100 p-4 rounded-lg text-center">
+  <p class="text-lg font-semibold"><%= entry.entry_type.capitalize %></p>
+  <p class="text-2xl font-bold"><%= entry.time.strftime("%H:%M") %></p>
+  <% if entry.status == 'aprovado' %>
+    <p class="text-green-600">✔ Aprovado</p>
+  <% else %>
+    <p class="text-gray-500">Registrado</p>
+  <% end %>
+</div>

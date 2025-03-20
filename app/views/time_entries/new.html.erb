@@ -1,0 +1,45 @@
+<div class="flex items-center mb-4">
+  <%= link_to time_sheets_path, class: "text-2xl" do %>
+    <i class="fas fa-arrow-left"></i>
+  <% end %>
+  <h1 class="text-2xl font-bold ml-4">Registrar Ponto</h1>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow">
+  <%= form_with(model: @time_entry, class: "space-y-4") do |form| %>
+    <% if @time_entry.errors.any? %>
+      <div class="bg-red-100 p-4 rounded">
+        <h2 class="font-bold text-red-700"><%= pluralize(@time_entry.errors.count, "erro") %> encontrado:</h2>
+        <ul class="list-disc pl-5">
+          <% @time_entry.errors.full_messages.each do |message| %>
+            <li class="text-red-700"><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div>
+      <%= form.label :date, "Data", class: "block text-gray-700 font-medium mb-1" %>
+      <%= form.date_field :date, value: Date.today, class: "w-full p-2 border rounded" %>
+    </div>
+
+    <div>
+      <%= form.label :time, "Hora", class: "block text-gray-700 font-medium mb-1" %>
+      <%= form.time_field :time, value: Time.current.strftime("%H:%M"), class: "w-full p-2 border rounded" %>
+    </div>
+
+    <div>
+      <%= form.label :entry_type, "Tipo", class: "block text-gray-700 font-medium mb-1" %>
+      <%= form.select :entry_type, [["Entrada", "entrada"], ["Saída", "saída"]], {}, class: "w-full p-2 border rounded" %>
+    </div>
+
+    <div>
+      <%= form.label :observation, "Observação", class: "block text-gray-700 font-medium mb-1" %>
+      <%= form.text_area :observation, class: "w-full p-2 border rounded", rows: 3, placeholder: "Ex: Atraso devido a consulta médica" %>
+    </div>
+
+    <div class="flex justify-end">
+      <%= form.submit "Registrar Ponto", class: "bg-black text-white px-6 py-2 rounded" %>
+    </div>
+  <% end %>
+</div>

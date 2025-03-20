@@ -1,0 +1,26 @@
+<div class="flex items-center mb-4">
+  <%= link_to time_sheets_path, class: "text-2xl" do %>
+    <i class="fas fa-arrow-left"></i>
+  <% end %>
+  <h1 class="text-2xl font-bold ml-4">Exportar Registros</h1>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow">
+  <%= form_with(url: export_time_sheets_path(format: :csv), method: :get, class: "space-y-4") do |form| %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <%= form.label :start_date, "Data Inicial", class: "block text-gray-700 font-medium mb-1" %>
+        <%= form.date_field :start_date, value: Date.today.beginning_of_month, class: "w-full p-2 border rounded" %>
+      </div>
+
+      <div>
+        <%= form.label :end_date, "Data Final", class: "block text-gray-700 font-medium mb-1" %>
+        <%= form.date_field :end_date, value: Date.today, class: "w-full p-2 border rounded" %>
+      </div>
+    </div>
+
+    <div class="flex justify-end">
+      <%= form.submit "Exportar CSV", class: "bg-black text-white px-6 py-2 rounded flex items-center" %>
+    </div>
+  <% end %>
+</div>

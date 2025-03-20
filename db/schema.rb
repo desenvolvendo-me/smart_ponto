@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_20_004535) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_20_005931) do
   create_table "time_entries", force: :cascade do |t|
     t.integer "user_id", null: false
     t.date "date"
@@ -21,8 +21,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_20_004535) do
     t.boolean "signature"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "time_sheet_id", null: false
     t.index ["date"], name: "index_time_entries_on_date"
     t.index ["status"], name: "index_time_entries_on_status"
+    t.index ["time_sheet_id"], name: "index_time_entries_on_time_sheet_id"
     t.index ["user_id", "date"], name: "index_time_entries_on_user_id_and_date"
     t.index ["user_id"], name: "index_time_entries_on_user_id"
   end
@@ -37,6 +39,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_20_004535) do
     t.datetime "approved_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "signature"
     t.index ["approval_status"], name: "index_time_sheets_on_approval_status"
     t.index ["approved_by"], name: "index_time_sheets_on_approved_by"
     t.index ["date"], name: "index_time_sheets_on_date"
@@ -64,6 +67,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_20_004535) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "time_entries", "time_sheets"
   add_foreign_key "time_entries", "users"
   add_foreign_key "time_sheets", "users"
 end

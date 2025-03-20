@@ -1,0 +1,89 @@
+<div class="flex items-center mb-4">
+  <% if request.referer && request.referer != request.original_url %>
+    <%= link_to :back, class: "text-2xl" do %>
+      <i class="fas fa-arrow-left"></i>
+    <% end %>
+  <% end %>
+  <h1 class="text-2xl font-bold ml-4">Meu Ponto</h1>
+</div>
+
+<div class="flex justify-between items-center mb-4">
+  <div class="flex space-x-4">
+    <%= link_to "Lista", time_sheets_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded" %>
+    <%= link_to "Calendário", calendar_time_sheets_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded" %>
+  </div>
+  <div class="flex space-x-4">
+    <%= link_to export_time_sheets_path(format: :csv), class: "bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded flex items-center" do %>
+      <i class="fas fa-download mr-2"></i> Exportar
+    <% end %>
+    <%= button_to quick_register_time_entries_path, method: :post, class: "bg-black text-white px-4 py-2 rounded flex items-center" do %>
+      <i class="fas fa-plus mr-2"></i> Registrar Ponto
+    <% end %>
+  </div>
+</div>
+
+<div class="space-y-4">
+  <% @time_sheets.each do |time_sheet| %>
+    <div class="bg-white p-4 rounded-lg shadow">
+      <div class="flex justify-between items-center mb-4">
+        <div class="flex items-center space-x-2">
+          <i class="fas fa-calendar-alt text-gray-500"></i>
+          <span class="text-lg font-semibold"><%= time_sheet.date.strftime("%d/%m/%Y") %></span>
+        </div>
+        <% if time_sheet.approval_status == 'aprovado' %>
+          <span class="bg-green-100 text-green-700 px-2 py-1 rounded">Aprovado</span>
+        <% elsif time_sheet.status == 'completo' %>
+          <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded">Completo</span>
+        <% else %>
+          <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Incompleto</span>
+        <% end %>
+      </div>
+
+      <% if time_sheet.time_entries.where(entry_type: "entrada").first&.observation.present? %>
+        <p class="text-gray-500 mb-4"><%= time_sheet.time_entries.where(entry_type: "entrada").first.observation %></p>
+      <% end %>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <% entries = time_sheet.time_entries.order(:time) %>
+        <% entries.each_with_index do |entry, index| %>
+          <div class="bg-gray-100 p-4 rounded-lg text-center">
+            <p class="text-lg font-semibold"><%= entry.entry_type.capitalize %></p>
+            <p class="text-2xl font-bold"><%= entry.time.strftime("%H:%M") %></p>
+            <% if entry.status == 'aprovado' %>
+              <p class="text-green-600">✔ Aprovado</p>
+            <% else %>
+              <p class="text-gray-500">Registrado</p>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% (4 - entries.size).times do %>
+          <div class="bg-gray-100 p-4 rounded-lg text-center opacity-50">
+            <p class="text-lg font-semibold">-</p>
+            <p class="text-2xl font-bold">--:--</p>
+            <p class="text-gray-500">Pendente</p>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="flex justify-between items-center">
+        <p class="text-gray-700">Total: <%= time_sheet.total_hours ? "#{time_sheet.total_hours.to_i}h #{((time_sheet.total_hours - time_sheet.total_hours.to_i) * 60).to_i}min" : "0h 00min" %></p>
+        <div class="flex items-center space-x-2">
+          <% if time_sheet.signature? %>
+            <span class="text-green-600">✔ Assinado digitalmente</span>
+          <% end %>
+
+          <% if time_sheet.status == 'completo' && time_sheet.approval_status != 'aprovado' %>
+            <%= button_to submit_for_approval_time_sheet_path(time_sheet), method: :post, class: "bg-black text-white px-4 py-2 rounded" do %>
+              Enviar para aprovação
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<div class="my-4">
+  <%= paginate @time_sheets %>
+</div>
