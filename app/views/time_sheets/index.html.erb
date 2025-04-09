@@ -67,7 +67,12 @@
       </div>
 
       <div class="flex justify-between items-center">
-        <p class="text-gray-700">Total: <%= time_sheet.total_hours ? "#{time_sheet.total_hours.to_i}h #{((time_sheet.total_hours - time_sheet.total_hours.to_i) * 60).to_i}min" : "0h 00min" %></p>
+        <div class="font-medium text-gray-800 mt-1">
+          <% hours = time_sheet.total_hours.to_f rescue 0 %>
+          <span class="<%= hours > 8 ? 'text-green-600' : 'text-gray-900' %>">
+            Total: <%= time_sheet.total_hours %>h
+          </span>
+        </div>
         <div class="flex items-center space-x-2">
           <% if time_sheet.signature? %>
             <span class="text-green-600">✔ Assinado digitalmente</span>

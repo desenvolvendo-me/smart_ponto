@@ -2,7 +2,7 @@ class TimeSheet < ApplicationRecord
   belongs_to :user
   belongs_to :approver, class_name: 'User', foreign_key: 'approved_by', optional: true
 
-  has_many :time_entries, dependent: :nullify
+  has_many :time_entries, dependent: :destroy
 
   STATUSES = ['incompleto', 'completo'].freeze
   APPROVAL_STATUSES = ['pendente', 'enviado', 'aprovado', 'rejeitado'].freeze
@@ -23,6 +23,24 @@ class TimeSheet < ApplicationRecord
 
   def approved?
     approval_status == 'aprovado'
+  end
+
+  def total_hours
+    entries = time_entries.order(:time)
+    return "0.0" if entries.count < 2
+
+    total_seconds = 0
+
+    entries.each_slice(2) do |pair|
+      if pair.length == 2
+        # Calcula a diferença entre saída e entrada
+        diff_seconds = pair[1].time - pair[0].time
+        total_seconds += diff_seconds
+      end
+    end
+
+    # Converte segundos para horas com formato "xx.x"
+    (total_seconds / 3600.0).round(1).to_s
   end
 
   private
