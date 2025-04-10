@@ -15,22 +15,18 @@ class TimeSheetsController < ApplicationController
   end
 
   def calendar
-    # Determinar o mês e ano a ser exibido (padrão: mês atual)
     @date = if params[:month] && params[:year]
               Date.new(params[:year].to_i, params[:month].to_i, 1)
             else
               Date.today.beginning_of_month
             end
 
-    # Buscar registros de ponto para o mês selecionado
     @time_sheets = current_user.time_sheets
                                .where(date: @date.beginning_of_month..@date.end_of_month)
                                .includes(:time_entries)
 
-    # Mapear registros por data para fácil acesso na view
     @time_sheets_by_date = @time_sheets.index_by(&:date)
 
-    # Criar array de dias para o calendário (incluindo dias do mês anterior/seguinte para completar semanas)
     first_day = @date.beginning_of_month.beginning_of_week(:sunday)
     last_day = @date.end_of_month.end_of_week(:sunday)
     @calendar_days = (first_day..last_day).to_a
@@ -54,7 +50,6 @@ class TimeSheetsController < ApplicationController
   def submit_for_approval
     @time_sheet.update(approval_status: 'enviado')
 
-    # Redirecionar para a página de origem
     return_path = determine_return_path
     redirect_to return_path, notice: 'Registro enviado para aprovação.'
   end
@@ -62,7 +57,6 @@ class TimeSheetsController < ApplicationController
   def sign
     @time_sheet.update(signature: true)
 
-    # Redirecionar para a página de origem
     return_path = determine_return_path
     redirect_to return_path, notice: 'Registro assinado digitalmente.'
   end
