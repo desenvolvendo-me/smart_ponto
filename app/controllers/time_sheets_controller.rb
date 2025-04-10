@@ -53,18 +53,34 @@ class TimeSheetsController < ApplicationController
 
   def submit_for_approval
     @time_sheet.update(approval_status: 'enviado')
-    redirect_to time_sheets_path, notice: 'Registro enviado para aprovação.'
+
+    # Redirecionar para a página de origem
+    return_path = determine_return_path
+    redirect_to return_path, notice: 'Registro enviado para aprovação.'
   end
 
   def sign
     @time_sheet.update(signature: true)
-    redirect_to time_sheet_path(@time_sheet), notice: 'Registro assinado digitalmente.'
+
+    # Redirecionar para a página de origem
+    return_path = determine_return_path
+    redirect_to return_path, notice: 'Registro assinado digitalmente.'
   end
 
   private
 
   def set_time_sheet
     @time_sheet = current_user.time_sheets.find(params[:id])
+  end
+
+  def determine_return_path
+    return_to = params[:return_to]
+
+    if return_to == "calendar"
+      calendar_time_sheets_path
+    else
+      time_sheets_path
+    end
   end
 
   def generate_csv(time_sheets)

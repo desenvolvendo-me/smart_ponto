@@ -4,7 +4,7 @@
       <h1 class="text-2xl font-bold text-gray-800">Calendário de Ponto</h1>
 
       <div>
-        <%= button_to quick_register_time_entries_path, method: :post, class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow-sm flex items-center" do %>
+        <%= button_to quick_register_time_entries_path(return_to: "calendar"), method: :post, class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow-sm flex items-center" do %>
           <i class="fas fa-plus mr-2"></i> Registrar Ponto
         <% end %>
       </div>
@@ -125,7 +125,7 @@
               <% else %>
                 <div class="mt-2">
                   <% if day == Date.today %>
-                    <%= link_to new_time_entry_path(date: day), class: "text-xs text-indigo-600 hover:text-indigo-800 flex items-center" do %>
+                    <%= link_to new_time_entry_path(date: day, return_to: "calendar"), class: "text-xs text-indigo-600 hover:text-indigo-800 flex items-center" do %>
                       <i class="fas fa-plus-circle mr-1"></i> Registrar
                     <% end %>
                   <% end %>
