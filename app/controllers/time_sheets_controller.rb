@@ -15,9 +15,21 @@ class TimeSheetsController < ApplicationController
   end
 
   def calendar
+    @date = if params[:month] && params[:year]
+              Date.new(params[:year].to_i, params[:month].to_i, 1)
+            else
+              Date.today.beginning_of_month
+            end
+
     @time_sheets = current_user.time_sheets
-                               .where(date: Date.today.beginning_of_month..Date.today.end_of_month)
+                               .where(date: @date.beginning_of_month..@date.end_of_month)
                                .includes(:time_entries)
+
+    @time_sheets_by_date = @time_sheets.index_by(&:date)
+
+    first_day = @date.beginning_of_month.beginning_of_week(:sunday)
+    last_day = @date.end_of_month.end_of_week(:sunday)
+    @calendar_days = (first_day..last_day).to_a
   end
 
   def export
@@ -37,18 +49,32 @@ class TimeSheetsController < ApplicationController
 
   def submit_for_approval
     @time_sheet.update(approval_status: 'enviado')
-    redirect_to time_sheets_path, notice: 'Registro enviado para aprovação.'
+
+    return_path = determine_return_path
+    redirect_to return_path, notice: 'Registro enviado para aprovação.'
   end
 
   def sign
     @time_sheet.update(signature: true)
-    redirect_to time_sheet_path(@time_sheet), notice: 'Registro assinado digitalmente.'
+
+    return_path = determine_return_path
+    redirect_to return_path, notice: 'Registro assinado digitalmente.'
   end
 
   private
 
   def set_time_sheet
     @time_sheet = current_user.time_sheets.find(params[:id])
+  end
+
+  def determine_return_path
+    return_to = params[:return_to]
+
+    if return_to == "calendar"
+      calendar_time_sheets_path
+    else
+      time_sheets_path
+    end
   end
 
   def generate_csv(time_sheets)

@@ -1,70 +1,192 @@
-<div class="flex items-center mb-4">
-  <%= link_to time_sheets_path, class: "text-2xl" do %>
-    <i class="fas fa-arrow-left"></i>
-  <% end %>
-  <h1 class="text-2xl font-bold ml-4">Calendário de Ponto</h1>
-</div>
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold text-gray-800">Calendário de Ponto</h1>
 
-<div class="flex justify-between items-center mb-4">
-  <div class="flex space-x-4">
-    <%= link_to "Lista", time_sheets_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded" %>
-    <%= link_to "Calendário", calendar_time_sheets_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded" %>
-  </div>
-  <div class="flex space-x-4">
-    <%= link_to export_time_sheets_path(format: :csv), class: "bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded flex items-center" do %>
-      <i class="fas fa-download mr-2"></i> Exportar
-    <% end %>
-    <%= button_to quick_register_time_entries_path, method: :post, class: "bg-black text-white px-4 py-2 rounded flex items-center" do %>
-      <i class="fas fa-plus mr-2"></i> Registrar Ponto
-    <% end %>
-  </div>
-</div>
-
-<div class="bg-white p-4 rounded-lg shadow">
-  <div class="grid grid-cols-7 gap-2 mb-2">
-    <% %w(Dom Seg Ter Qua Qui Sex Sab).each do |day| %>
-      <div class="text-center font-bold"><%= day %></div>
-    <% end %>
-  </div>
-
-  <div class="grid grid-cols-7 gap-2">
-    <% first_day = Date.today.beginning_of_month %>
-    <% last_day = Date.today.end_of_month %>
-
-    <% # Preencher dias vazios do início do mês %>
-    <% first_day.wday.times do %>
-      <div class="h-24 p-1 border rounded bg-gray-50"></div>
-    <% end %>
-
-    <% # Dias do mês %>
-    <% (first_day..last_day).each do |date| %>
-      <% time_sheet = @time_sheets.find { |ts| ts.date == date } %>
-      <div class="h-24 p-1 border rounded <%= date == Date.today ? 'bg-blue-50 border-blue-300' : 'bg-white' %>">
-        <div class="flex justify-between">
-          <span class="font-semibold"><%= date.day %></span>
-          <% if time_sheet&.approval_status == 'aprovado' %>
-            <span class="text-xs bg-green-100 text-green-700 px-1 rounded">✓</span>
-          <% elsif time_sheet&.status == 'completo' %>
-            <span class="text-xs bg-blue-100 text-blue-700 px-1 rounded">✓</span>
-          <% end %>
-        </div>
-
-        <% if time_sheet %>
-          <div class="mt-1 text-xs">
-            <% if time_sheet.total_hours %>
-              <span class="block"><%= time_sheet.total_hours.to_i %>h <%= ((time_sheet.total_hours - time_sheet.total_hours.to_i) * 60).to_i %>min</span>
-            <% end %>
-            <% time_sheet.time_entries.order(:time).first(2).each do |entry| %>
-              <span class="block text-gray-600"><%= entry.time.strftime("%H:%M") %> <%= entry.entry_type == 'entrada' ? 'E' : 'S' %></span>
-            <% end %>
-          </div>
+      <div>
+        <%= button_to quick_register_time_entries_path(return_to: "calendar"), method: :post, class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow-sm flex items-center" do %>
+          <i class="fas fa-plus mr-2"></i> Registrar Ponto
         <% end %>
       </div>
-    <% end %>
+    </div>
 
-    <% # Preencher dias vazios do final do mês %>
-    <% (6 - last_day.wday).times do %>
-      <div class="h-24 p-1 border rounded bg-gray-50"></div>
-    <% end if last_day.wday < 6 %>
+    <div class="flex justify-between items-center mb-4">
+      <div class="flex space-x-4">
+        <%= link_to time_sheets_path, class: "text-gray-700 px-4 py-2 rounded flex items-center" do %>
+          <i class="fas fa-list mr-2"></i> Lista
+        <% end %>
+
+        <%= link_to calendar_time_sheets_path, class: "bg-indigo-100 text-indigo-700 font-medium px-4 py-2 rounded flex items-center" do %>
+          <i class="fas fa-calendar-alt mr-2"></i> Calendário
+        <% end %>
+      </div>
+
+      <div>
+        <%= form_with url: export_time_sheets_path(format: :csv), method: :get, local: true, class: "inline-flex" do |f| %>
+          <%= f.hidden_field :start_date, value: @date.beginning_of_month %>
+          <%= f.hidden_field :end_date, value: @date.end_of_month %>
+          <%= f.button type: "submit", class: "bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg shadow-sm flex items-center" do %>
+            <i class="fas fa-download mr-2"></i> Exportar Mês
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+    <div class="flex justify-between items-center bg-indigo-50 p-4">
+      <%= link_to calendar_time_sheets_path(month: @date.prev_month.month, year: @date.prev_month.year),
+                  class: "bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg shadow-sm flex items-center" do %>
+        <i class="fas fa-chevron-left mr-2"></i> Mês Anterior
+      <% end %>
+
+      <h2 class="text-xl font-semibold text-indigo-800">
+        <%= l(@date, format: '%B %Y').capitalize %>
+      </h2>
+
+      <%= link_to calendar_time_sheets_path(month: @date.next_month.month, year: @date.next_month.year),
+                  class: "bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg shadow-sm flex items-center" do %>
+        Próximo Mês <i class="fas fa-chevron-right ml-2"></i>
+      <% end %>
+    </div>
+
+    <div class="grid grid-cols-7 border-b border-gray-200">
+      <% ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'].each do |day| %>
+        <div class="py-3 text-center font-medium text-gray-700 border-r last:border-r-0 border-gray-200"><%= day %></div>
+      <% end %>
+    </div>
+
+    <div class="grid grid-cols-7">
+      <% @calendar_days.each do |day| %>
+        <%
+          time_sheet = @time_sheets_by_date[day]
+          is_today = day == Date.today
+          current_month = day.month == @date.month
+          weekend = day.saturday? || day.sunday?
+          holiday = false # Implementar verificação de feriado se aplicável
+        %>
+
+        <div class="border-r border-b last:border-r-0 min-h-[130px] <%= weekend || holiday ? 'bg-gray-50' : '' %> <%= !current_month ? 'bg-gray-100' : '' %> <%= is_today ? 'ring-2 ring-indigo-500 z-10' : '' %> relative overflow-hidden">
+          <div class="p-2">
+            <div class="flex justify-between items-center">
+              <span class="<%= current_month ? 'font-medium' : 'text-gray-400' %> <%= weekend ? 'text-red-600' : '' %> <%= is_today ? 'text-indigo-600 font-semibold' : '' %> text-lg">
+                <%= day.day %>
+              </span>
+
+              <% if time_sheet && current_month %>
+                <% status_color = case time_sheet.approval_status
+                                  when 'pendente' then 'bg-yellow-400'
+                                  when 'enviado' then 'bg-blue-400'
+                                  when 'aprovado' then 'bg-green-400'
+                                  when 'rejeitado' then 'bg-red-400'
+                                  else 'bg-gray-400'
+                                  end
+                %>
+                <div class="flex items-center">
+                  <div class="<%= status_color %> rounded-full w-3 h-3 mr-1"></div>
+                  <% if time_sheet.signature %>
+                    <i class="fas fa-signature text-green-600 text-xs"></i>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+
+            <% if current_month %>
+              <% if time_sheet %>
+                <%= link_to time_sheet_path(time_sheet), class: "block mt-2 hover:bg-indigo-50 rounded p-1 transition duration-150" do %>
+                  <% entries = time_sheet.time_entries.order(:time) %>
+                  <% if entries.any? %>
+                    <div class="text-xs space-y-1">
+                      <% entries.each_slice(2) do |entry_pair| %>
+                        <div class="flex justify-between text-gray-600">
+                          <span class="<%= entry_pair[0]&.entry_type == 'entrada' ? 'text-green-600 font-medium' : '' %>">
+                            <%= entry_pair[0]&.time&.strftime("%H:%M") %>
+                          </span>
+                          <span class="<%= entry_pair[1]&.entry_type == 'saida' ? 'text-red-600 font-medium' : '' %>">
+                            <%= entry_pair[1]&.time&.strftime("%H:%M") %>
+                          </span>
+                        </div>
+                      <% end %>
+                      <div class="flex justify-between items-center mt-2">
+                        <span class="font-medium text-gray-800">
+                          <%= time_sheet.total_hours.to_f rescue 0 %>h
+                        </span>
+                        <% if time_sheet.approval_status == 'aprovado' %>
+                          <i class="fas fa-check-circle text-green-500"></i>
+                        <% elsif time_sheet.approval_status == 'rejeitado' %>
+                          <i class="fas fa-times-circle text-red-500"></i>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% else %>
+                    <div class="text-xs text-gray-500 mt-2">Sem registros</div>
+                  <% end %>
+                <% end %>
+              <% else %>
+                <div class="mt-2">
+                  <% if day == Date.today %>
+                    <%= link_to new_time_entry_path(date: day, return_to: "calendar"), class: "text-xs text-indigo-600 hover:text-indigo-800 flex items-center" do %>
+                      <i class="fas fa-plus-circle mr-1"></i> Registrar
+                    <% end %>
+                  <% end %>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="bg-white p-5 rounded-lg shadow-md">
+      <h3 class="font-semibold text-lg mb-3 text-gray-800">Legenda</h3>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="flex items-center space-x-2">
+          <div class="rounded-full w-4 h-4 bg-yellow-400"></div>
+          <span class="text-sm">Pendente</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <div class="rounded-full w-4 h-4 bg-blue-400"></div>
+          <span class="text-sm">Enviado</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <div class="rounded-full w-4 h-4 bg-green-400"></div>
+          <span class="text-sm">Aprovado</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <div class="rounded-full w-4 h-4 bg-red-400"></div>
+          <span class="text-sm">Rejeitado</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-lg shadow-md">
+      <h3 class="font-semibold text-lg mb-3 text-gray-800">Resumo do Mês</h3>
+      <div class="space-y-2">
+        <div class="flex justify-between">
+          <span class="text-gray-600">Total de Dias Trabalhados:</span>
+          <span class="font-medium"><%= @time_sheets.count %> dias</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Total de Horas:</span>
+          <span class="font-medium">
+            <% total = 0 %>
+            <% @time_sheets.each do |ts| %>
+              <% total += ts.total_hours.to_f rescue 0 %>
+            <% end %>
+            <%= total.round(1) %> horas
+          </span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Registros Pendentes:</span>
+          <span class="font-medium"><%= @time_sheets.select { |ts| ts&.approval_status == 'pendente' }.count %></span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Registros Aprovados:</span>
+          <span class="font-medium"><%= @time_sheets.select { |ts| ts&.approval_status == 'aprovado' }.count %></span>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

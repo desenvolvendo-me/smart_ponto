@@ -16,7 +16,7 @@
     <%= link_to export_time_sheets_path(format: :csv), class: "bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded flex items-center" do %>
       <i class="fas fa-download mr-2"></i> Exportar
     <% end %>
-    <%= button_to quick_register_time_entries_path, method: :post, class: "bg-black text-white px-4 py-2 rounded flex items-center" do %>
+    <%= button_to quick_register_time_entries_path(return_to: "list"), method: :post, class: "bg-black text-white px-4 py-2 rounded flex items-center" do %>
       <i class="fas fa-plus mr-2"></i> Registrar Ponto
     <% end %>
   </div>
@@ -67,14 +67,19 @@
       </div>
 
       <div class="flex justify-between items-center">
-        <p class="text-gray-700">Total: <%= time_sheet.total_hours ? "#{time_sheet.total_hours.to_i}h #{((time_sheet.total_hours - time_sheet.total_hours.to_i) * 60).to_i}min" : "0h 00min" %></p>
+        <div class="font-medium text-gray-800 mt-1">
+          <% hours = time_sheet.total_hours.to_f rescue 0 %>
+          <span class="<%= hours > 8 ? 'text-green-600' : 'text-gray-900' %>">
+            Total: <%= time_sheet.total_hours %>h
+          </span>
+        </div>
         <div class="flex items-center space-x-2">
           <% if time_sheet.signature? %>
             <span class="text-green-600">✔ Assinado digitalmente</span>
           <% end %>
 
           <% if time_sheet.status == 'completo' && time_sheet.approval_status != 'aprovado' %>
-            <%= button_to submit_for_approval_time_sheet_path(time_sheet), method: :post, class: "bg-black text-white px-4 py-2 rounded" do %>
+            <%= button_to submit_for_approval_time_sheet_path(time_sheet, return_to: "list"), method: :post, class: "bg-black text-white px-4 py-2 rounded" do %>
               Enviar para aprovação
             <% end %>
           <% end %>

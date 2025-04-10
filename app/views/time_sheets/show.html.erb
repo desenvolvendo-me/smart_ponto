@@ -1,4 +1,28 @@
-<div>
-  <h1 class="font-bold text-4xl">TimeSheets#show</h1>
-  <p>Find me in app/views/time_sheets/show.html.erb</p>
+<div class="bg-white p-6 rounded-lg shadow mb-6">
+  <h2 class="text-xl font-bold mb-4">Resumo do Dia <%= @time_sheet.date.strftime("%d/%m/%Y") %></h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-gray-50 p-4 rounded-lg">
+      <h3 class="text-gray-500 mb-2">Horas Trabalhadas</h3>
+      <p class="text-2xl font-bold <%= @time_sheet.total_hours && @time_sheet.total_hours.to_f >= 8 ? 'text-green-600' : 'text-gray-900' %>">
+        <%= format_hours(@time_sheet.total_hours) %>
+      </p>
+    </div>
+
+    <div class="bg-gray-50 p-4 rounded-lg">
+      <h3 class="text-gray-500 mb-2">Status da Jornada</h3>
+      <% if @time_sheet.approval_status == 'aprovado' %>
+        <p class="text-2xl font-bold text-green-600">Aprovado</p>
+      <% elsif @time_sheet.status == 'completo' %>
+        <p class="text-2xl font-bold text-blue-600">Completo</p>
+      <% else %>
+        <p class="text-2xl font-bold text-yellow-600">Incompleto</p>
+      <% end %>
+    </div>
+
+    <div class="bg-gray-50 p-4 rounded-lg">
+      <h3 class="text-gray-500 mb-2">Registros</h3>
+      <p class="text-2xl font-bold text-gray-900"><%= @time_sheet.time_entries.count %> de 4</p>
+    </div>
+  </div>
 </div>
