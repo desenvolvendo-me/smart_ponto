@@ -32,17 +32,22 @@ class TimeSheetsController < ApplicationController
     @calendar_days = (first_day..last_day).to_a
   end
 
+  def export_form
+    # Esta ação apenas renderiza o formulário de exportação
+    render 'export'
+  end
+
   def export
-    @time_sheets = current_user.time_sheets
-                               .where(date: params[:start_date]..params[:end_date])
-                               .includes(:time_entries)
-                               .order(:date)
+    # Definir datas padrão se não forem fornecidas
+    start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : Date.today.beginning_of_month
+    end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : Date.today
+
+    # Filtre os registros pelo período
+    @time_sheets = TimeSheet.where(date: start_date..end_date)
 
     respond_to do |format|
-      format.html
       format.csv do
-        send_data generate_csv(@time_sheets),
-                  filename: "ponto-#{current_user.name.parameterize}-#{Date.today}.csv"
+        send_data @time_sheets.to_csv, filename: "registros-#{start_date.strftime('%d-%m-%Y')}-ate-#{end_date.strftime('%d-%m-%Y')}.csv"
       end
     end
   end

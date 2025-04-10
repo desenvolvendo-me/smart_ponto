@@ -43,6 +43,34 @@ class TimeSheet < ApplicationRecord
     (total_seconds / 3600.0).round(1).to_s
   end
 
+  def self.to_csv
+    require 'csv'
+
+    # Obter os nomes reais das colunas do modelo
+    # Exclui algumas colunas internas que não queremos exportar
+    columns = column_names.reject { |c| %w[created_at updated_at].include?(c) }
+
+    CSV.generate(headers: true) do |csv|
+      # Usar os nomes das colunas como cabeçalho
+      csv << columns
+
+      # Para cada registro, incluir os valores de cada coluna
+      all.each do |time_sheet|
+        csv << columns.map do |column|
+          value = time_sheet.send(column)
+          # Formatar datas e horas se necessário
+          if value.is_a?(Date)
+            value.strftime('%d/%m/%Y')
+          elsif value.is_a?(Time)
+            value.strftime('%H:%M')
+          else
+            value
+          end
+        end
+      end
+    end
+  end
+
   private
 
   def set_default_statuses
