@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   resources :time_sheets, path: 'meu-ponto' do
     collection do
       get :export
+      get :export_form
       get :calendar
     end
     member do

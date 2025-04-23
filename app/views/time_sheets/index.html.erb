@@ -13,8 +13,8 @@
     <%= link_to "Calendário", calendar_time_sheets_path, class: "bg-gray-200 text-gray-700 px-4 py-2 rounded" %>
   </div>
   <div class="flex space-x-4">
-    <%= link_to export_time_sheets_path(format: :csv), class: "bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded flex items-center" do %>
-      <i class="fas fa-download mr-2"></i> Exportar
+    <%= link_to export_form_time_sheets_path, class: "bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded flex items-center" do %>
+      <i class="fas fa-file-export mr-2"></i> Exportar Registros
     <% end %>
     <%= button_to quick_register_time_entries_path(return_to: "list"), method: :post, class: "bg-black text-white px-4 py-2 rounded flex items-center" do %>
       <i class="fas fa-plus mr-2"></i> Registrar Ponto
