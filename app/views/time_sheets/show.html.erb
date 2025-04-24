@@ -9,6 +9,20 @@
       </p>
     </div>
 
+    <div class="mt-4">
+      <% if @time_sheet.within_tolerance? %>
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded">
+          <p class="font-medium">Dentro da tolerância</p>
+          <p class="text-sm">Este registro está dentro da tolerância de 15 minutos e não requer justificativa.</p>
+        </div>
+      <% else %>
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded">
+          <p class="font-medium">Fora da tolerância</p>
+          <p class="text-sm">Este registro está fora da tolerância de 15 minutos (diferença de <%= ((@time_sheet.total_hours.to_f - 8.0).abs * 60).round %> minutos). É necessário adicionar uma justificativa.</p>
+        </div>
+      <% end %>
+    </div>
+
     <div class="bg-gray-50 p-4 rounded-lg">
       <h3 class="text-gray-500 mb-2">Status da Jornada</h3>
       <% if @time_sheet.approval_status == 'aprovado' %>
@@ -52,7 +66,7 @@
             </div>
           <% end %>
         </div>
-      <% elsif @time_sheet.status == 'completo' && @time_sheet.approval_status != 'aprovado' %>
+      <% elsif @time_sheet.status == 'completo' && @time_sheet.approval_status != 'aprovado' && !@time_sheet.within_tolerance? %>
         <%= form_with model: @time_sheet, url: add_justification_time_sheet_path(@time_sheet), method: :patch do |f| %>
           <div class="mb-4">
             <%= f.label :justification, "Adicionar justificativa", class: "block text-gray-700 font-medium mb-2" %>
@@ -60,13 +74,14 @@
           </div>
 
           <div class="flex justify-between">
-            <!-- Botão de cancelar que redireciona para a página anterior -->
             <%= link_to "Cancelar", time_sheets_path, class: "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded" %>
-
-            <!-- Botão de enviar justificativa -->
             <%= f.submit "Enviar justificativa", class: "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded" %>
           </div>
         <% end %>
+      <% elsif @time_sheet.within_tolerance? %>
+        <div class="bg-green-100 p-4 rounded-lg">
+          <p class="text-green-700">Este registro está dentro da tolerância de 15 minutos e não requer justificativa.</p>
+        </div>
       <% else %>
         <p class="text-gray-500">Nenhuma justificativa adicionada.</p>
       <% end %>

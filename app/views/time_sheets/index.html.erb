@@ -69,21 +69,31 @@
       <div class="flex justify-between items-center">
         <div class="font-medium text-gray-800 mt-1">
           <% hours = time_sheet.total_hours.to_f rescue 0 %>
-          <span class="<%= hours > 8 ? 'text-green-600' : 'text-gray-900' %>">
-            Total: <%= time_sheet.total_hours %>h
-          </span>
-        </div>
+          <% difference_minutes = ((hours - 8.0).abs * 60).round %>
 
-        <% if time_sheet.justification.present? %>
-          <% case time_sheet.justification_status %>
-        <% when 'aprovada' %>
-            <span class="ml-2 bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Justificado</span>
-          <% when 'rejeitada' %>
-            <span class="ml-2 bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Justificativa rejeitada</span>
-          <% when 'pendente' %>
-            <span class="ml-2 bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">Justificativa pendente</span>
+          <% if time_sheet.within_tolerance? %>
+            <span class="text-green-600">
+              Total: <%= time_sheet.total_hours %>h
+              <span class="text-xs bg-green-100 text-green-700 px-1 py-0.5 rounded">Tolerância OK</span>
+            </span>
+          <% else %>
+            <span class="text-orange-600">
+              Total: <%= time_sheet.total_hours %>h
+              <span class="text-xs bg-yellow-100 text-yellow-700 px-1 py-0.5 rounded">Diferença: <%= difference_minutes %>min</span>
+            </span>
           <% end %>
-        <% end %>
+
+          <% if time_sheet.justification.present? %>
+            <% case time_sheet.justification_status %>
+          <% when 'aprovada' %>
+              <span class="ml-2 bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Justificado</span>
+            <% when 'rejeitada' %>
+              <span class="ml-2 bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Justificativa rejeitada</span>
+            <% when 'pendente' %>
+              <span class="ml-2 bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">Justificativa pendente</span>
+            <% end %>
+          <% end %>
+        </div>
 
         <div class="flex items-center space-x-2">
           <% if time_sheet.signature? %>

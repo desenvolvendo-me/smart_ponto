@@ -53,11 +53,22 @@ class TimeSheetsController < ApplicationController
   end
 
   def submit_for_approval
-    @time_sheet.update(approval_status: 'enviado',
-                       justification_status: @time_sheet.justification.present? ? 'pendente' : 'sem_justificativa')
-
-    return_path = determine_return_path
-    redirect_to return_path, notice: 'Registro enviado para aprovação.'
+    # Verifica se está dentro da tolerância
+    if @time_sheet.within_tolerance?
+      # Se estiver dentro da tolerância, envia direto para aprovação sem exigir justificativa
+      @time_sheet.update(approval_status: 'enviado')
+      return_path = determine_return_path
+      redirect_to return_path, notice: 'Registro enviado para aprovação. Dentro da tolerância de 15 minutos.'
+    elsif @time_sheet.justification.present?
+      # Se tiver justificativa, atualiza os status
+      @time_sheet.update(approval_status: 'enviado', justification_status: 'pendente')
+      return_path = determine_return_path
+      redirect_to return_path, notice: 'Registro com justificativa enviado para aprovação.'
+    else
+      # Se estiver fora da tolerância e sem justificativa, exige justificativa
+      return_path = determine_return_path
+      redirect_to time_sheet_path(@time_sheet), alert: 'É necessário adicionar uma justificativa para diferenças maiores que 15 minutos.'
+    end
   end
 
   def sign
