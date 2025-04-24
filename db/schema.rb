@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_20_005931) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_23_235310) do
   create_table "time_entries", force: :cascade do |t|
     t.integer "user_id", null: false
     t.date "date"
@@ -40,9 +40,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_20_005931) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "signature"
+    t.text "justification"
+    t.string "justification_status"
     t.index ["approval_status"], name: "index_time_sheets_on_approval_status"
     t.index ["approved_by"], name: "index_time_sheets_on_approved_by"
     t.index ["date"], name: "index_time_sheets_on_date"
+    t.index ["justification_status"], name: "index_time_sheets_on_justification_status"
     t.index ["status"], name: "index_time_sheets_on_status"
     t.index ["user_id", "date"], name: "index_time_sheets_on_user_id_and_date", unique: true
     t.index ["user_id"], name: "index_time_sheets_on_user_id"

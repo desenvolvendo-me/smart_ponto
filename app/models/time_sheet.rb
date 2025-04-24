@@ -4,15 +4,19 @@ class TimeSheet < ApplicationRecord
 
   has_many :time_entries, dependent: :destroy
 
+  TOLERANCE_MINUTES = 15
   STATUSES = ['incompleto', 'completo'].freeze
   APPROVAL_STATUSES = ['pendente', 'enviado', 'aprovado', 'rejeitado'].freeze
+  JUSTIFICATION_STATUSES = ['sem_justificativa', 'pendente', 'aprovada', 'rejeitada'].freeze
 
+  validates :justification_status, inclusion: { in: JUSTIFICATION_STATUSES }, allow_nil: true
   validates :date, presence: true
   validates :status, presence: true, inclusion: { in: STATUSES }
   validates :approval_status, presence: true, inclusion: { in: APPROVAL_STATUSES }
 
   scope :by_date_range, ->(start_date, end_date) { where(date: start_date..end_date) }
   scope :chronological, -> { order(date: :desc) }
+  scope :submitted, -> { where(approval_status: 'enviado') }
 
   before_validation :set_default_statuses, on: :create
   after_save :calculate_total_hours
@@ -71,11 +75,28 @@ class TimeSheet < ApplicationRecord
     end
   end
 
+  def within_tolerance?
+    return true unless total_hours.present?
+
+    # Converte para decimal se for string
+    hours = total_hours.to_f
+
+    # Calcula a diferença em relação às 8 horas padrão de trabalho
+    difference_hours = (hours - 8.0).abs
+
+    # Converte diferença para minutos
+    difference_minutes = difference_hours * 60
+
+    # Verifica se está dentro da tolerância
+    difference_minutes <= TOLERANCE_MINUTES
+  end
+
   private
 
   def set_default_statuses
     self.status ||= 'incompleto'
     self.approval_status ||= 'pendente'
+    self.justification_status ||= 'sem_justificativa'
   end
 
   def calculate_total_hours
@@ -96,5 +117,13 @@ class TimeSheet < ApplicationRecord
 
     update_column(:total_hours, total)
     update_column(:status, 'completo') if entries.count >= 4
+  end
+
+  def requires_justification?
+    return false if within_tolerance?
+    return false if justification.present?
+
+    # Fora da tolerância e sem justificativa
+    true
   end
 end
