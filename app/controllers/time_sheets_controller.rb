@@ -55,7 +55,7 @@ class TimeSheetsController < ApplicationController
   def submit_for_approval
     # Verifica se está dentro da tolerância
     if @time_sheet.within_tolerance?
-      # Se estiver dentro da tolerância, envia direto para aprovação sem exigir justificativa
+      # Se estiver dentro da tolerância, atualiza o status para 'enviado'
       @time_sheet.update(approval_status: 'enviado')
       return_path = determine_return_path
       redirect_to return_path, notice: 'Registro enviado para aprovação. Dentro da tolerância de 15 minutos.'

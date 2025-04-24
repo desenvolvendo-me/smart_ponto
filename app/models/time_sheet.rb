@@ -16,6 +16,7 @@ class TimeSheet < ApplicationRecord
 
   scope :by_date_range, ->(start_date, end_date) { where(date: start_date..end_date) }
   scope :chronological, -> { order(date: :desc) }
+  scope :submitted, -> { where(approval_status: 'enviado') }
 
   before_validation :set_default_statuses, on: :create
   after_save :calculate_total_hours

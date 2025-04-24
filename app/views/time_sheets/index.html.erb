@@ -32,6 +32,8 @@
         </div>
         <% if time_sheet.approval_status == 'aprovado' %>
           <span class="bg-green-100 text-green-700 px-2 py-1 rounded">Aprovado</span>
+        <% elsif time_sheet.approval_status == 'enviado' %>
+          <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded">Enviado para aprovação</span>
         <% elsif time_sheet.status == 'completo' %>
           <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded">Completo</span>
         <% else %>
