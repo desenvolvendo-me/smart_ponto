@@ -6,7 +6,9 @@ class TimeSheet < ApplicationRecord
 
   STATUSES = ['incompleto', 'completo'].freeze
   APPROVAL_STATUSES = ['pendente', 'enviado', 'aprovado', 'rejeitado'].freeze
+  JUSTIFICATION_STATUSES = ['sem_justificativa', 'pendente', 'aprovada', 'rejeitada'].freeze
 
+  validates :justification_status, inclusion: { in: JUSTIFICATION_STATUSES }, allow_nil: true
   validates :date, presence: true
   validates :status, presence: true, inclusion: { in: STATUSES }
   validates :approval_status, presence: true, inclusion: { in: APPROVAL_STATUSES }
@@ -76,6 +78,7 @@ class TimeSheet < ApplicationRecord
   def set_default_statuses
     self.status ||= 'incompleto'
     self.approval_status ||= 'pendente'
+    self.justification_status ||= 'sem_justificativa'
   end
 
   def calculate_total_hours

@@ -1,6 +1,6 @@
 class TimeSheetsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_time_sheet, only: [:show, :approve, :submit_for_approval, :sign]
+  before_action :set_time_sheet, only: [:show, :approve, :submit_for_approval, :sign, :add_justification]
 
   def index
     @time_sheets = current_user.time_sheets
@@ -53,7 +53,8 @@ class TimeSheetsController < ApplicationController
   end
 
   def submit_for_approval
-    @time_sheet.update(approval_status: 'enviado')
+    @time_sheet.update(approval_status: 'enviado',
+                       justification_status: @time_sheet.justification.present? ? 'pendente' : 'sem_justificativa')
 
     return_path = determine_return_path
     redirect_to return_path, notice: 'Registro enviado para aprovação.'
@@ -66,11 +67,67 @@ class TimeSheetsController < ApplicationController
     redirect_to return_path, notice: 'Registro assinado digitalmente.'
   end
 
+  def add_justification
+    @time_sheet = current_user.time_sheets.find(params[:id])
+
+    if @time_sheet.update(justification: params[:time_sheet][:justification],
+                          justification_status: 'pendente')
+      # Determina para onde redirecionar com base no parâmetro opcional
+      redirect_to params[:return_to] == 'show' ? time_sheet_path(@time_sheet) : time_sheets_path,
+                  notice: 'Justificativa adicionada com sucesso.'
+    else
+      # Se houver erro, volta para a página de detalhes
+      render :show, status: :unprocessable_entity,
+             alert: 'Erro ao adicionar justificativa: ' + @time_sheet.errors.full_messages.join(', ')
+    end
+  end
+
+  def review_justification
+    status = params[:status] # 'aprovada' ou 'rejeitada'
+    @time_sheet.update(justification_status: status)
+
+    return_path = determine_return_path
+    redirect_to return_path, notice: "Justificativa #{status}."
+  end
+
+  def approve_with_justification
+    time_sheet_ids = params[:time_sheet_ids]
+
+    TimeSheet.where(id: time_sheet_ids).update_all(
+      approval_status: 'aprovado',
+      justification_status: 'aprovada',
+      approved_by: current_user.id,
+      approved_at: Time.current
+    )
+
+    redirect_to time_sheets_path, notice: 'Registros aprovados com sucesso.'
+  end
+
+  def pending_justifications
+    # Apenas disponível para gestores/administradores
+    if current_user.role != 'admin' && current_user.role != 'gestor'
+      redirect_to time_sheets_path, alert: 'Acesso não autorizado.'
+      return
+    end
+
+    @pending_sheets = TimeSheet.joins(:user)
+                               .where(justification_status: 'pendente')
+                               .includes(:time_entries)
+                               .order(date: :desc)
+                               .page(params[:page])
+                               .per(10)
+  end
+
   private
+
+  def time_sheet_params
+    params.require(:time_sheet).permit(:date, :status, :approval_status, :justification, :justification_status)
+  end
 
   def set_time_sheet
     @time_sheet = current_user.time_sheets.find(params[:id])
   end
+
 
   def determine_return_path
     return_to = params[:return_to]

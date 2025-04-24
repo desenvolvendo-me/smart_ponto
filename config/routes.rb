@@ -5,6 +5,8 @@ Rails.application.routes.draw do
 
   resources :time_sheets, path: 'meu-ponto' do
     collection do
+      get :pending_justifications
+      post :approve_with_justification
       get :export
       get :export_form
       get :calendar
@@ -13,6 +15,8 @@ Rails.application.routes.draw do
       post :approve
       post :submit_for_approval
       post :sign
+      patch :add_justification
+      patch :review_justification
     end
   end
 

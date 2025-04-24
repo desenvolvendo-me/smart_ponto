@@ -20,6 +20,58 @@
       <% end %>
     </div>
 
+    <div class="mt-6 bg-white p-4 rounded-lg shadow">
+      <h2 class="text-xl font-bold mb-4">Justificativa</h2>
+
+      <% if @time_sheet.justification.present? %>
+        <div class="bg-gray-100 p-4 rounded-lg mb-4">
+          <p class="text-gray-800"><%= @time_sheet.justification %></p>
+
+          <div class="mt-2">
+            <% case @time_sheet.justification_status %>
+            <% when 'aprovada' %>
+              <span class="bg-green-100 text-green-700 px-2 py-1 rounded">Justificativa aprovada</span>
+            <% when 'rejeitada' %>
+              <span class="bg-red-100 text-red-700 px-2 py-1 rounded">Justificativa rejeitada</span>
+            <% when 'pendente' %>
+              <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Justificativa pendente de análise</span>
+            <% else %>
+              <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded">Sem status</span>
+            <% end %>
+          </div>
+
+          <% if current_user.role == 'admin' || current_user.role == 'gestor' %>
+            <div class="mt-4">
+              <%= button_to review_justification_time_sheet_path(@time_sheet, status: 'aprovada'), method: :patch, class: "bg-green-500 text-white px-4 py-2 rounded mr-2 inline-block" do %>
+                Aprovar justificativa
+              <% end %>
+
+              <%= button_to review_justification_time_sheet_path(@time_sheet, status: 'rejeitada'), method: :patch, class: "bg-red-500 text-white px-4 py-2 rounded inline-block" do %>
+                Rejeitar justificativa
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% elsif @time_sheet.status == 'completo' && @time_sheet.approval_status != 'aprovado' %>
+        <%= form_with model: @time_sheet, url: add_justification_time_sheet_path(@time_sheet), method: :patch do |f| %>
+          <div class="mb-4">
+            <%= f.label :justification, "Adicionar justificativa", class: "block text-gray-700 font-medium mb-2" %>
+            <%= f.text_area :justification, rows: 4, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          </div>
+
+          <div class="flex justify-between">
+            <!-- Botão de cancelar que redireciona para a página anterior -->
+            <%= link_to "Cancelar", time_sheets_path, class: "bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded" %>
+
+            <!-- Botão de enviar justificativa -->
+            <%= f.submit "Enviar justificativa", class: "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded" %>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-gray-500">Nenhuma justificativa adicionada.</p>
+      <% end %>
+    </div>
+
     <div class="bg-gray-50 p-4 rounded-lg">
       <h3 class="text-gray-500 mb-2">Registros</h3>
       <p class="text-2xl font-bold text-gray-900"><%= @time_sheet.time_entries.count %> de 4</p>

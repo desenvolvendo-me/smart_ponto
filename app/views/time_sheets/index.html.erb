@@ -73,13 +73,37 @@
             Total: <%= time_sheet.total_hours %>h
           </span>
         </div>
+
+        <% if time_sheet.justification.present? %>
+          <% case time_sheet.justification_status %>
+        <% when 'aprovada' %>
+            <span class="ml-2 bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Justificado</span>
+          <% when 'rejeitada' %>
+            <span class="ml-2 bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Justificativa rejeitada</span>
+          <% when 'pendente' %>
+            <span class="ml-2 bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">Justificativa pendente</span>
+          <% end %>
+        <% end %>
+
         <div class="flex items-center space-x-2">
           <% if time_sheet.signature? %>
             <span class="text-green-600">✔ Assinado digitalmente</span>
           <% end %>
 
           <% if time_sheet.status == 'completo' && time_sheet.approval_status != 'aprovado' %>
-            <%= button_to submit_for_approval_time_sheet_path(time_sheet, return_to: "list"), method: :post, class: "bg-black text-white px-4 py-2 rounded" do %>
+            <% if time_sheet.justification.present? %>
+              <!-- Link para ver os detalhes da justificativa -->
+              <%= link_to time_sheet_path(time_sheet), class: "text-blue-600 underline" do %>
+                Ver justificativa
+              <% end %>
+            <% else %>
+              <!-- Link para adicionar justificativa -->
+              <%= link_to time_sheet_path(time_sheet), class: "bg-yellow-500 text-white px-3 py-1 rounded text-sm" do %>
+                <i class="fas fa-plus-circle mr-1"></i> Adicionar justificativa
+              <% end %>
+            <% end %>
+
+            <%= button_to submit_for_approval_time_sheet_path(time_sheet, return_to: "list"), method: :post, class: "bg-black text-white px-4 py-2 rounded ml-2" do %>
               Enviar para aprovação
             <% end %>
           <% end %>

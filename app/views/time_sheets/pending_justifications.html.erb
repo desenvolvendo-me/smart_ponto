@@ -1,0 +1,63 @@
+<div class="flex items-center mb-4">
+  <%= link_to :back, class: "text-2xl" do %>
+    <i class="fas fa-arrow-left"></i>
+  <% end %>
+  <h1 class="text-2xl font-bold ml-4">Justificativas Pendentes</h1>
+</div>
+
+<% if @pending_sheets.any? %>
+  <%= form_tag approve_with_justification_time_sheets_path, method: :post do %>
+    <div class="mb-4">
+      <%= submit_tag "Aprovar Selecionados", class: "bg-green-500 text-white px-4 py-2 rounded" %>
+    </div>
+
+    <div class="space-y-4">
+      <% @pending_sheets.each do |time_sheet| %>
+        <div class="bg-white p-4 rounded-lg shadow">
+          <div class="flex items-center mb-2">
+            <%= check_box_tag "time_sheet_ids[]", time_sheet.id, false, class: "mr-2" %>
+            <h3 class="text-lg font-semibold">
+              <%= time_sheet.user.name %> - <%= time_sheet.date.strftime("%d/%m/%Y") %>
+            </h3>
+          </div>
+
+          <div class="bg-gray-100 p-4 rounded-lg mb-4">
+            <p class="font-medium mb-2">Justificativa:</p>
+            <p class="text-gray-800"><%= time_sheet.justification %></p>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <% entries = time_sheet.time_entries.order(:time) %>
+            <% entries.each_with_index do |entry, index| %>
+              <div class="bg-gray-100 p-2 rounded-lg text-center">
+                <p class="text-sm font-semibold"><%= entry.entry_type.capitalize %></p>
+                <p class="text-lg font-bold"><%= entry.time.strftime("%H:%M") %></p>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="flex justify-between">
+            <span class="text-gray-700">Total: <%= time_sheet.total_hours %>h</span>
+            <div>
+              <%= link_to "Ver Detalhes", time_sheet_path(time_sheet), class: "text-blue-600 underline mr-4" %>
+              <%= button_to review_justification_time_sheet_path(time_sheet, status: 'aprovada'), method: :patch, class: "bg-green-500 text-white px-4 py-1 rounded text-sm inline-block mr-2" do %>
+                Aprovar
+              <% end %>
+              <%= button_to review_justification_time_sheet_path(time_sheet, status: 'rejeitada'), method: :patch, class: "bg-red-500 text-white px-4 py-1 rounded text-sm inline-block" do %>
+                Rejeitar
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="my-4">
+    <%= paginate @pending_sheets %>
+  </div>
+<% else %>
+  <div class="bg-white p-6 rounded-lg shadow text-center">
+    <p class="text-gray-600">Nenhuma justificativa pendente de aprovação.</p>
+  </div>
+<% end %>

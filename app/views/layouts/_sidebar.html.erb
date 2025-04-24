@@ -1,0 +1,12 @@
+<% if current_user.role == 'admin' || current_user.role == 'gestor' %>
+  <div class="mb-4">
+    <%= link_to pending_justifications_time_sheets_path, class: "flex items-center px-4 py-2 text-gray-700 bg-gray-200 rounded-lg" do %>
+      <i class="fas fa-clipboard-check mr-2"></i>
+      <span>Justificativas Pendentes</span>
+      <% pending_count = TimeSheet.where(justification_status: 'pendente').count %>
+      <% if pending_count > 0 %>
+        <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full"><%= pending_count %></span>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
