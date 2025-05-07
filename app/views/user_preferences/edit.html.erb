@@ -1,0 +1,81 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-6">Configurações de Usuário</h1>
+
+  <div class="bg-white shadow-md rounded-lg p-6">
+    <%= form_with model: @user_preference, url: user_preference_path, method: :patch, html: { id: "user-preferences-form" } do |f| %>
+      <% if @user_preference.errors.any? %>
+        <div class="bg-red-50 p-4 mb-6 rounded-md">
+          <h2 class="text-red-800 text-sm font-medium">Foram encontrados <%= @user_preference.errors.count %> erros:</h2>
+          <ul class="list-disc pl-5 mt-2">
+            <% @user_preference.errors.full_messages.each do |message| %>
+              <li class="text-red-700 text-sm"><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="mb-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Informações Pessoais</h2>
+
+        <div class="mb-4">
+          <%= f.label :phone_number, "Telefone", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.telephone_field :phone_number, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        </div>
+
+        <div class="mb-4">
+          <%= f.label :secondary_email, "Email Secundário", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.email_field :secondary_email, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        </div>
+
+        <div class="mb-4">
+          <%= f.label :language, "Idioma", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :language, [["Português (Brasil)", "pt-BR"], ["English", "en"]], {}, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Preferências de Visualização</h2>
+
+        <div class="grid grid-cols-1 gap-y-4 gap-x-4 sm:grid-cols-2">
+          <div>
+            <%= f.label :theme, "Tema", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.select :theme, [["Claro", "light"], ["Escuro", "dark"], ["Sistema", "system"]], {}, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+
+          <div>
+            <%= f.label :date_format, "Formato de Data", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.select :date_format, [["DD/MM/AAAA", "DD/MM/AAAA"], ["MM/DD/AAAA", "MM/DD/AAAA"], ["AAAA-MM-DD", "AAAA-MM-DD"]], {}, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+
+          <div>
+            <%= f.label :time_format, "Formato de Hora", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.select :time_format, [["24h", "24h"], ["12h (AM/PM)", "12h"]], {}, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+
+          <div>
+            <%= f.label :first_day_of_week, "Primeiro Dia da Semana", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.select :first_day_of_week, [["Segunda-feira", "monday"], ["Domingo", "sunday"]], {}, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Configurações de Assinatura</h2>
+
+        <div class="flex items-start">
+          <div class="flex items-center h-5">
+            <%= f.check_box :require_password_on_sign, class: "focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" %>
+          </div>
+          <div class="ml-3 text-sm">
+            <%= f.label :require_password_on_sign, "Exigir senha ao assinar folha de ponto", class: "font-medium text-gray-700" %>
+            <p class="text-gray-500">Quando habilitado, será solicitada sua senha para confirmar a assinatura.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-gray-200 text-right">
+        <%= f.submit "Salvar Configurações", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500", id: "submit-button", onclick: "this.value='Salvando...'; this.disabled=true; this.form.submit();" %>
+      </div>
+    <% end %>
+  </div>
+</div>

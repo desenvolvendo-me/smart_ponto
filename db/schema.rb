@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_23_235310) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_07_202810) do
   create_table "time_entries", force: :cascade do |t|
     t.integer "user_id", null: false
     t.date "date"
@@ -51,6 +51,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_23_235310) do
     t.index ["user_id"], name: "index_time_sheets_on_user_id"
   end
 
+  create_table "user_preferences", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "phone_number"
+    t.string "secondary_email"
+    t.string "language", default: "pt-BR"
+    t.string "theme", default: "light"
+    t.string "date_format", default: "DD/MM/AAAA"
+    t.string "time_format", default: "24h"
+    t.string "first_day_of_week", default: "monday"
+    t.boolean "require_password_on_sign", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_user_preferences_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -73,4 +88,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_23_235310) do
   add_foreign_key "time_entries", "time_sheets"
   add_foreign_key "time_entries", "users"
   add_foreign_key "time_sheets", "users"
+  add_foreign_key "user_preferences", "users"
 end
