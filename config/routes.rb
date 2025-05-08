@@ -3,6 +3,8 @@ Rails.application.routes.draw do
 
   root "time_sheets#index"
 
+  resource :user_preference, only: [:edit, :update]
+
   resources :time_sheets, path: 'meu-ponto' do
     collection do
       get :pending_justifications

@@ -1,0 +1,71 @@
+<%= form_with model: user_preference, url: user_preference_path, data: { controller: "tabs-form" } do |f| %>
+  <div data-tabs-form-target="tabContent" id="info-content" class="p-6">
+    <h2 class="text-lg font-medium text-gray-900 mb-4">Informações Pessoais</h2>
+
+    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+      <div class="sm:col-span-2">
+        <%= f.label :phone_number, "Telefone", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.telephone_field :phone_number, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <div class="sm:col-span-2">
+        <%= f.label :secondary_email, "Email Secundário", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.email_field :secondary_email, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <div>
+        <%= f.label :language, "Idioma", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :language, UserPreference.languages.keys.map { |k| [k == 'pt-BR' ? 'Português (Brasil)' : 'English', k] }, {}, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+    </div>
+  </div>
+
+  <div data-tabs-form-target="tabContent" id="display-content" class="p-6 hidden">
+    <h2 class="text-lg font-medium text-gray-900 mb-4">Preferências de Visualização</h2>
+
+    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+      <div>
+        <%= f.label :theme, "Tema", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :theme, UserPreference.themes.keys.map { |k| [k.capitalize, k] }, {}, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <div>
+        <%= f.label :date_format, "Formato de Data", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :date_format, UserPreference.date_formats.keys, {}, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <div>
+        <%= f.label :time_format, "Formato de Hora", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :time_format, UserPreference.time_formats.keys.map { |k| [k == '24h' ? '24h' : '12h (AM/PM)', k] }, {}, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <div>
+        <%= f.label :first_day_of_week, "Primeiro Dia da Semana", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :first_day_of_week, UserPreference.first_day_of_weeks.keys.map { |k| [k == 'monday' ? 'Segunda-feira' : 'Domingo', k] }, {}, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+    </div>
+  </div>
+
+  <div data-tabs-form-target="tabContent" id="signature-content" class="p-6 hidden">
+    <h2 class="text-lg font-medium text-gray-900 mb-4">Configurações de Assinatura</h2>
+
+    <div class="mt-4">
+      <div class="flex items-start">
+        <div class="flex items-center h-5">
+          <%= f.check_box :require_password_on_sign, class: "focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" %>
+        </div>
+        <div class="ml-3 text-sm">
+          <%= f.label :require_password_on_sign, "Exigir senha ao assinar folha de ponto", class: "font-medium text-gray-700" %>
+          <p class="text-gray-500">Quando habilitado, será solicitada sua senha para confirmar a assinatura.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="px-6 py-3 bg-gray-50 text-right">
+    <%= f.submit "Salvar Configurações", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500", data: {
+      action: "click->tabs-form#submitWithLoading",
+      tabs_form_target: "submitButton"
+    } %>
+  </div>
+<% end %>
