@@ -4,6 +4,12 @@ Rails.application.routes.draw do
   root "time_sheets#index"
 
   resource :user_preference, only: [:edit, :update]
+  resources :approvals, only: [:index] do
+    member do
+      patch :approve
+      patch :reject
+    end
+  end
 
   resources :time_sheets, path: 'meu-ponto' do
     collection do

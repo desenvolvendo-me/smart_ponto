@@ -1,0 +1,41 @@
+<!-- app/views/approvals/_approval_item.html.erb -->
+<div class="p-6 border-b border-gray-200 last:border-b-0">
+  <div class="flex justify-between items-start">
+    <div>
+      <div class="flex items-center mb-1">
+        <h3 class="text-lg font-medium text-gray-900"><%= time_sheet.user.name %></h3>
+        <span class="ml-2 text-sm text-gray-500">
+          <%= time_sheet.user.department %> • <%= time_sheet.date.strftime('%d/%m/%Y') %>
+        </span>
+      </div>
+
+      <div class="flex items-center text-sm text-gray-600 mb-2">
+        <% request_type = determine_request_type(time_sheet) %>
+        <i class="fas <%= request_type == 'Horas Extras' ? 'fa-clock' : 'fa-calendar-alt' %> mr-2"></i>
+        <span><%= request_type %></span>
+      </div>
+
+      <p class="text-gray-600 mt-2">
+        <%= time_sheet.justification %>
+      </p>
+    </div>
+
+    <div>
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= status_badge_class(time_sheet.approval_status) %>">
+        <%= time_sheet.approval_status.capitalize %>
+      </span>
+    </div>
+  </div>
+
+  <% if time_sheet.approval_status == 'enviado' %>
+    <div class="mt-4 flex justify-end space-x-2">
+      <%= button_to reject_approval_path(time_sheet), method: :patch, class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" do %>
+        <i class="fas fa-times mr-2"></i> Rejeitar
+      <% end %>
+
+      <%= button_to approve_approval_path(time_sheet), method: :patch, class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800" do %>
+        <i class="fas fa-check mr-2"></i> Aprovar
+      <% end %>
+    </div>
+  <% end %>
+</div>
