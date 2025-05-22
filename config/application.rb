@@ -11,6 +11,14 @@ module SmartPonto
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.0
 
+    config.time_zone = 'America/Sao_Paulo'
+
+    # Força o ActiveRecord a usar o timezone da aplicação
+    config.active_record.default_timezone = :local
+
+    # Configuração adicional para garantir consistência
+    config.beginning_of_week = :monday
+
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.

@@ -1,7 +1,9 @@
 Rails.application.routes.draw do
   devise_for :users
 
-  root "time_sheets#index"
+  root 'dashboard#index', as: :authenticated_root
+
+  resources :dashboard, only: [:index]
 
   resource :user_preference, only: [:edit, :update]
   resources :approvals, only: [:index] do
