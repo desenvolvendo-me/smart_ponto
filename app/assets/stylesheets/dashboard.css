@@ -1,0 +1,67 @@
+/* app/assets/stylesheets/dashboard.css */
+
+/* Animações para barras de progresso */
+.progress-bar {
+    transition: width 0.6s ease-in-out;
+}
+
+/* Hover effects nos cards */
+.dashboard-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Status badges com animação */
+.status-badge {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 640px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .dashboard-card {
+        padding: 1rem;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+    }
+
+    .dashboard-value {
+        font-size: 2rem;
+    }
+}
+
+/* Cores personalizadas para os status */
+.status-complete {
+    background-color: #ecfdf5;
+    color: #065f46;
+}
+
+.status-on-track {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-behind {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Animação para o ícone de loading */
+.loading-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

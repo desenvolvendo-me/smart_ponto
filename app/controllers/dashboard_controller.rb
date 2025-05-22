@@ -5,6 +5,7 @@ class DashboardController < ApplicationController
     @today = Date.current
     @time_sheet = current_user.time_sheets.find_by(date: @today)
     @daily_summary = calculate_daily_summary
+    @weekly_summary = calculate_weekly_summary
   end
 
   private
@@ -40,8 +41,51 @@ class DashboardController < ApplicationController
     }
   end
 
-  def calculate_worked_hours(entries)
+  def calculate_weekly_summary
+    start_of_week = @today.beginning_of_week(:monday)
+    end_of_week = @today.end_of_week(:monday)
 
+    # Busca todos os time_sheets da semana atual
+    weekly_time_sheets = current_user.time_sheets
+                                     .where(date: start_of_week..end_of_week)
+                                     .includes(:time_entries)
+
+    total_worked_hours = 0
+    days_worked = 0
+
+    weekly_time_sheets.each do |time_sheet|
+      entries = time_sheet.time_entries.order(:time)
+      daily_hours = calculate_worked_hours(entries)
+
+      if daily_hours > 0
+        total_worked_hours += daily_hours
+        days_worked += 1
+      end
+    end
+
+    weekly_goal = 40.0
+    completion_percentage = (total_worked_hours / weekly_goal * 100).round(1)
+
+    status = if total_worked_hours >= weekly_goal
+               'complete'
+             elsif total_worked_hours >= (weekly_goal * 0.8)
+               'on_track'
+             else
+               'behind'
+             end
+
+    {
+      worked_hours: total_worked_hours.round(2),
+      weekly_goal: weekly_goal,
+      days_worked: days_worked,
+      completion_percentage: completion_percentage,
+      status: status,
+      start_date: start_of_week,
+      end_date: end_of_week
+    }
+  end
+
+  def calculate_worked_hours(entries)
     return 0 if entries.empty?
 
     total_minutes = 0
@@ -72,7 +116,6 @@ class DashboardController < ApplicationController
   end
 
   def calculate_time_diff_minutes(start_time, end_time)
-
     begin
       if start_time.respond_to?(:hour) && end_time.respond_to?(:hour)
         start_mins = start_time.hour * 60 + start_time.min
