@@ -3,34 +3,32 @@ class ApprovalsController < ApplicationController
   before_action :authorize_manager_or_admin
 
   def index
-    @pending_count = TimeSheet.where(approval_status: 'enviado').count
+    @positions = User.distinct.pluck(:position).compact.reject(&:blank?).sort
+
+    pending_query = TimeSheet.joins(:user).where(approval_status: 'enviado')
+    history_query = TimeSheet.joins(:user).where(approval_status: ['aprovado', 'rejeitado'])
 
     if params[:search].present?
       search_term = "%#{params[:search]}%"
-      @pending_sheets = TimeSheet.joins(:user)
-                                 .where(approval_status: 'enviado')
-                                 .where("users.name LIKE ? OR time_sheets.justification LIKE ?", search_term, search_term)
-                                 .includes(:user)
-                                 .chronological
-                                 .page(params[:page]).per(10)
-
-      @history_sheets = TimeSheet.joins(:user)
-                                 .where(approval_status: ['aprovado', 'rejeitado'])
-                                 .where("users.name LIKE ? OR time_sheets.justification LIKE ?", search_term, search_term)
-                                 .includes(:user)
-                                 .chronological
-                                 .page(params[:page]).per(10)
-    else
-      @pending_sheets = TimeSheet.where(approval_status: 'enviado')
-                                 .includes(:user)
-                                 .chronological
-                                 .page(params[:page]).per(10)
-
-      @history_sheets = TimeSheet.where(approval_status: ['aprovado', 'rejeitado'])
-                                 .includes(:user)
-                                 .chronological
-                                 .page(params[:page]).per(10)
+      pending_query = pending_query.where("users.name LIKE ? OR time_sheets.justification LIKE ?", search_term, search_term)
+      history_query = history_query.where("users.name LIKE ? OR time_sheets.justification LIKE ?", search_term, search_term)
     end
+
+    if params[:position].present?
+      pending_query = pending_query.where("users.position = ?", params[:position])
+      history_query = history_query.where("users.position = ?", params[:position])
+    end
+
+    # Calculate pending count after applying filters
+    @pending_count = pending_query.count
+
+    @pending_sheets = pending_query.includes(:user)
+                                  .chronological
+                                  .page(params[:page]).per(10)
+
+    @history_sheets = history_query.includes(:user)
+                                  .chronological
+                                  .page(params[:page]).per(10)
   end
 
   def approve

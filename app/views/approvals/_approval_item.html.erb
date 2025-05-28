@@ -1,39 +1,59 @@
 <!-- app/views/approvals/_approval_item.html.erb -->
-<div class="p-6 border-b border-gray-200 last:border-b-0">
+<div class="p-6 border-b border-gray-200 last:border-b-0 hover:bg-gray-50 transition-colors duration-150">
   <div class="flex justify-between items-start">
-    <div>
-      <div class="flex items-center mb-1">
-        <h3 class="text-lg font-medium text-gray-900"><%= time_sheet.user.name %></h3>
-        <span class="ml-2 text-sm text-gray-500">
-          <%= time_sheet.user.department %> • <%= time_sheet.date.strftime('%d/%m/%Y') %>
+    <div class="flex-grow">
+      <div class="flex items-center mb-2">
+        <h3 class="text-lg font-semibold text-gray-900"><%= time_sheet.user.name %></h3>
+        <span class="ml-3 px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md">
+          <%= time_sheet.user.position.present? ? time_sheet.user.position : "Sem função" %>
         </span>
       </div>
 
-      <div class="flex items-center text-sm text-gray-600 mb-2">
+      <div class="flex items-center text-sm text-gray-600 mb-3">
+        <span class="mr-3">
+          <i class="fas fa-building mr-1"></i>
+          <%= time_sheet.user.department.present? ? time_sheet.user.department : "Sem departamento" %>
+        </span>
+        <span>
+          <i class="fas fa-calendar mr-1"></i>
+          <%= time_sheet.date.strftime('%d/%m/%Y') %>
+        </span>
+      </div>
+
+      <div class="flex items-center text-sm font-medium mb-3 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-md inline-block">
         <% request_type = determine_request_type(time_sheet) %>
         <i class="fas <%= request_type == 'Horas Extras' ? 'fa-clock' : 'fa-calendar-alt' %> mr-2"></i>
         <span><%= request_type %></span>
       </div>
 
-      <p class="text-gray-600 mt-2">
-        <%= time_sheet.justification %>
-      </p>
+      <div class="bg-gray-50 p-3 rounded-md border border-gray-200 mt-3">
+        <p class="text-gray-700">
+          <span class="font-medium text-gray-900">Justificativa:</span> <%= time_sheet.justification %>
+        </p>
+      </div>
     </div>
 
-    <div>
-      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= status_badge_class(time_sheet.approval_status) %>">
+    <div class="ml-4">
+      <span class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium <%= status_badge_class(time_sheet.approval_status) %>">
+        <% if time_sheet.approval_status == 'enviado' %>
+          <i class="fas fa-clock mr-1.5"></i>
+        <% elsif time_sheet.approval_status == 'aprovado' %>
+          <i class="fas fa-check mr-1.5"></i>
+        <% elsif time_sheet.approval_status == 'rejeitado' %>
+          <i class="fas fa-times mr-1.5"></i>
+        <% end %>
         <%= time_sheet.approval_status.capitalize %>
       </span>
     </div>
   </div>
 
   <% if time_sheet.approval_status == 'enviado' %>
-    <div class="mt-4 flex justify-end space-x-2">
-      <%= button_to reject_approval_path(time_sheet), method: :patch, class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" do %>
+    <div class="mt-4 flex justify-end space-x-3">
+      <%= button_to reject_approval_path(time_sheet), method: :patch, class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors duration-150" do %>
         <i class="fas fa-times mr-2"></i> Rejeitar
       <% end %>
 
-      <%= button_to approve_approval_path(time_sheet), method: :patch, class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800" do %>
+      <%= button_to approve_approval_path(time_sheet), method: :patch, class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors duration-150" do %>
         <i class="fas fa-check mr-2"></i> Aprovar
       <% end %>
     </div>
