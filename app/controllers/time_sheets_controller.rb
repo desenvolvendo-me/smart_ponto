@@ -1,6 +1,7 @@
 class TimeSheetsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_time_sheet, only: [:show, :approve, :submit_for_approval, :sign, :add_justification]
+  before_action :set_time_sheet, only: [:show, :approve, :submit_for_approval, :sign, :add_justification, :review_justification]
+  before_action :check_not_approved, only: [:submit_for_approval, :sign, :add_justification, :review_justification]
 
   def index
     @time_sheets = current_user.time_sheets
@@ -79,8 +80,6 @@ class TimeSheetsController < ApplicationController
   end
 
   def add_justification
-    @time_sheet = current_user.time_sheets.find(params[:id])
-
     if @time_sheet.update(justification: params[:time_sheet][:justification],
                           justification_status: 'pendente')
       # Determina para onde redirecionar com base no parâmetro opcional
@@ -148,6 +147,14 @@ class TimeSheetsController < ApplicationController
     else
       time_sheets_path
     end
+  end
+
+  def check_not_approved
+    if @time_sheet.approval_status == 'aprovado'
+      redirect_to time_sheets_path, alert: 'Não é possível editar um registro aprovado.'
+      return false
+    end
+    true
   end
 
   def generate_csv(time_sheets)

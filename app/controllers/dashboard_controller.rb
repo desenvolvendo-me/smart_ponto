@@ -6,6 +6,10 @@ class DashboardController < ApplicationController
     @time_sheet = current_user.time_sheets.find_by(date: @today)
     @daily_summary = calculate_daily_summary
     @weekly_summary = calculate_weekly_summary
+    @recent_time_sheets = current_user.time_sheets
+                                     .includes(:time_entries)
+                                     .order(date: :desc)
+                                     .limit(5)
   end
 
   private
