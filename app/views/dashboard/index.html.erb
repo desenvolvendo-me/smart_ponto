@@ -143,4 +143,68 @@
       <% end %>
     </div>
   <% end %>
+
+  <!-- Registros Recentes -->
+  <div class="mt-8">
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Registros Recentes</h2>
+
+    <% if @recent_time_sheets.any? %>
+      <div class="space-y-4">
+        <% @recent_time_sheets.each do |time_sheet| %>
+          <div class="bg-white rounded-lg shadow-sm border p-4">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center space-x-2">
+                <i class="fas fa-calendar-alt text-gray-500"></i>
+                <span class="text-lg font-semibold"><%= time_sheet.date.strftime("%d/%m/%Y") %></span>
+              </div>
+
+              <% if time_sheet.approval_status == 'aprovado' %>
+                <span class="bg-green-100 text-green-700 px-2 py-1 rounded">Aprovado</span>
+              <% elsif time_sheet.approval_status == 'enviado' %>
+                <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded">Enviado para aprovação</span>
+              <% elsif time_sheet.status == 'completo' %>
+                <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded">Completo</span>
+              <% else %>
+                <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Incompleto</span>
+              <% end %>
+            </div>
+
+            <div class="mt-3 flex justify-between items-center">
+              <div class="font-medium text-gray-800">
+                <% hours = time_sheet.total_hours.to_f rescue 0 %>
+                Total: <%= time_sheet.total_hours %>h
+
+                <% if time_sheet.justification.present? %>
+                  <% case time_sheet.justification_status %>
+                  <% when 'aprovada' %>
+                    <span class="ml-2 bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Justificado</span>
+                  <% when 'rejeitada' %>
+                    <span class="ml-2 bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Justificativa rejeitada</span>
+                  <% when 'pendente' %>
+                    <span class="ml-2 bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">Justificativa pendente</span>
+                  <% end %>
+                <% end %>
+              </div>
+
+              <% unless time_sheet.approval_status == 'aprovado' %>
+                <%= link_to time_sheet_path(time_sheet), class: "bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-300 transition-colors" do %>
+                  <i class="fas fa-edit mr-1"></i> Editar
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="mt-4 text-center">
+        <%= link_to time_sheets_path, class: "text-blue-600 hover:text-blue-800 font-medium" do %>
+          Ver todos os registros <i class="fas fa-arrow-right ml-1"></i>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="bg-white rounded-lg shadow-sm border p-6 text-center">
+        <p class="text-gray-600">Nenhum registro encontrado.</p>
+      </div>
+    <% end %>
+  </div>
 </div>
