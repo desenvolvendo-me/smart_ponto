@@ -1,18 +1,32 @@
-<div class="max-w-7xl mx-auto">
-  <!-- Cabeçalho -->
-  <div class="mb-8">
-    <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <!-- Cabeçalho com Ações Rápidas -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 bg-gradient-to-r from-gray-50 to-white p-6 rounded-xl shadow-md border border-gray-100">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Meu Dashboard</h1>
+      <p class="text-gray-600"><%= Date.current.strftime("%A, %d de %B de %Y") %></p>
+    </div>
+    <div class="mt-4 sm:mt-0 flex space-x-3">
+      <%= link_to time_sheets_path, class: "flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200 shadow-sm" do %>
+        <i class="fas fa-list-ul mr-2"></i> Ver Registros
+      <% end %>
+      <%= button_to quick_register_time_entries_path(return_to: "dashboard"), method: :post, class: "flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 shadow-sm" do %>
+        <i class="fas fa-plus mr-2"></i> Registrar Ponto
+      <% end %>
+    </div>
   </div>
 
   <!-- Grid com Cards de Resumo -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
     <!-- Card Principal - Horas Trabalhadas Hoje -->
-    <div class="bg-white rounded-lg shadow-sm border p-6">
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <div class="text-center">
-        <h2 class="text-sm font-medium text-gray-600 mb-2">Horas Trabalhadas (Hoje)</h2>
+        <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-blue-500 rounded-full mb-4">
+          <i class="fas fa-clock text-xl"></i>
+        </div>
+        <h2 class="text-lg font-semibold text-gray-700 mb-3">Horas Trabalhadas Hoje</h2>
 
         <!-- Valor Principal -->
-        <div class="text-3xl font-bold text-gray-900 mb-2">
+        <div class="text-4xl font-bold text-gray-900 mb-3">
           <%= format_hours_minutes(@daily_summary[:worked_hours]) %>
         </div>
 
@@ -22,30 +36,34 @@
         </div>
 
         <!-- Status Badge -->
-        <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+        <div class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium
                     <%= @daily_summary[:status] == 'complete' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
-          <%= @daily_summary[:status] == 'complete' ? 'Completo' : 'Incompleto' %>
+          <% if @daily_summary[:status] == 'complete' %>
+            <i class="fas fa-check-circle mr-1.5"></i> Completo
+          <% else %>
+            <i class="fas fa-hourglass-half mr-1.5"></i> Incompleto
+          <% end %>
         </div>
 
         <!-- Informação adicional baseada no approval_status real -->
         <% case @daily_summary[:approval_status] %>
         <% when 'aprovado' %>
-          <div class="mt-2 text-xs text-green-600">
+          <div class="mt-3 text-sm text-green-600 bg-green-50 py-2 px-3 rounded-lg inline-block">
             <i class="fas fa-check-circle mr-1"></i>
             Ponto aprovado
           </div>
         <% when 'enviado' %>
-          <div class="mt-2 text-xs text-blue-600">
+          <div class="mt-3 text-sm text-blue-600 bg-blue-50 py-2 px-3 rounded-lg inline-block">
             <i class="fas fa-paper-plane mr-1"></i>
             Ponto enviado para aprovação
           </div>
         <% when 'rejeitado' %>
-          <div class="mt-2 text-xs text-red-600">
+          <div class="mt-3 text-sm text-red-600 bg-red-50 py-2 px-3 rounded-lg inline-block">
             <i class="fas fa-times-circle mr-1"></i>
             Ponto rejeitado
           </div>
         <% when 'pendente' %>
-          <div class="mt-2 text-xs text-gray-600">
+          <div class="mt-3 text-sm text-gray-600 bg-gray-50 py-2 px-3 rounded-lg inline-block">
             <i class="fas fa-edit mr-1"></i>
             Ponto em rascunho
           </div>
@@ -53,24 +71,27 @@
       </div>
     </div>
 
-    <!-- Novo Card - Desempenho Semanal -->
-    <div class="bg-white rounded-lg shadow-sm border p-6">
+    <!-- Card - Desempenho Semanal -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <div class="text-center">
-        <h2 class="text-sm font-medium text-gray-600 mb-2">Desempenho Semanal</h2>
+        <div class="inline-flex items-center justify-center w-12 h-12 bg-indigo-50 text-indigo-500 rounded-full mb-4">
+          <i class="fas fa-chart-line text-xl"></i>
+        </div>
+        <h2 class="text-lg font-semibold text-gray-700 mb-3">Desempenho Semanal</h2>
 
         <!-- Valor Principal -->
-        <div class="text-3xl font-bold text-gray-900 mb-2">
+        <div class="text-4xl font-bold text-gray-900 mb-3">
           <%= format_hours_minutes(@weekly_summary[:worked_hours]) %>
         </div>
 
         <!-- Meta e Progresso -->
-        <div class="text-sm text-gray-500 mb-3">
+        <div class="text-sm text-gray-500 mb-4">
           Meta: <%= number_with_precision(@weekly_summary[:weekly_goal], precision: 0) %>h
         </div>
 
         <!-- Barra de Progresso -->
-        <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
-          <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+        <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
+          <div class="bg-indigo-600 h-3 rounded-full transition-all duration-500 ease-in-out"
                style="width: <%= [@weekly_summary[:completion_percentage], 100].min %>%"></div>
         </div>
 
@@ -82,28 +103,30 @@
         <!-- Status Badge -->
         <% case @weekly_summary[:status] %>
         <% when 'complete' %>
-          <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-            <i class="fas fa-check-circle mr-1"></i>
+          <div class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            <i class="fas fa-trophy mr-1.5"></i>
             Meta Atingida
           </div>
         <% when 'on_track' %>
-          <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-            <i class="fas fa-chart-line mr-1"></i>
+          <div class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+            <i class="fas fa-chart-line mr-1.5"></i>
             No Caminho Certo
           </div>
         <% else %>
-          <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-            <i class="fas fa-exclamation-triangle mr-1"></i>
+          <div class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
+            <i class="fas fa-exclamation-triangle mr-1.5"></i>
             Atrás da Meta
           </div>
         <% end %>
 
         <!-- Informações Adicionais -->
-        <div class="mt-3 text-xs text-gray-500">
-          <%= @weekly_summary[:days_worked] %> dias trabalhados esta semana
-        </div>
-        <div class="text-xs text-gray-500">
-          <%= @weekly_summary[:start_date].strftime("%d/%m") %> - <%= @weekly_summary[:end_date].strftime("%d/%m") %>
+        <div class="mt-4 flex justify-center space-x-4">
+          <div class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-sm">
+            <i class="fas fa-calendar-check mr-1"></i> <%= @weekly_summary[:days_worked] %> dias trabalhados
+          </div>
+          <div class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-sm">
+            <i class="fas fa-calendar-week mr-1"></i> <%= @weekly_summary[:start_date].strftime("%d/%m") %> - <%= @weekly_summary[:end_date].strftime("%d/%m") %>
+          </div>
         </div>
       </div>
     </div>
@@ -111,19 +134,37 @@
 
   <!-- Registros de Hoje (se houver) -->
   <% if @daily_summary[:entries].any? %>
-    <div class="bg-white rounded-lg shadow-sm border p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Registros de Hoje</h3>
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-10 transform transition-all duration-300 hover:shadow-xl">
+      <div class="flex items-center mb-6">
+        <div class="inline-flex items-center justify-center w-10 h-10 bg-green-50 text-green-500 rounded-full mr-3">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-800">Registros de Hoje</h3>
+      </div>
 
-      <div class="space-y-3">
-        <% @daily_summary[:entries].each do |entry| %>
-          <div class="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg">
-            <div class="flex items-center">
-              <div class="text-sm font-medium text-gray-900">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <% @daily_summary[:entries].each_with_index do |entry, index| %>
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between mb-2">
+              <% entry_icon = case entry.entry_type 
+                 when 'entrada', 'clock_in' then 'sign-in-alt'
+                 when 'saída', 'clock_out' then 'sign-out-alt'
+                 when 'break_start', 'inicio_intervalo' then 'coffee'
+                 when 'break_end', 'fim_intervalo' then 'walking'
+                 else 'clock'
+                 end %>
+              <div class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-500 rounded-full">
+                <i class="fas fa-<%= entry_icon %>"></i>
+              </div>
+              <span class="text-xs font-medium text-gray-500">#<%= index + 1 %></span>
+            </div>
+            <div class="text-center">
+              <div class="text-sm font-medium text-gray-600 mb-1">
                 <%= format_entry_type(entry.entry_type) %>
               </div>
-            </div>
-            <div class="text-sm font-medium text-gray-900">
-              <%= entry.time.strftime("%H:%M") %>
+              <div class="text-2xl font-bold text-gray-900">
+                <%= entry.time.strftime("%H:%M") %>
+              </div>
             </div>
           </div>
         <% end %>
@@ -131,64 +172,112 @@
     </div>
   <% else %>
     <!-- Estado sem registros -->
-    <div class="bg-white rounded-lg shadow-sm border p-8 text-center">
-      <div class="text-gray-400 mb-4">
-        <i class="fas fa-clock text-4xl"></i>
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 text-center mb-10 transform transition-all duration-300 hover:shadow-xl">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 text-gray-400 rounded-full mb-4">
+        <i class="fas fa-clock text-3xl"></i>
       </div>
-      <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhum registro hoje</h3>
-      <p class="text-gray-600 mb-4">Faça seu primeiro registro de ponto para começar a acompanhar seu dia.</p>
-      <%= link_to time_sheets_path, class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors" do %>
+      <h3 class="text-xl font-semibold text-gray-800 mb-3">Nenhum registro hoje</h3>
+      <p class="text-gray-600 mb-6 max-w-md mx-auto">Faça seu primeiro registro de ponto para começar a acompanhar seu dia e manter seu controle de horas atualizado.</p>
+      <%= button_to quick_register_time_entries_path(return_to: "dashboard"), method: :post, class: "inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 shadow-sm mx-auto" do %>
         <i class="fas fa-plus mr-2"></i>
-        Registrar Ponto
+        Registrar Ponto Agora
       <% end %>
     </div>
   <% end %>
 
   <!-- Registros Recentes -->
-  <div class="mt-8">
-    <h2 class="text-xl font-bold text-gray-900 mb-4">Registros Recentes</h2>
+  <div>
+    <div class="flex items-center mb-6">
+      <div class="inline-flex items-center justify-center w-10 h-10 bg-purple-50 text-purple-500 rounded-full mr-3">
+        <i class="fas fa-history"></i>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-800">Registros Recentes</h2>
+    </div>
 
     <% if @recent_time_sheets.any? %>
-      <div class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <% @recent_time_sheets.each do |time_sheet| %>
-          <div class="bg-white rounded-lg shadow-sm border p-4">
-            <div class="flex justify-between items-center">
-              <div class="flex items-center space-x-2">
-                <i class="fas fa-calendar-alt text-gray-500"></i>
-                <span class="text-lg font-semibold"><%= time_sheet.date.strftime("%d/%m/%Y") %></span>
+          <div class="bg-white rounded-xl shadow-md border border-gray-100 p-5 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <div class="flex justify-between items-center mb-4">
+              <div class="flex items-center space-x-3">
+                <div class="bg-purple-50 text-purple-500 p-2 rounded-lg">
+                  <i class="fas fa-calendar-day text-lg"></i>
+                </div>
+                <span class="text-lg font-semibold text-gray-800"><%= time_sheet.date.strftime("%d/%m/%Y") %></span>
               </div>
 
-              <% if time_sheet.approval_status == 'aprovado' %>
-                <span class="bg-green-100 text-green-700 px-2 py-1 rounded">Aprovado</span>
-              <% elsif time_sheet.approval_status == 'enviado' %>
-                <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded">Enviado para aprovação</span>
-              <% elsif time_sheet.status == 'completo' %>
-                <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded">Completo</span>
-              <% else %>
-                <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Incompleto</span>
-              <% end %>
+              <% status_classes = case time_sheet.approval_status 
+                 when 'aprovado' then 'bg-green-100 text-green-700'
+                 when 'enviado' then 'bg-blue-100 text-blue-700'
+                 when 'rejeitado' then 'bg-red-100 text-red-700'
+                 else
+                   time_sheet.status == 'completo' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
+                 end %>
+
+              <% status_icon = case time_sheet.approval_status 
+                 when 'aprovado' then 'check-circle'
+                 when 'enviado' then 'paper-plane'
+                 when 'rejeitado' then 'times-circle'
+                 else
+                   time_sheet.status == 'completo' ? 'check' : 'exclamation-circle'
+                 end %>
+
+              <% status_text = case time_sheet.approval_status 
+                 when 'aprovado' then 'Aprovado'
+                 when 'enviado' then 'Enviado'
+                 when 'rejeitado' then 'Rejeitado'
+                 else
+                   time_sheet.status == 'completo' ? 'Completo' : 'Incompleto'
+                 end %>
+
+              <span class="<%= status_classes %> px-3 py-1.5 rounded-full text-sm font-medium flex items-center">
+                <i class="fas fa-<%= status_icon %> mr-1.5"></i>
+                <%= status_text %>
+              </span>
             </div>
 
-            <div class="mt-3 flex justify-between items-center">
-              <div class="font-medium text-gray-800">
-                <% hours = time_sheet.total_hours.to_f rescue 0 %>
-                Total: <%= time_sheet.total_hours %>h
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="flex items-center space-x-2 mb-2">
+                  <i class="fas fa-clock text-gray-400"></i>
+                  <span class="font-medium text-gray-800">
+                    <% hours = time_sheet.total_hours.to_f rescue 0 %>
+                    Total: <%= time_sheet.total_hours %>h
+                  </span>
+                </div>
 
                 <% if time_sheet.justification.present? %>
-                  <% case time_sheet.justification_status %>
-                  <% when 'aprovada' %>
-                    <span class="ml-2 bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Justificado</span>
-                  <% when 'rejeitada' %>
-                    <span class="ml-2 bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Justificativa rejeitada</span>
-                  <% when 'pendente' %>
-                    <span class="ml-2 bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">Justificativa pendente</span>
-                  <% end %>
+                  <% justification_classes = case time_sheet.justification_status 
+                     when 'aprovada' then 'bg-green-50 text-green-600'
+                     when 'rejeitada' then 'bg-red-50 text-red-600'
+                     when 'pendente' then 'bg-yellow-50 text-yellow-600'
+                     else 'bg-gray-50 text-gray-600'
+                     end %>
+
+                  <% justification_icon = case time_sheet.justification_status 
+                     when 'aprovada' then 'check'
+                     when 'rejeitada' then 'times'
+                     when 'pendente' then 'clock'
+                     else 'question'
+                     end %>
+
+                  <% justification_text = case time_sheet.justification_status 
+                     when 'aprovada' then 'Justificado'
+                     when 'rejeitada' then 'Justificativa rejeitada'
+                     when 'pendente' then 'Justificativa pendente'
+                     else 'Sem justificativa'
+                     end %>
+
+                  <div class="<%= justification_classes %> px-2 py-1 rounded-lg text-xs inline-flex items-center">
+                    <i class="fas fa-<%= justification_icon %> mr-1"></i>
+                    <%= justification_text %>
+                  </div>
                 <% end %>
               </div>
 
               <% unless time_sheet.approval_status == 'aprovado' %>
-                <%= link_to time_sheet_path(time_sheet), class: "bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-300 transition-colors" do %>
-                  <i class="fas fa-edit mr-1"></i> Editar
+                <%= link_to time_sheet_path(time_sheet), class: "bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors flex items-center" do %>
+                  <i class="fas fa-edit mr-1.5"></i> Editar
                 <% end %>
               <% end %>
             </div>
@@ -196,14 +285,22 @@
         <% end %>
       </div>
 
-      <div class="mt-4 text-center">
-        <%= link_to time_sheets_path, class: "text-blue-600 hover:text-blue-800 font-medium" do %>
-          Ver todos os registros <i class="fas fa-arrow-right ml-1"></i>
+      <div class="mt-8 text-center">
+        <%= link_to time_sheets_path, class: "inline-flex items-center px-5 py-2.5 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-all duration-200 font-medium" do %>
+          Ver todos os registros <i class="fas fa-arrow-right ml-2"></i>
         <% end %>
       </div>
     <% else %>
-      <div class="bg-white rounded-lg shadow-sm border p-6 text-center">
-        <p class="text-gray-600">Nenhum registro encontrado.</p>
+      <div class="bg-white rounded-xl shadow-md border border-gray-100 p-8 text-center">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 text-gray-400 rounded-full mb-4">
+          <i class="fas fa-calendar-times text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-800 mb-3">Nenhum registro encontrado</h3>
+        <p class="text-gray-600 mb-6 max-w-md mx-auto">Você ainda não possui registros de ponto. Comece a registrar seu ponto para visualizar seu histórico aqui.</p>
+        <%= button_to quick_register_time_entries_path(return_to: "dashboard"), method: :post, class: "inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 shadow-sm mx-auto" do %>
+          <i class="fas fa-plus mr-2"></i>
+          Registrar Primeiro Ponto
+        <% end %>
       </div>
     <% end %>
   </div>
