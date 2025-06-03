@@ -1,0 +1,35 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-800 to-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8 bg-white rounded-xl shadow-2xl p-8">
+    <div class="text-center">
+      <div class="flex justify-center">
+        <i class="fas fa-lock text-indigo-600 text-5xl mb-4"></i>
+      </div>
+      <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Recuperar Senha</h2>
+      <p class="text-sm text-gray-600">Enviaremos instruções para redefinir sua senha</p>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "mt-8 space-y-6" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="mb-4">
+        <%= f.label :email, class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-envelope text-gray-400"></i>
+          </div>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", 
+              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
+              placeholder: "Seu endereço de email" %>
+        </div>
+      </div>
+
+      <div>
+        <%= f.submit "Enviar instruções", class: "group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200" %>
+      </div>
+    <% end %>
+
+    <div class="mt-6 text-center">
+      <%= link_to "Voltar para o login", new_session_path(resource_name), class: "text-sm text-indigo-600 hover:text-indigo-500 transition-colors duration-200" %>
+    </div>
+  </div>
+</div>
