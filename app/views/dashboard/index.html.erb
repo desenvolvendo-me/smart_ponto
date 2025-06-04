@@ -132,6 +132,174 @@
     </div>
   </div>
 
+  <!-- Seção de Pendências -->
+  <% if current_user.role == 'gestor' && @pending_approvals_count > 0 %>
+    <!-- Card de Pendências para Gestores -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-10 transform transition-all duration-300 hover:shadow-xl">
+      <div class="flex items-center mb-6">
+        <div class="inline-flex items-center justify-center w-10 h-10 bg-amber-50 text-amber-500 rounded-full mr-3">
+          <i class="fas fa-bell"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-800">Pendências para Aprovação</h3>
+        <% if @pending_approvals_count > 0 %>
+          <div class="ml-3 inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            Ação necessária
+          </div>
+        <% end %>
+      </div>
+
+      <div class="flex flex-col p-6 bg-amber-50 rounded-lg">
+        <div class="flex justify-center items-center mb-6">
+          <div class="text-4xl font-bold text-amber-600">
+            <%= @pending_approvals_count %>
+          </div>
+          <div class="ml-3 text-amber-700 text-lg">
+            <%= @pending_approvals_count == 1 ? 'registro aguardando aprovação' : 'registros aguardando aprovação' %>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div class="bg-white rounded-lg p-4 shadow-sm border border-amber-100">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-medium text-gray-800">Enviados para aprovação</span>
+              <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-sm font-medium">
+                <%= @pending_enviado_count %>
+              </span>
+            </div>
+            <p class="text-sm text-gray-600">Registros que foram enviados pelos funcionários e aguardam sua revisão.</p>
+          </div>
+
+          <div class="bg-white rounded-lg p-4 shadow-sm border border-amber-100">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-medium text-gray-800">Pendentes</span>
+              <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-sm font-medium">
+                <%= @pending_pendente_count %>
+              </span>
+            </div>
+            <p class="text-sm text-gray-600">Registros que ainda estão em rascunho e podem precisar de atenção.</p>
+          </div>
+        </div>
+
+        <%= link_to approvals_path, class: "inline-flex items-center px-5 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all duration-200 shadow-sm mx-auto" do %>
+          <i class="fas fa-check-circle mr-2"></i>
+          Revisar Todas as Aprovações
+        <% end %>
+      </div>
+    </div>
+  <% elsif current_user.role != 'gestor' && @pending_count > 0 %>
+    <!-- Card de Pendências para Funcionários -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-10 transform transition-all duration-300 hover:shadow-xl">
+      <div class="flex items-center mb-6">
+        <div class="inline-flex items-center justify-center w-10 h-10 bg-amber-50 text-amber-500 rounded-full mr-3">
+          <i class="fas fa-bell"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-800">Minhas Pendências</h3>
+        <% if @pending_count > 0 %>
+          <div class="ml-3 inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            Ação necessária
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Resumo das pendências -->
+      <div class="mb-6 p-5 bg-amber-50 rounded-lg border border-amber-100">
+        <div class="text-center mb-4">
+          <div class="text-2xl font-bold text-amber-600 mb-1">
+            <%= @pending_count %>
+          </div>
+          <p class="text-amber-700">
+            <%= @pending_count == 1 ? 'item pendente' : 'itens pendentes' %> que precisam da sua atenção
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <% if @pending_pendente_count > 0 %>
+            <div class="bg-white rounded-lg p-3 shadow-sm border border-amber-100 text-center">
+              <div class="text-lg font-bold text-yellow-600 mb-1"><%= @pending_pendente_count %></div>
+              <div class="text-xs text-gray-600">Pendentes</div>
+            </div>
+          <% end %>
+
+          <% if @pending_rejeitado_count > 0 %>
+            <div class="bg-white rounded-lg p-3 shadow-sm border border-amber-100 text-center">
+              <div class="text-lg font-bold text-red-600 mb-1"><%= @pending_rejeitado_count %></div>
+              <div class="text-xs text-gray-600">Rejeitados</div>
+            </div>
+          <% end %>
+
+          <% if @pending_justification_count > 0 %>
+            <div class="bg-white rounded-lg p-3 shadow-sm border border-amber-100 text-center">
+              <div class="text-lg font-bold text-amber-600 mb-1"><%= @pending_justification_count %></div>
+              <div class="text-xs text-gray-600">Justificativas</div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @pending_items.each do |time_sheet| %>
+          <div class="bg-amber-50 rounded-lg p-4 border border-amber-100 shadow-sm hover:shadow-md transition-all duration-200">
+            <div class="flex justify-between items-center mb-3">
+              <span class="font-medium text-gray-800"><%= time_sheet.date.strftime("%d/%m/%Y") %></span>
+
+              <% status_classes = case time_sheet.approval_status 
+                 when 'enviado' then 'bg-blue-100 text-blue-700'
+                 when 'rejeitado' then 'bg-red-100 text-red-700'
+                 when 'pendente' then 'bg-yellow-100 text-yellow-700'
+                 else 'bg-gray-100 text-gray-700'
+                 end %>
+
+              <% status_icon = case time_sheet.approval_status 
+                 when 'enviado' then 'paper-plane'
+                 when 'rejeitado' then 'times-circle'
+                 when 'pendente' then 'clock'
+                 else 'question-circle'
+                 end %>
+
+              <% status_text = case time_sheet.approval_status 
+                 when 'enviado' then 'Enviado'
+                 when 'rejeitado' then 'Rejeitado'
+                 when 'pendente' then 'Pendente'
+                 else 'Desconhecido'
+                 end %>
+
+              <span class="<%= status_classes %> px-2 py-1 rounded-full text-xs font-medium flex items-center">
+                <i class="fas fa-<%= status_icon %> mr-1"></i>
+                <%= status_text %>
+              </span>
+            </div>
+
+            <% if time_sheet.justification.present? && time_sheet.justification_status != 'aprovada' %>
+              <div class="mb-3 text-sm text-amber-700">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                Justificativa <%= time_sheet.justification_status == 'rejeitada' ? 'rejeitada' : 'pendente' %>
+              </div>
+            <% end %>
+
+            <% action_needed = time_sheet.approval_status == 'pendente' || 
+                              time_sheet.approval_status == 'rejeitado' || 
+                              (time_sheet.justification.present? && time_sheet.justification_status != 'aprovada') %>
+
+            <% if action_needed %>
+              <div class="mb-3 text-xs text-red-600 bg-red-50 py-1 px-2 rounded-lg inline-block">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                Ação necessária
+              </div>
+            <% end %>
+
+            <% if action_needed %>
+              <%= link_to time_sheet_path(time_sheet), class: "w-full bg-amber-600 text-white text-center py-2 rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors flex items-center justify-center" do %>
+                <i class="fas fa-eye mr-1.5"></i> Ver Detalhes
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
   <!-- Registros de Hoje (se houver) -->
   <% if @daily_summary[:entries].any? %>
     <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-10 transform transition-all duration-300 hover:shadow-xl">

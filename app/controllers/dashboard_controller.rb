@@ -10,6 +10,26 @@ class DashboardController < ApplicationController
                                      .includes(:time_entries)
                                      .order(date: :desc)
                                      .limit(5)
+
+    # Adicionar informações sobre pendências
+    if current_user.role == 'gestor'
+      # Para gestores, mostrar quantidade de registros aguardando aprovação
+      @pending_approvals_count = TimeSheet.where(approval_status: ['enviado', 'pendente']).count
+      @pending_enviado_count = TimeSheet.where(approval_status: 'enviado').count
+      @pending_pendente_count = TimeSheet.where(approval_status: 'pendente').count
+    else
+      # Para funcionários comuns, mostrar apenas as solicitações que necessitam de ação
+      @pending_items = current_user.time_sheets
+                                  .where(approval_status: ['pendente', 'rejeitado'])
+                                  .or(current_user.time_sheets.where.not(justification_status: [nil, 'aprovada']))
+                                  .order(date: :desc)
+      @pending_count = @pending_items.count
+
+      # Contagem por tipo de pendência para funcionários
+      @pending_pendente_count = @pending_items.where(approval_status: 'pendente').count
+      @pending_rejeitado_count = @pending_items.where(approval_status: 'rejeitado').count
+      @pending_justification_count = @pending_items.where.not(justification_status: [nil, 'aprovada']).count
+    end
   end
 
   private
