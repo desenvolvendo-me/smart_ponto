@@ -32,20 +32,65 @@ export default class extends Controller {
     activateTab(tab) {
         this.tabTargets.forEach((element) => {
             const isActive = element.dataset.tab === tab;
+            const underline = element.querySelector('div:last-child'); // Get the underline element
 
             // Manage active tab styling
             if (isActive) {
-                element.classList.add('border-b-2', 'border-blue-500', 'text-blue-600');
-                element.classList.remove('text-gray-500');
+                // Apply active styles
+                element.classList.add('text-indigo-700');
+                element.classList.remove('text-indigo-900', 'group-hover:text-indigo-700');
+
+                // Show the underline by setting scale-x-100
+                if (underline) {
+                    underline.classList.remove('scale-x-0');
+                    underline.classList.add('scale-x-100');
+                }
+
+                // Add a subtle background color to the active tab
+                const iconContainer = element.querySelector('div.rounded-full');
+                if (iconContainer) {
+                    iconContainer.classList.add('bg-indigo-200');
+                    iconContainer.classList.remove('bg-indigo-100');
+                }
             } else {
-                element.classList.remove('border-b-2', 'border-blue-500', 'text-blue-600');
-                element.classList.add('text-gray-500');
+                // Remove active styles
+                element.classList.remove('text-indigo-700');
+                element.classList.add('text-indigo-900', 'group-hover:text-indigo-700');
+
+                // Hide the underline by setting scale-x-0
+                if (underline) {
+                    underline.classList.add('scale-x-0');
+                    underline.classList.remove('scale-x-100');
+                }
+
+                // Reset the background color of the icon container
+                const iconContainer = element.querySelector('div.rounded-full');
+                if (iconContainer) {
+                    iconContainer.classList.remove('bg-indigo-200');
+                    iconContainer.classList.add('bg-indigo-100');
+                }
             }
         });
 
         this.contentTargets.forEach((element) => {
             const shouldShow = element.dataset.tab === tab;
-            element.classList.toggle('hidden', !shouldShow);
+
+            // Add a fade transition effect
+            if (shouldShow) {
+                element.classList.remove('hidden');
+                // Use setTimeout to ensure the transition happens after the display change
+                setTimeout(() => {
+                    element.classList.add('opacity-100');
+                    element.classList.remove('opacity-0');
+                }, 10);
+            } else {
+                element.classList.add('opacity-0');
+                element.classList.remove('opacity-100');
+                // Hide the element after the transition completes
+                setTimeout(() => {
+                    element.classList.add('hidden');
+                }, 300); // Match this with the CSS transition duration
+            }
         });
     }
 }
