@@ -24,6 +24,8 @@ gem "tailwindcss-rails"
 gem "devise"
 gem 'rufus-scheduler'
 gem 'csv'
+gem 'caxlsx'           # Para exportação Excel
+gem 'caxlsx_rails'     # Integração Rails com caxlsx
 
 group :development, :test do
   gem 'better_errors'

@@ -43,14 +43,111 @@ class TimeSheetsController < ApplicationController
     start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : Date.today.beginning_of_month
     end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : Date.today
 
-    # Filtre os registros pelo período
-    @time_sheets = TimeSheet.where(date: start_date..end_date)
+    # Iniciar a consulta com o filtro de período
+    @time_sheets = current_user.time_sheets.where(date: start_date..end_date)
+
+    # Aplicar filtro de status de aprovação se fornecido
+    if params[:status].present?
+      @time_sheets = @time_sheets.where(approval_status: params[:status])
+    end
+
+    # Aplicar filtro de completude se fornecido
+    if params[:complete].present?
+      @time_sheets = @time_sheets.where(status: params[:complete])
+    end
+
+    # Ordenar por data decrescente
+    @time_sheets = @time_sheets.order(date: :desc)
+
+    # Preparar o nome do arquivo
+    filename_base = "registros-#{start_date.strftime('%d-%m-%Y')}-ate-#{end_date.strftime('%d-%m-%Y')}"
 
     respond_to do |format|
       format.csv do
-        send_data @time_sheets.to_csv, filename: "registros-#{start_date.strftime('%d-%m-%Y')}-ate-#{end_date.strftime('%d-%m-%Y')}.csv"
+        send_data @time_sheets.to_csv, filename: "#{filename_base}.csv"
+      end
+
+      # Adicionar suporte para exportação Excel
+      format.xlsx do
+        if defined?(Axlsx)
+          # Se a gem Axlsx estiver disponível, usar para gerar Excel
+          send_data generate_excel(@time_sheets), filename: "#{filename_base}.xlsx"
+        else
+          # Fallback para CSV se Axlsx não estiver disponível
+          send_data @time_sheets.to_csv, filename: "#{filename_base}.csv"
+          flash[:notice] = "Exportação Excel não disponível. Arquivo CSV gerado."
+        end
+      end
+
+      # Fallback para CSV se o formato não for especificado
+      format.any do
+        send_data @time_sheets.to_csv, filename: "#{filename_base}.csv"
       end
     end
+  end
+
+  # Método para gerar arquivo Excel
+  def generate_excel(time_sheets)
+    require 'axlsx'
+
+    package = Axlsx::Package.new
+    workbook = package.workbook
+
+    # Adicionar uma planilha
+    workbook.add_worksheet(name: "Registros de Ponto") do |sheet|
+      # Estilo para o cabeçalho
+      header_style = workbook.styles.add_style(
+        bg_color: "4F46E5", 
+        fg_color: "FFFFFF", 
+        b: true, 
+        alignment: { horizontal: :center }
+      )
+
+      # Adicionar cabeçalho
+      sheet.add_row [
+        'Data', 
+        'Entrada 1', 
+        'Saída 1', 
+        'Entrada 2', 
+        'Saída 2', 
+        'Total de Horas', 
+        'Status de Aprovação',
+        'Status de Completude'
+      ], style: header_style
+
+      # Adicionar dados
+      time_sheets.each do |time_sheet|
+        entries = time_sheet.time_entries.order(:time)
+        times = entries.map { |e| e.time.strftime("%H:%M") }
+
+        # Garantir que temos 4 horários (ou "-" para valores ausentes)
+        while times.length < 4
+          times << "-"
+        end
+
+        # Adicionar linha com dados
+        sheet.add_row [
+          time_sheet.date.strftime("%d/%m/%Y"),
+          times[0],
+          times[1],
+          times[2],
+          times[3],
+          "#{time_sheet.total_hours}h",
+          I18n.t("approval_status.#{time_sheet.approval_status}", default: time_sheet.approval_status.capitalize),
+          I18n.t("status.#{time_sheet.status}", default: time_sheet.status.capitalize)
+        ]
+      end
+
+      # Ajustar largura das colunas automaticamente
+      sheet.column_widths 15, 15, 15, 15, 15, 15, 20, 20
+    end
+
+    # Retornar o arquivo Excel como string
+    package.to_stream.read
+  rescue LoadError => e
+    # Se a gem axlsx não estiver disponível
+    Rails.logger.error "Erro ao gerar Excel: #{e.message}"
+    time_sheets.to_csv
   end
 
   def submit_for_approval
