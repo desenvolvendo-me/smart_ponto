@@ -1,0 +1,91 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-800 to-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8 bg-white rounded-xl shadow-2xl p-8">
+    <div class="text-center">
+      <div class="flex justify-center">
+        <i class="fas fa-user-plus text-indigo-600 text-5xl mb-4"></i>
+      </div>
+      <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Criar Conta</h2>
+      <p class="text-sm text-gray-600">Preencha os dados abaixo para se registrar</p>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "mt-8 space-y-6" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="mb-4">
+        <%= f.label :name, "Nome", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-user text-gray-400"></i>
+          </div>
+          <%= f.text_field :name, autofocus: true, 
+              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
+              placeholder: "Seu nome completo" %>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <%= f.label :employee_id, "ID de Funcionário (opcional)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-id-badge text-gray-400"></i>
+          </div>
+          <%= f.text_field :employee_id, 
+              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
+              placeholder: "Seu ID de funcionário (se aplicável)" %>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <%= f.label :email, class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-envelope text-gray-400"></i>
+          </div>
+          <%= f.email_field :email, autocomplete: "email", 
+              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
+              placeholder: "Seu endereço de email" %>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <%= f.label :password, "Senha", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-lock text-gray-400"></i>
+          </div>
+          <%= f.password_field :password, autocomplete: "new-password", 
+              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
+              placeholder: "Crie uma senha" %>
+        </div>
+        <p class="mt-1 text-xs text-gray-500">
+          <% if @minimum_password_length %>
+            <em>Mínimo de <%= @minimum_password_length %> caracteres</em>
+          <% end %>
+        </p>
+      </div>
+
+      <div class="mb-4">
+        <%= f.label :password_confirmation, "Confirme a senha", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-lock text-gray-400"></i>
+          </div>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password", 
+              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
+              placeholder: "Confirme sua senha" %>
+        </div>
+      </div>
+
+      <div>
+        <%= f.submit "Registrar", class: "group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200" %>
+      </div>
+    <% end %>
+
+    <div class="mt-6 text-center">
+      <p class="text-sm text-gray-600">
+        Já tem uma conta?
+        <%= link_to "Entrar", new_session_path(resource_name), class: "ml-1 text-indigo-600 hover:text-indigo-500 transition-colors duration-200" %>
+      </p>
+    </div>
+  </div>
+</div>

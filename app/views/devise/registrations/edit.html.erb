@@ -1,0 +1,116 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-800 to-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8 bg-white rounded-xl shadow-2xl p-8">
+    <div class="text-center">
+      <div class="flex justify-center">
+        <i class="fas fa-user-edit text-indigo-600 text-5xl mb-4"></i>
+      </div>
+      <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Editar Perfil</h2>
+      <p class="text-sm text-gray-600">Atualize suas informações de conta</p>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "mt-8 space-y-6" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="mb-4">
+        <%= f.label :name, "Nome", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-user text-gray-400"></i>
+          </div>
+          <%= f.text_field :name, autofocus: true, 
+              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
+              placeholder: "Seu nome completo" %>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <%= f.label :employee_id, "ID de Funcionário (opcional)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-id-badge text-gray-400"></i>
+          </div>
+          <%= f.text_field :employee_id, 
+              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
+              placeholder: "Seu ID de funcionário (se aplicável)" %>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <%= f.label :email, class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-envelope text-gray-400"></i>
+          </div>
+          <%= f.email_field :email, autocomplete: "email", 
+              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
+              placeholder: "Seu endereço de email" %>
+        </div>
+        <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+          <p class="mt-1 text-xs text-indigo-600">
+            Aguardando confirmação para: <%= resource.unconfirmed_email %>
+          </p>
+        <% end %>
+      </div>
+
+      <div class="mb-4">
+        <%= f.label :password, "Nova senha (deixe em branco se não quiser alterar)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-lock text-gray-400"></i>
+          </div>
+          <%= f.password_field :password, autocomplete: "new-password", 
+              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
+              placeholder: "Nova senha" %>
+        </div>
+        <p class="mt-1 text-xs text-gray-500">
+          <% if @minimum_password_length %>
+            <em>Mínimo de <%= @minimum_password_length %> caracteres</em>
+          <% end %>
+        </p>
+      </div>
+
+      <div class="mb-4">
+        <%= f.label :password_confirmation, "Confirme a nova senha", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-lock text-gray-400"></i>
+          </div>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password", 
+              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
+              placeholder: "Confirme a nova senha" %>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <%= f.label :current_password, "Senha atual (necessária para confirmar as alterações)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-key text-gray-400"></i>
+          </div>
+          <%= f.password_field :current_password, autocomplete: "current-password", 
+              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
+              placeholder: "Sua senha atual" %>
+        </div>
+      </div>
+
+      <div>
+        <%= f.submit "Atualizar", class: "group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200" %>
+      </div>
+    <% end %>
+
+    <div class="mt-8 pt-6 border-t border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Cancelar minha conta</h3>
+      
+      <p class="text-sm text-gray-600 mb-4">Insatisfeito? Você pode cancelar sua conta a qualquer momento.</p>
+      
+      <%= button_to "Cancelar minha conta", registration_path(resource_name), 
+          data: { confirm: "Tem certeza? Esta ação não pode ser desfeita.", turbo_confirm: "Tem certeza? Esta ação não pode ser desfeita." }, 
+          method: :delete, 
+          class: "w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200" %>
+    </div>
+
+    <div class="mt-6 text-center">
+      <%= link_to "Voltar", :back, class: "text-sm text-indigo-600 hover:text-indigo-500 transition-colors duration-200" %>
+    </div>
+  </div>
+</div>
