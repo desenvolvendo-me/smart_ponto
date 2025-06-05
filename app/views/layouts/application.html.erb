@@ -15,7 +15,7 @@
 <body class="bg-gray-100">
 <div class="flex h-screen overflow-hidden">
   <!-- Sidebar para desktop -->
-  <div class="hidden md:flex md:flex-shrink-0">
+  <div id="desktop-sidebar" class="hidden md:flex md:flex-shrink-0 transition-all duration-300 ease-in-out">
     <div class="flex flex-col w-64 bg-gradient-to-b from-gray-800 to-gray-900 shadow-xl">
       <!-- Logo e título -->
       <div class="flex items-center h-16 px-6 bg-gray-900">
@@ -154,6 +154,14 @@
       <button id="mobile-menu-button" class="text-white focus:outline-none bg-gray-700 hover:bg-gray-600 p-2 rounded-lg transition-colors duration-200">
         <i class="fas fa-bars"></i>
       </button>
+    </div>
+
+    <!-- Barra superior desktop com botão de toggle do menu -->
+    <div class="hidden md:flex items-center justify-between bg-white p-4 shadow-sm relative z-10">
+      <button id="desktop-sidebar-toggle" class="text-gray-600 focus:outline-none hover:text-indigo-600 p-3 rounded-lg transition-colors duration-200 cursor-pointer relative z-20">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="flex-grow"></div>
     </div>
 
     <!-- Conteúdo principal -->
@@ -300,15 +308,57 @@
   </div>
 </div>
 
-<!-- JavaScript para controle do menu móvel -->
+<!-- JavaScript para controle dos menus -->
 <script>
     document.addEventListener('turbo:load', function() {
+        // Mobile menu elements
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
-        const closeMobileMenu = document.getElementById('close-mobile-menu');
+        const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
         const mobileBackdrop = document.getElementById('mobile-backdrop');
         const menuPanel = document.querySelector('#mobile-menu > div:nth-child(2)');
 
+        // Desktop sidebar elements
+        const desktopSidebar = document.getElementById('desktop-sidebar');
+        const desktopSidebarToggle = document.getElementById('desktop-sidebar-toggle');
+        const mainContent = document.querySelector('.flex-1.w-0');
+
+        // Check if sidebar state is stored in localStorage
+        let sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
+        console.log('Initial localStorage sidebarCollapsed value:', sidebarCollapsed);
+
+        // If sidebarCollapsed is null (first visit) or not a valid value, set it to false (expanded)
+        if (sidebarCollapsed === null || (sidebarCollapsed !== 'true' && sidebarCollapsed !== 'false')) {
+            console.log('First visit or invalid value, setting sidebarCollapsed to false');
+            localStorage.setItem('sidebarCollapsed', 'false');
+            sidebarCollapsed = 'false';
+        }
+
+        // Convert to boolean
+        sidebarCollapsed = sidebarCollapsed === 'true';
+        console.log('sidebarCollapsed as boolean:', sidebarCollapsed);
+        console.log('Initial sidebar classes:', desktopSidebar.className);
+
+        // Initialize desktop sidebar state
+        if (sidebarCollapsed) {
+            console.log('Initializing sidebar as collapsed');
+            desktopSidebar.classList.add('md:w-0');
+            desktopSidebar.classList.add('md:opacity-0');
+            desktopSidebar.classList.add('pointer-events-none');
+            mainContent.classList.add('md:ml-0');
+            desktopSidebarToggle.innerHTML = '<i class="fas fa-expand"></i>';
+            console.log('Sidebar initialized as collapsed, classes:', desktopSidebar.className);
+        } else {
+            console.log('Initializing sidebar as expanded');
+            // Ensure sidebar is expanded by default
+            desktopSidebar.classList.remove('md:w-0');
+            desktopSidebar.classList.remove('md:opacity-0');
+            mainContent.classList.remove('md:ml-0');
+            desktopSidebarToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            console.log('Sidebar initialized as expanded, classes:', desktopSidebar.className);
+        }
+
+        // Mobile menu functions
         function openMobileMenu() {
             // Mostrar o menu
             mobileMenu.classList.remove('hidden');
@@ -345,25 +395,76 @@
             }, 300);
         }
 
+        // Desktop sidebar toggle function
+        function toggleDesktopSidebar() {
+            console.log('toggleDesktopSidebar called');
+            console.log('Current sidebar classes:', desktopSidebar.className);
+            console.log('Has md:w-0 class:', desktopSidebar.classList.contains('md:w-0'));
+
+            try {
+                // Force toggle based on current visual state rather than localStorage
+                const isCurrentlyCollapsed = desktopSidebar.classList.contains('md:w-0');
+                console.log('Is currently collapsed based on classes:', isCurrentlyCollapsed);
+
+                if (isCurrentlyCollapsed) {
+                    console.log('Expanding sidebar');
+                    // Expand sidebar
+                    desktopSidebar.classList.remove('md:w-0');
+                    desktopSidebar.classList.remove('md:opacity-0');
+                    desktopSidebar.classList.remove('pointer-events-none');
+                    mainContent.classList.remove('md:ml-0');
+                    desktopSidebarToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                    localStorage.setItem('sidebarCollapsed', 'false');
+                    console.log('Sidebar expanded, new classes:', desktopSidebar.className);
+                } else {
+                    console.log('Collapsing sidebar');
+                    // Collapse sidebar
+                    desktopSidebar.classList.add('md:w-0');
+                    desktopSidebar.classList.add('md:opacity-0');
+                    desktopSidebar.classList.add('pointer-events-none');
+                    mainContent.classList.add('md:ml-0');
+                    desktopSidebarToggle.innerHTML = '<i class="fas fa-expand"></i>';
+                    localStorage.setItem('sidebarCollapsed', 'true');
+                    console.log('Sidebar collapsed, new classes:', desktopSidebar.className);
+                }
+            } catch (error) {
+                console.error('Error in toggleDesktopSidebar:', error);
+            }
+        }
+
+        // Add event listeners
         if (mobileMenuButton) {
             mobileMenuButton.addEventListener('click', openMobileMenu);
         }
 
-        if (closeMobileMenu) {
-            closeMobileMenu.addEventListener('click', closeMobileMenu);
+        if (closeMobileMenuBtn) {
+            closeMobileMenuBtn.addEventListener('click', closeMobileMenu);
         }
 
         if (mobileBackdrop) {
             mobileBackdrop.addEventListener('click', closeMobileMenu);
-        }
-
-        // Inicializar classes para animação
-        if (mobileBackdrop) {
             mobileBackdrop.classList.add('opacity-0');
         }
 
         if (menuPanel) {
             menuPanel.classList.add('-translate-x-full');
+        }
+
+        // Add debugging to check if the toggle button is found
+        console.log('Desktop sidebar toggle button:', desktopSidebarToggle);
+
+        if (desktopSidebarToggle) {
+            console.log('Adding click event listener to desktop sidebar toggle button');
+
+            // Use a direct onclick handler
+            desktopSidebarToggle.onclick = function(e) {
+                console.log('Toggle button clicked directly');
+                e.preventDefault();
+                toggleDesktopSidebar();
+                return false; // Prevent default action
+            };
+        } else {
+            console.error('Desktop sidebar toggle button not found!');
         }
     });
 </script>
