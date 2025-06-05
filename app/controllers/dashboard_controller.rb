@@ -17,18 +17,40 @@ class DashboardController < ApplicationController
       @pending_approvals_count = TimeSheet.where(approval_status: ['enviado', 'pendente']).count
       @pending_enviado_count = TimeSheet.where(approval_status: 'enviado').count
       @pending_pendente_count = TimeSheet.where(approval_status: 'pendente').count
+
+      # Buscar funcionários com registros pendentes
+      @employees_with_pending = User.joins(:time_sheets)
+                                   .where(time_sheets: { approval_status: ['enviado', 'pendente'] })
+                                   .distinct
+                                   .order(:name)
+
+      # Buscar os registros pendentes para cada funcionário (limitado a 5 por funcionário)
+      @pending_by_employee = {}
+      @pending_count_by_employee = {}
+      @employees_with_pending.each do |employee|
+        # Obter o total de pendências para este funcionário
+        @pending_count_by_employee[employee.id] = employee.time_sheets
+                                                        .where(approval_status: ['enviado', 'pendente'])
+                                                        .count
+
+        # Obter apenas os 5 registros mais recentes para exibição
+        @pending_by_employee[employee.id] = employee.time_sheets
+                                                  .where(approval_status: ['enviado', 'pendente'])
+                                                  .order(date: :desc)
+                                                  .limit(5)
+      end
     else
       # Para funcionários comuns, mostrar apenas as solicitações que necessitam de ação
+      # Excluir solicitações que já foram aprovadas ou rejeitadas (histórico de aprovação)
       @pending_items = current_user.time_sheets
-                                  .where(approval_status: ['pendente', 'rejeitado'])
-                                  .or(current_user.time_sheets.where.not(justification_status: [nil, 'aprovada']))
+                                  .where(approval_status: 'pendente')
+                                  .or(current_user.time_sheets.where(approval_status: 'enviado'))
                                   .order(date: :desc)
       @pending_count = @pending_items.count
 
       # Contagem por tipo de pendência para funcionários
       @pending_pendente_count = @pending_items.where(approval_status: 'pendente').count
-      @pending_rejeitado_count = @pending_items.where(approval_status: 'rejeitado').count
-      @pending_justification_count = @pending_items.where.not(justification_status: [nil, 'aprovada']).count
+      @pending_enviado_count = @pending_items.where(approval_status: 'enviado').count
     end
   end
 

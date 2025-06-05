@@ -149,7 +149,7 @@
         <% end %>
       </div>
 
-      <div class="flex flex-col p-6 bg-amber-50 rounded-lg">
+      <div class="flex flex-col p-6 bg-amber-50 rounded-lg mb-6">
         <div class="flex justify-center items-center mb-6">
           <div class="text-4xl font-bold text-amber-600">
             <%= @pending_approvals_count %>
@@ -184,6 +184,97 @@
         <%= link_to approvals_path, class: "inline-flex items-center px-5 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all duration-200 shadow-sm mx-auto" do %>
           <i class="fas fa-check-circle mr-2"></i>
           Revisar Todas as Aprovações
+        <% end %>
+      </div>
+
+      <!-- Lista de Funcionários com Pendências -->
+      <h4 class="text-lg font-semibold text-gray-800 mb-4">Funcionários com Registros Pendentes</h4>
+
+      <div class="space-y-6">
+        <% @employees_with_pending.each do |employee| %>
+          <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+            <!-- Cabeçalho do Funcionário -->
+            <div class="bg-gray-50 p-4 border-b border-gray-200">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                  <div class="inline-flex items-center justify-center w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full mr-3">
+                    <i class="fas fa-user"></i>
+                  </div>
+                  <div>
+                    <h5 class="font-medium text-gray-900"><%= employee.name %></h5>
+                    <p class="text-sm text-gray-600"><%= employee.position %> - <%= employee.department %></p>
+                  </div>
+                </div>
+                <div class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-medium">
+                  <%= @pending_count_by_employee[employee.id] %> pendências
+                </div>
+              </div>
+            </div>
+
+            <!-- Lista de Registros Pendentes -->
+            <div class="divide-y divide-gray-200">
+              <% @pending_by_employee[employee.id].each do |time_sheet| %>
+                <div class="p-4 hover:bg-gray-50">
+                  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    <!-- Informações do Registro -->
+                    <div class="flex-1">
+                      <div class="flex items-center mb-2">
+                        <span class="font-medium text-gray-800 mr-3"><%= time_sheet.date.strftime("%d/%m/%Y") %></span>
+
+                        <% status_classes = time_sheet.approval_status == 'enviado' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700' %>
+                        <% status_icon = time_sheet.approval_status == 'enviado' ? 'paper-plane' : 'clock' %>
+                        <% status_text = time_sheet.approval_status == 'enviado' ? 'Enviado' : 'Pendente' %>
+
+                        <span class="<%= status_classes %> px-2 py-1 rounded-full text-xs font-medium flex items-center">
+                          <i class="fas fa-<%= status_icon %> mr-1"></i>
+                          <%= status_text %>
+                        </span>
+
+                        <% if time_sheet.total_hours.to_f > 8.0 %>
+                          <span class="ml-2 bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-medium flex items-center">
+                            <i class="fas fa-clock mr-1"></i>
+                            Horas extras
+                          </span>
+                        <% end %>
+
+                        <% unless time_sheet.within_tolerance? %>
+                          <span class="ml-2 bg-orange-100 text-orange-700 px-2 py-1 rounded-full text-xs font-medium flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            Ajuste
+                          </span>
+                        <% end %>
+                      </div>
+
+                      <div class="text-sm text-gray-600 mb-2">
+                        <span class="font-medium">Total:</span> <%= time_sheet.total_hours %>h
+                        <% if time_sheet.justification.present? %>
+                          <span class="ml-3 font-medium">Justificativa:</span> <%= truncate(time_sheet.justification, length: 50) %>
+                        <% end %>
+                      </div>
+                    </div>
+
+                    <!-- Ações -->
+                    <div class="flex space-x-2">
+                      <%= button_to approve_approval_path(time_sheet), method: :patch, class: "bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm font-medium flex items-center", form: { data: { turbo_confirm: "Aprovar este registro?" } } do %>
+                        <i class="fas fa-check mr-1.5"></i> Aprovar
+                      <% end %>
+
+                      <%= button_to reject_approval_path(time_sheet), method: :patch, class: "bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-sm font-medium flex items-center", form: { data: { turbo_confirm: "Rejeitar este registro?" } } do %>
+                        <i class="fas fa-times mr-1.5"></i> Rejeitar
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Ver Todos os Registros deste Funcionário -->
+            <div class="bg-gray-50 p-3 border-t border-gray-200 text-center">
+              <%= link_to approvals_path(search: employee.name), class: "text-indigo-600 hover:text-indigo-800 text-sm font-medium" do %>
+                Ver todos os registros deste funcionário <i class="fas fa-arrow-right ml-1"></i>
+              <% end %>
+            </div>
+          </div>
         <% end %>
       </div>
     </div>
@@ -222,17 +313,10 @@
             </div>
           <% end %>
 
-          <% if @pending_rejeitado_count > 0 %>
+          <% if @pending_enviado_count > 0 %>
             <div class="bg-white rounded-lg p-3 shadow-sm border border-amber-100 text-center">
-              <div class="text-lg font-bold text-red-600 mb-1"><%= @pending_rejeitado_count %></div>
-              <div class="text-xs text-gray-600">Rejeitados</div>
-            </div>
-          <% end %>
-
-          <% if @pending_justification_count > 0 %>
-            <div class="bg-white rounded-lg p-3 shadow-sm border border-amber-100 text-center">
-              <div class="text-lg font-bold text-amber-600 mb-1"><%= @pending_justification_count %></div>
-              <div class="text-xs text-gray-600">Justificativas</div>
+              <div class="text-lg font-bold text-blue-600 mb-1"><%= @pending_enviado_count %></div>
+              <div class="text-xs text-gray-600">Enviados</div>
             </div>
           <% end %>
         </div>
@@ -271,16 +355,7 @@
               </span>
             </div>
 
-            <% if time_sheet.justification.present? && time_sheet.justification_status != 'aprovada' %>
-              <div class="mb-3 text-sm text-amber-700">
-                <i class="fas fa-exclamation-circle mr-1"></i>
-                Justificativa <%= time_sheet.justification_status == 'rejeitada' ? 'rejeitada' : 'pendente' %>
-              </div>
-            <% end %>
-
-            <% action_needed = time_sheet.approval_status == 'pendente' || 
-                              time_sheet.approval_status == 'rejeitado' || 
-                              (time_sheet.justification.present? && time_sheet.justification_status != 'aprovada') %>
+            <% action_needed = time_sheet.approval_status == 'pendente' || time_sheet.approval_status == 'enviado' %>
 
             <% if action_needed %>
               <div class="mb-3 text-xs text-red-600 bg-red-50 py-1 px-2 rounded-lg inline-block">
