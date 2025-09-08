@@ -3,7 +3,7 @@
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 bg-gradient-to-r from-gray-50 to-white p-6 rounded-xl shadow-md border border-gray-100">
     <div>
       <h1 class="text-3xl font-bold text-gray-900 mb-2">Meu Dashboard</h1>
-      <p class="text-gray-600"><%= Date.current.strftime("%A, %d de %B de %Y") %></p>
+      <p class="text-gray-600"><%= l(Date.current, format: :long) %></p>
     </div>
     <div class="mt-4 sm:mt-0 flex space-x-3">
       <%= link_to time_sheets_path, class: "flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200 shadow-sm" do %>

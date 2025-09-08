@@ -13,6 +13,10 @@ module SmartPonto
 
     config.time_zone = 'America/Sao_Paulo'
 
+    # Configuração de localização
+    config.i18n.default_locale = :'pt-BR'
+    config.i18n.available_locales = [:'pt-BR', :en]
+
     # Força o ActiveRecord a usar o timezone da aplicação
     config.active_record.default_timezone = :local
 
