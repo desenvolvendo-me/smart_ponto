@@ -28,6 +28,7 @@ gem 'caxlsx'           # Para exportação Excel
 gem 'caxlsx_rails'     # Integração Rails com caxlsx
 
 group :development, :test do
+  gem "hotwire-spark"
   gem 'better_errors'
   gem 'binding_of_caller'
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
@@ -41,7 +42,6 @@ end
 
 group :development do
   gem "web-console"
-  gem "hotwire-spark"
 end
 
 group :test do
@@ -51,5 +51,3 @@ group :test do
   gem 'database_cleaner-active_record'
   gem 'shoulda-matchers'
 end
-
-gem "spring", "~> 4.2"
