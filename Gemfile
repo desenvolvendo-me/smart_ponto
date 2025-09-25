@@ -30,7 +30,6 @@ gem 'caxlsx_rails'     # Integração Rails com caxlsx
 group :development, :test do
   gem 'better_errors'
   gem 'binding_of_caller'
-  gem 'rails_live_reload'              # Live reload for development
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
   gem "brakeman", require: false
   gem "rubocop-rails-omakase", require: false
@@ -42,6 +41,7 @@ end
 
 group :development do
   gem "web-console"
+  gem "hotwire-spark"
 end
 
 group :test do
