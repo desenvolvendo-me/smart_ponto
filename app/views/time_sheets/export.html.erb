@@ -1,3 +1,6 @@
+<div data-controller="export"
+     data-export-preview-url-value="<%= export_preview_time_sheets_path %>">
+
 <div class="flex items-center mb-6">
   <%= link_to time_sheets_path, class: "text-2xl text-gray-600 hover:text-indigo-600 transition-colors duration-200" do %>
     <i class="fas fa-arrow-left"></i>
@@ -14,19 +17,24 @@
         Configurações de Exportação
       </h2>
 
-      <%= form_with(url: export_time_sheets_path, method: :get, class: "space-y-6", id: "export-form") do |form| %>
+      <%= form_with(url: export_time_sheets_path, method: :get, class: "space-y-6",
+                    data: { export_target: "form", action: "submit->export#submit" }) do |form| %>
         <!-- Período -->
         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
           <h3 class="text-md font-medium text-gray-700 mb-3">Período</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <%= form.label :start_date, "Data Inicial", class: "block text-gray-600 font-medium mb-1 text-sm" %>
-              <%= form.date_field :start_date, value: Date.today.beginning_of_month, class: "w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition-all duration-200" %>
+              <%= form.date_field :start_date, value: Date.today.beginning_of_month,
+                  class: "w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition-all duration-200",
+                  data: { action: "change->export#filterChanged" } %>
             </div>
 
             <div>
               <%= form.label :end_date, "Data Final", class: "block text-gray-600 font-medium mb-1 text-sm" %>
-              <%= form.date_field :end_date, value: Date.today, class: "w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition-all duration-200" %>
+              <%= form.date_field :end_date, value: Date.today,
+                  class: "w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition-all duration-200",
+                  data: { action: "change->export#filterChanged" } %>
             </div>
           </div>
         </div>
@@ -37,18 +45,20 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <%= form.label :status, "Status de Aprovação", class: "block text-gray-600 font-medium mb-1 text-sm" %>
-              <%= form.select :status, 
-                  [["Todos", ""], ["Pendente", "pendente"], ["Enviado", "enviado"], ["Aprovado", "aprovado"], ["Rejeitado", "rejeitado"]], 
-                  {}, 
-                  class: "w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition-all duration-200" %>
+              <%= form.select :status,
+                  [["Todos", ""], ["Pendente", "pendente"], ["Enviado", "enviado"], ["Aprovado", "aprovado"], ["Rejeitado", "rejeitado"]],
+                  {},
+                  class: "w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition-all duration-200",
+                  data: { action: "change->export#filterChanged" } %>
             </div>
 
             <div>
               <%= form.label :complete, "Completude", class: "block text-gray-600 font-medium mb-1 text-sm" %>
-              <%= form.select :complete, 
-                  [["Todos", ""], ["Completos", "completo"], ["Incompletos", "incompleto"]], 
-                  {}, 
-                  class: "w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition-all duration-200" %>
+              <%= form.select :complete,
+                  [["Todos", ""], ["Completos", "completo"], ["Incompletos", "incompleto"]],
+                  {},
+                  class: "w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition-all duration-200",
+                  data: { action: "change->export#filterChanged" } %>
             </div>
           </div>
         </div>
@@ -58,11 +68,15 @@
           <h3 class="text-md font-medium text-gray-700 mb-3">Formato</h3>
           <div class="flex space-x-4">
             <div class="flex items-center">
-              <%= form.radio_button :format, "csv", checked: true, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300" %>
+              <%= form.radio_button :format, "csv", checked: true,
+                  class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300",
+                  data: { export_target: "csvRadio" } %>
               <%= form.label :format_csv, "CSV", class: "ml-2 block text-sm text-gray-700" %>
             </div>
             <div class="flex items-center">
-              <%= form.radio_button :format, "excel", class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300" %>
+              <%= form.radio_button :format, "excel",
+                  class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300",
+                  data: { export_target: "excelRadio" } %>
               <%= form.label :format_excel, "Excel", class: "ml-2 block text-sm text-gray-700" %>
             </div>
           </div>
@@ -143,7 +157,7 @@
           <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
         </tr>
       </thead>
-      <tbody id="preview-tbody" class="bg-white divide-y divide-gray-200">
+      <tbody data-export-target="previewTbody" class="bg-white divide-y divide-gray-200">
         <% current_user.time_sheets.order(date: :desc).each do |sheet| %>
           <tr>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= sheet.date.strftime("%d/%m/%Y") %></td>
@@ -186,123 +200,5 @@
   </div>
 </div>
 
-<script>
-  document.addEventListener('turbo:load', function() {
-    // Obter referências aos elementos do formulário
-    const form = document.getElementById('export-form');
-    const csvRadio = document.querySelector('input[name="format"][value="csv"]');
-    const excelRadio = document.querySelector('input[name="format"][value="excel"]');
-    const previewTbody = document.getElementById('preview-tbody');
+</div>
 
-    // Função para atualizar a prévia
-    function updatePreview() {
-      if (!form) return;
-
-      const formData = new FormData(form);
-      const params = new URLSearchParams();
-
-      // Adicionar todos os parâmetros do formulário, exceto o formato
-      for (const [key, value] of formData.entries()) {
-        if (key !== 'format') {
-          params.append(key, value);
-        }
-      }
-
-      // Fazer requisição para obter a prévia
-      fetch(`<%= export_preview_time_sheets_path %>?${params.toString()}`, {
-        headers: {
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        // Limpar a tabela atual
-        previewTbody.innerHTML = '';
-
-        // Adicionar os novos dados
-        if (data.preview_data && data.preview_data.length > 0) {
-          data.preview_data.forEach(sheet => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sheet.date}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheet.times[0]}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheet.times[1]}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheet.times[2]}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheet.times[3]}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheet.total_hours}</td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${sheet.approval_status_class}">
-                  ${sheet.approval_status_label}
-                </span>
-              </td>
-            `;
-            previewTbody.appendChild(row);
-          });
-        } else {
-          // Mostrar mensagem quando não há dados
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
-              Nenhum registro encontrado para os filtros selecionados
-            </td>
-          `;
-          previewTbody.appendChild(row);
-        }
-      })
-      .catch(error => {
-        console.error('Erro ao atualizar prévia:', error);
-      });
-    }
-
-    // Adicionar event listeners para atualizar a prévia quando os filtros mudarem
-    if (form) {
-      const inputs = form.querySelectorAll('input[type="date"], select');
-      inputs.forEach(input => {
-        input.addEventListener('change', updatePreview);
-      });
-
-      // Atualizar prévia ao carregar a página
-      updatePreview();
-    }
-
-    // Adicionar event listener para o envio do formulário
-    if (form) {
-      form.addEventListener('submit', function(event) {
-        // Prevenir o envio padrão do formulário
-        event.preventDefault();
-
-        // Determinar o formato selecionado
-        let format = 'csv'; // Formato padrão
-        if (excelRadio && excelRadio.checked) {
-          format = 'xlsx';
-        }
-
-        // Construir a URL com o formato correto
-        const formData = new FormData(form);
-        const params = new URLSearchParams();
-
-        // Adicionar todos os parâmetros do formulário
-        for (const [key, value] of formData.entries()) {
-          if (key !== 'format') { // Ignorar o campo format, pois será adicionado à extensão da URL
-            params.append(key, value);
-          }
-        }
-
-        // Construir a URL final
-        let url = form.action;
-        if (params.toString()) {
-          url += '?' + params.toString();
-        }
-
-        // Adicionar a extensão do formato
-        if (!url.includes('.')) {
-          url += '.' + format;
-        }
-
-        // Redirecionar para a URL construída
-        window.location.href = url;
-      });
-    }
-  });
-</script>
