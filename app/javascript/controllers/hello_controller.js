@@ -5,7 +5,7 @@ export default class extends Controller {
     static targets = [ "output" ]
 
     connect() {
-        console.log("Stimulus controller connected!!!")
+        this.outputTarget.textContent = "hotwire works!!"
     }
 
     greet() {
