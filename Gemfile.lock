@@ -494,7 +494,7 @@ DEPENDENCIES
   kaminari
   propshaft
   puma (>= 5.0)
-  rails (~> 8.0.3)
+  rails (~> 8.0.2)
   rails-controller-testing
   ransack
   rspec-rails
