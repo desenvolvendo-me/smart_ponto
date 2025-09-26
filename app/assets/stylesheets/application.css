@@ -8,3 +8,18 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+.hello {
+    color: red;
+}
+
+.hello h1 {
+    font-size: 24px;
+}
+
+.hello button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #991b1b;
+    cursor: pointer;
+}
