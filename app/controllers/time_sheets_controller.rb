@@ -38,6 +38,61 @@ class TimeSheetsController < ApplicationController
     render 'export'
   end
 
+  def export_preview
+    # Definir datas padrão se não forem fornecidas
+    start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : Date.today.beginning_of_month
+    end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : Date.today
+
+    # Iniciar a consulta com o filtro de período
+    @time_sheets = current_user.time_sheets.where(date: start_date..end_date)
+
+    # Aplicar filtro de status de aprovação se fornecido
+    if params[:status].present?
+      @time_sheets = @time_sheets.where(approval_status: params[:status])
+    end
+
+    # Aplicar filtro de completude se fornecido
+    if params[:complete].present?
+      @time_sheets = @time_sheets.where(status: params[:complete])
+    end
+
+    # Ordenar por data decrescente - mostrar todos os registros filtrados na prévia
+    @time_sheets = @time_sheets.order(date: :desc)
+
+    respond_to do |format|
+      format.json do
+        render json: {
+          preview_data: @time_sheets.map do |sheet|
+            entries = sheet.time_entries.order(:time)
+            times = entries.map { |e| e.time.strftime("%H:%M") }
+            while times.length < 4
+              times << "-"
+            end
+
+            {
+              date: sheet.date.strftime("%d/%m/%Y"),
+              times: times,
+              total_hours: "#{sheet.total_hours.to_f}h",
+              approval_status: sheet.approval_status,
+              approval_status_label: case sheet.approval_status
+                                     when 'aprovado' then 'Aprovado'
+                                     when 'enviado' then 'Enviado'
+                                     when 'rejeitado' then 'Rejeitado'
+                                     else 'Pendente'
+                                     end,
+              approval_status_class: case sheet.approval_status
+                                     when 'aprovado' then 'bg-green-100 text-green-800'
+                                     when 'enviado' then 'bg-blue-100 text-blue-800'
+                                     when 'rejeitado' then 'bg-red-100 text-red-800'
+                                     else 'bg-gray-100 text-gray-800'
+                                     end
+            }
+          end
+        }
+      end
+    end
+  end
+
   def export
     # Definir datas padrão se não forem fornecidas
     start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : Date.today.beginning_of_month

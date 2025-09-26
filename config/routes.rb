@@ -19,6 +19,7 @@ Rails.application.routes.draw do
       post :approve_with_justification
       get :export
       get :export_form
+      get :export_preview
       get :calendar
     end
     member do
