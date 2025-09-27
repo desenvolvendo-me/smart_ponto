@@ -10,7 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_07_202810) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_27_003209) do
+  create_table "justification_comments", force: :cascade do |t|
+    t.integer "time_sheet_id", null: false
+    t.integer "user_id", null: false
+    t.integer "parent_comment_id"
+    t.text "content", null: false
+    t.integer "level", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_comment_id"], name: "index_justification_comments_on_parent_comment_id"
+    t.index ["time_sheet_id", "level"], name: "index_justification_comments_on_time_sheet_id_and_level"
+    t.index ["time_sheet_id"], name: "index_justification_comments_on_time_sheet_id"
+    t.index ["user_id"], name: "index_justification_comments_on_user_id"
+  end
+
   create_table "time_entries", force: :cascade do |t|
     t.integer "user_id", null: false
     t.date "date"
@@ -85,6 +99,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_07_202810) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "justification_comments", "justification_comments", column: "parent_comment_id"
+  add_foreign_key "justification_comments", "time_sheets"
+  add_foreign_key "justification_comments", "users"
   add_foreign_key "time_entries", "time_sheets"
   add_foreign_key "time_entries", "users"
   add_foreign_key "time_sheets", "users"

@@ -48,14 +48,31 @@
       </span>
 
       <% if time_sheet.approval_status == 'enviado' %>
-        <div class="flex flex-col sm:flex-row gap-2 mt-2 w-full sm:w-auto">
-          <%= button_to reject_approval_path(time_sheet), method: :patch, class: "inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors duration-150 w-full sm:w-auto" do %>
-            <i class="fas fa-times mr-2"></i> Rejeitar
+        <div class="flex flex-col gap-2 mt-2 w-full sm:w-auto">
+          <!-- Botão Discussão - Sempre visível para justificativas pendentes -->
+          <% if time_sheet.justification_status == 'pendente' %>
+            <%= link_to time_sheet_justification_comments_path(time_sheet),
+                class: "inline-flex items-center justify-center px-4 py-2 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors duration-150 w-full" do %>
+              <i class="fas fa-comments mr-2"></i>
+              Discussão
+              <% if time_sheet.justification_comments.any? %>
+                <span class="ml-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                  <%= time_sheet.justification_comments.count %>
+                </span>
+              <% end %>
+            <% end %>
           <% end %>
 
-          <%= button_to approve_approval_path(time_sheet), method: :patch, class: "inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors duration-150 w-full sm:w-auto" do %>
-            <i class="fas fa-check mr-2"></i> Aprovar
-          <% end %>
+          <!-- Botões de Ação -->
+          <div class="flex flex-col sm:flex-row gap-2">
+            <%= button_to reject_approval_path(time_sheet), method: :patch, class: "inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors duration-150 w-full sm:w-auto" do %>
+              <i class="fas fa-times mr-2"></i> Rejeitar
+            <% end %>
+
+            <%= button_to approve_approval_path(time_sheet), method: :patch, class: "inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors duration-150 w-full sm:w-auto" do %>
+              <i class="fas fa-check mr-2"></i> Aprovar
+            <% end %>
+          </div>
         </div>
       <% elsif time_sheet.approved_at.present? %>
         <div class="text-xs text-gray-500 mt-1 text-right">

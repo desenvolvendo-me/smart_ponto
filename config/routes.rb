@@ -29,6 +29,8 @@ Rails.application.routes.draw do
       patch :add_justification
       patch :review_justification
     end
+
+    resources :justification_comments, path: 'comentarios', only: [:index, :create, :show, :destroy]
   end
 
   resources :time_entries, path: 'registros' do

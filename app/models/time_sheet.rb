@@ -3,6 +3,7 @@ class TimeSheet < ApplicationRecord
   belongs_to :approver, class_name: 'User', foreign_key: 'approved_by', optional: true
 
   has_many :time_entries, dependent: :destroy
+  has_many :justification_comments, dependent: :destroy
 
   TOLERANCE_MINUTES = 15
   STATUSES = ['incompleto', 'completo'].freeze
@@ -109,6 +110,41 @@ class TimeSheet < ApplicationRecord
 
     # Verifica se está dentro da tolerância
     difference_minutes <= TOLERANCE_MINUTES
+  end
+
+  def can_comment?
+    justification_status == 'pendente'
+  end
+
+  def next_comment_level
+    return 1 if justification_comments.empty?
+
+    last_level = justification_comments.maximum(:level) || 0
+    return nil if last_level >= 3
+
+    last_level + 1
+  end
+
+  def comments_thread
+    justification_comments.chronological
+  end
+
+  def pending_comment_from?(user)
+    return false unless can_comment?
+
+    next_level = next_comment_level
+    return false unless next_level
+
+    case next_level
+    when 1
+      user.role == 'gestor'
+    when 2
+      user == self.user
+    when 3
+      user.role == 'gestor'
+    else
+      false
+    end
   end
 
   private
