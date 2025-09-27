@@ -25,14 +25,14 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <%= form.label :start_date, "Data Inicial", class: "block text-gray-600 font-medium mb-1 text-sm" %>
-              <%= form.date_field :start_date, value: Date.today.beginning_of_month,
+              <%= form.date_field :start_date, value: params[:start_date] || Date.today.beginning_of_month.strftime('%Y-%m-%d'),
                   class: "w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition-all duration-200",
                   data: { action: "change->export#filterChanged" } %>
             </div>
 
             <div>
               <%= form.label :end_date, "Data Final", class: "block text-gray-600 font-medium mb-1 text-sm" %>
-              <%= form.date_field :end_date, value: Date.today,
+              <%= form.date_field :end_date, value: params[:end_date] || Date.today.strftime('%Y-%m-%d'),
                   class: "w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition-all duration-200",
                   data: { action: "change->export#filterChanged" } %>
             </div>

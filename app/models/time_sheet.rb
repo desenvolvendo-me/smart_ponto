@@ -47,30 +47,50 @@ class TimeSheet < ApplicationRecord
     (total_seconds / 3600.0).round(1).to_s
   end
 
-  def self.to_csv
+  def self.to_csv(time_sheets_collection = nil)
     require 'csv'
 
-    # Obter os nomes reais das colunas do modelo
-    # Exclui algumas colunas internas que não queremos exportar
-    columns = column_names.reject { |c| %w[created_at updated_at].include?(c) }
+    # Usar a coleção passada como parâmetro, ou todos os registros se não for especificada
+    collection = time_sheets_collection || all
 
     CSV.generate(headers: true) do |csv|
-      # Usar os nomes das colunas como cabeçalho
-      csv << columns
+      # Cabeçalhos mais amigáveis para o usuário
+      csv << [
+        'Data',
+        'Entrada 1',
+        'Saída 1',
+        'Entrada 2',
+        'Saída 2',
+        'Total de Horas',
+        'Status de Aprovação',
+        'Status de Completude'
+      ]
 
-      # Para cada registro, incluir os valores de cada coluna
-      all.each do |time_sheet|
-        csv << columns.map do |column|
-          value = time_sheet.send(column)
-          # Formatar datas e horas se necessário
-          if value.is_a?(Date)
-            value.strftime('%d/%m/%Y')
-          elsif value.is_a?(Time)
-            value.strftime('%H:%M')
-          else
-            value
-          end
+      # Para cada registro, incluir os valores formatados
+      collection.each do |time_sheet|
+        entries = time_sheet.time_entries.order(:time)
+        times = entries.map { |e| e.time.strftime("%H:%M") }
+
+        # Garantir que temos 4 horários (ou "-" para valores ausentes)
+        while times.length < 4
+          times << "-"
         end
+
+        csv << [
+          time_sheet.date.strftime('%d/%m/%Y'),
+          times[0],
+          times[1],
+          times[2],
+          times[3],
+          "#{time_sheet.total_hours.to_f}h",
+          case time_sheet.approval_status
+          when 'aprovado' then 'Aprovado'
+          when 'enviado' then 'Enviado'
+          when 'rejeitado' then 'Rejeitado'
+          else 'Pendente'
+          end,
+          time_sheet.status == 'completo' ? 'Completo' : 'Incompleto'
+        ]
       end
     end
   end

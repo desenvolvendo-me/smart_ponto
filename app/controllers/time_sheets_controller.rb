@@ -119,7 +119,7 @@ class TimeSheetsController < ApplicationController
 
     respond_to do |format|
       format.csv do
-        send_data @time_sheets.to_csv, filename: "#{filename_base}.csv"
+        send_data TimeSheet.to_csv(@time_sheets), filename: "#{filename_base}.csv"
       end
 
       # Adicionar suporte para exportação Excel
@@ -129,14 +129,14 @@ class TimeSheetsController < ApplicationController
           send_data generate_excel(@time_sheets), filename: "#{filename_base}.xlsx"
         else
           # Fallback para CSV se Axlsx não estiver disponível
-          send_data @time_sheets.to_csv, filename: "#{filename_base}.csv"
+          send_data TimeSheet.to_csv(@time_sheets), filename: "#{filename_base}.csv"
           flash[:notice] = "Exportação Excel não disponível. Arquivo CSV gerado."
         end
       end
 
       # Fallback para CSV se o formato não for especificado
       format.any do
-        send_data @time_sheets.to_csv, filename: "#{filename_base}.csv"
+        send_data TimeSheet.to_csv(@time_sheets), filename: "#{filename_base}.csv"
       end
     end
   end
