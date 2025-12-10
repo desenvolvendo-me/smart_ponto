@@ -287,7 +287,11 @@ class TimeSheetsController < ApplicationController
   end
 
   def set_time_sheet
-    @time_sheet = current_user.time_sheets.find(params[:id])
+    if current_user.role.in?(['gestor', 'admin'])
+      @time_sheet = TimeSheet.find(params[:id])
+    else
+      @time_sheet = current_user.time_sheets.find(params[:id])
+    end
   end
 
 
