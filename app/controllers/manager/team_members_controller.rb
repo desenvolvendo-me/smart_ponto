@@ -32,9 +32,17 @@ class Manager::TeamMembersController < ApplicationController
   end
 
   def toggle_weekend_registration
+    # Previne que gestores modifiquem permissões de admins ou outros gestores
+    if @user.role.in?(['admin', 'gestor']) && current_user.role != 'admin'
+      return render json: {
+        success: false,
+        message: 'Você não tem permissão para modificar este usuário'
+      }, status: :forbidden
+    end
+
     new_status = !@user.weekend_registration_allowed
 
-    if @user.update(weekend_registration_allowed: new_status)
+    if @user.update(user_update_params(new_status))
       status_text = new_status ? 'habilitado' : 'desabilitado'
       render json: {
         success: true,
@@ -59,5 +67,9 @@ class Manager::TeamMembersController < ApplicationController
 
   def set_user
     @user = User.find(params[:id])
+  end
+
+  def user_update_params(new_status)
+    { weekend_registration_allowed: new_status }
   end
 end

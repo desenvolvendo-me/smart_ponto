@@ -76,53 +76,31 @@ class TimeEntriesController < ApplicationController
     entries = time_sheet.time_entries.order(time: :desc)
     last_entry = entries.first
 
-    # Vamos usar apenas valores que observamos nas views
-    # Baseado nos resultados que observamos no calendário
+    # Determinar tipo de entrada baseado na última entrada registrada
     if last_entry.nil? || last_entry.entry_type != "entrada"
       entry_type = "entrada"
     else
-      entry_type = "saida"
+      entry_type = "saída"
     end
 
-    # Vamos usar INSERT direto via SQL para evitar validações que possam estar causando problemas
+    # Criar registro usando ActiveRecord (seguro contra SQL injection)
     begin
-      ActiveRecord::Base.connection.execute(
-        "INSERT INTO time_entries (user_id, time_sheet_id, date, time, entry_type, status, created_at, updated_at)
-         VALUES (#{current_user.id}, #{time_sheet.id}, '#{date}', '#{time.strftime('%H:%M:%S')}', '#{entry_type}', 'aprovado',
-                '#{Time.current}', '#{Time.current}')"
+      new_entry = TimeEntry.create!(
+        user_id: current_user.id,
+        time_sheet_id: time_sheet.id,
+        date: date,
+        time: time,
+        entry_type: entry_type,
+        status: 'registrado'
       )
 
-      # Atualizar o total de horas na folha
       update_timesheet_totals(time_sheet)
-
-      # Redirecionar para a página de origem
       return_path = determine_return_path
       redirect_to return_path, notice: "Ponto registrado com sucesso: #{entry_type.capitalize} às #{time.strftime('%H:%M')}"
-    rescue => e
-      # Se falhar, tentar uma abordagem alternativa
-      begin
-        # Encontrar entradas existentes para ver quais valores são válidos
-        existing_entry = TimeEntry.last
-        valid_status = existing_entry&.status || "aprovado"
-
-        # Tentar criar registro com valores copiados de entradas existentes
-        new_entry = TimeEntry.create!(
-          user_id: current_user.id,
-          time_sheet_id: time_sheet.id,
-          date: date,
-          time: time,
-          entry_type: entry_type,
-          status: valid_status
-        )
-
-        update_timesheet_totals(time_sheet)
-        return_path = determine_return_path
-        redirect_to return_path, notice: "Ponto registrado com sucesso: #{entry_type.capitalize} às #{time.strftime('%H:%M')}"
-      rescue => e2
-        # Ainda falhou, exibir detalhes do erro
-        return_path = determine_return_path
-        redirect_to return_path, alert: "Erro ao registrar ponto: #{e2.message}"
-      end
+    rescue ActiveRecord::RecordInvalid => e
+      return_path = determine_return_path
+      redirect_to return_path, alert: "Não foi possível registrar o ponto. Por favor, tente novamente."
+      Rails.logger.error "Failed to create time entry: #{e.message}"
     end
   end
 
