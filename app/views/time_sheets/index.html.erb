@@ -11,9 +11,23 @@
       </div>
 
       <div>
-        <%= button_to quick_register_time_entries_path(return_to: "list"), method: :post, class: "bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg shadow-sm flex items-center transition duration-150 ease-in-out" do %>
-          <i class="fas fa-plus mr-2"></i> Registrar Ponto
-        <% end %>
+        <% is_weekend_today = Date.today.saturday? || Date.today.sunday? %>
+        <% can_register_today = can_register_on_date?(current_user, Date.today) %>
+
+        <div class="relative group">
+          <%= button_to quick_register_time_entries_path(return_to: "list"),
+              method: :post,
+              disabled: !can_register_today,
+              class: "#{registration_button_classes(current_user, Date.today, 'bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg shadow-sm flex items-center transition duration-150 ease-in-out')}" do %>
+            <i class="fas fa-plus mr-2"></i> Registrar Ponto
+          <% end %>
+
+          <% if is_weekend_today && !can_register_today %>
+            <div class="absolute right-0 mt-2 w-64 bg-gray-900 text-white text-sm rounded-lg shadow-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+              <%= weekend_registration_tooltip %>
+            </div>
+          <% end %>
+        </div>
       </div>
     </div>
 
@@ -36,8 +50,38 @@
     </div>
   </div>
 
-  <div class="space-y-6">
-    <% @time_sheets.each do |time_sheet| %>
+  <% if @time_sheets.empty? %>
+    <div class="p-12 text-center">
+      <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-indigo-100 text-indigo-500 mb-6 shadow-inner">
+        <i class="fas fa-clock text-3xl"></i>
+      </div>
+      <h3 class="text-xl font-medium text-gray-900 mb-3">Nenhum registro de ponto</h3>
+      <p class="text-gray-500 max-w-md mx-auto text-sm">
+        Você ainda não possui registros de ponto. Comece registrando seu primeiro ponto do dia.
+      </p>
+      <div class="mt-6">
+        <% is_weekend_today = Date.today.saturday? || Date.today.sunday? %>
+        <% can_register_today = can_register_on_date?(current_user, Date.today) %>
+
+        <div class="relative inline-block group">
+          <%= button_to quick_register_time_entries_path(return_to: "list"),
+              method: :post,
+              disabled: !can_register_today,
+              class: "#{registration_button_classes(current_user, Date.today, 'inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm font-medium transition duration-150 ease-in-out')}" do %>
+            <i class="fas fa-plus mr-2"></i> Registrar Ponto
+          <% end %>
+
+          <% if is_weekend_today && !can_register_today %>
+            <div class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 bg-gray-900 text-white text-sm rounded-lg shadow-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+              <%= weekend_registration_tooltip %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="space-y-6">
+      <% @time_sheets.each do |time_sheet| %>
       <div class="bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-gray-100">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
           <div class="flex items-center">
@@ -196,9 +240,12 @@
         </div>
       </div>
     <% end %>
-  </div>
+    </div>
+  <% end %>
 
-  <div class="my-6">
-    <%= paginate @time_sheets %>
-  </div>
+  <% unless @time_sheets.empty? %>
+    <div class="my-6">
+      <%= paginate @time_sheets %>
+    </div>
+  <% end %>
 </div>

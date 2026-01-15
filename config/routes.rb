@@ -13,6 +13,15 @@ Rails.application.routes.draw do
     end
   end
 
+  # Rotas de gestão de equipe
+  namespace :manager do
+    resources :team_members, only: [:index], path: 'gestao-equipe' do
+      member do
+        patch :toggle_weekend_registration
+      end
+    end
+  end
+
   resources :time_sheets, path: 'meu-ponto' do
     collection do
       get :pending_justifications

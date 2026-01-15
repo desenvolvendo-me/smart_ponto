@@ -105,6 +105,19 @@
                   <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
                 <% end %>
               <% end %>
+
+              <% team_management_active = request.path.include?('/manager/gestao-equipe') %>
+              <%= link_to manager_team_members_path,
+                  class: "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ease-in-out
+                         #{team_management_active ? 'bg-indigo-700 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}" do %>
+                <div class="flex items-center justify-center w-8 h-8 <%= team_management_active ? 'text-indigo-200' : 'text-gray-400 group-hover:text-gray-200' %> transition-colors duration-200">
+                  <i class="fas fa-user-check"></i>
+                </div>
+                <span class="ml-3">Gestão de Equipe</span>
+                <% if team_management_active %>
+                  <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
+                <% end %>
+              <% end %>
             <% end %>
           <% end %>
         </nav>
@@ -266,6 +279,19 @@
                 </div>
                 <span class="ml-3">Aprovações</span>
                 <% if approvals_active %>
+                  <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
+                <% end %>
+              <% end %>
+
+              <% team_management_active = request.path.include?('/manager/gestao-equipe') %>
+              <%= link_to manager_team_members_path,
+                  class: "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ease-in-out
+                         #{team_management_active ? 'bg-indigo-700 text-white shadow-md' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}" do %>
+                <div class="flex items-center justify-center w-8 h-8 <%= team_management_active ? 'text-indigo-200' : 'text-gray-400 group-hover:text-gray-200' %> transition-colors duration-200">
+                  <i class="fas fa-user-check"></i>
+                </div>
+                <span class="ml-3">Gestão de Equipe</span>
+                <% if team_management_active %>
                   <span class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-300"></span>
                 <% end %>
               <% end %>

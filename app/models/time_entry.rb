@@ -9,6 +9,7 @@ class TimeEntry < ApplicationRecord
   validates :time, presence: true
   validates :entry_type, presence: true, inclusion: { in: ENTRY_TYPES }
   validates :status, presence: true, inclusion: { in: STATUSES }
+  validate :weekend_registration_allowed_check
 
   scope :by_date, ->(date) { where(date: date) }
   scope :chronological, -> { order(:date, :time) }
@@ -18,6 +19,14 @@ class TimeEntry < ApplicationRecord
   after_destroy :update_time_sheet_totals
 
   private
+
+  def weekend_registration_allowed_check
+    return unless date.present? && user.present?
+
+    if (date.saturday? || date.sunday?) && !user.can_register_on_weekend?
+      errors.add(:date, "não permitido para registro em fim de semana. Entre em contato com seu gestor.")
+    end
+  end
 
   def associate_time_sheet
     sheet = user.time_sheets.find_or_create_by(date: date)

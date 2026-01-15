@@ -1,5 +1,6 @@
 class TimeEntriesController < ApplicationController
   before_action :authenticate_user!
+  before_action :validate_weekend_registration, only: [:new, :create, :quick_register]
   before_action :set_time_entry, only: [:show, :edit, :update, :destroy]
 
   def index
@@ -167,5 +168,17 @@ class TimeEntriesController < ApplicationController
     else
       time_sheets_path
     end
+  end
+
+  def validate_weekend_registration
+    date_to_check = params[:date]&.to_date || Date.today
+
+    if (date_to_check.saturday? || date_to_check.sunday?) && !current_user.can_register_on_weekend?
+      flash[:alert] = "Você não tem permissão para registrar ponto em fins de semana. Entre em contato com seu gestor."
+      redirect_to determine_return_path || time_sheets_path
+      return false
+    end
+
+    true
   end
 end

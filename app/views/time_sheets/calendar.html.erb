@@ -11,9 +11,23 @@
       </div>
 
       <div>
-        <%= button_to quick_register_time_entries_path(return_to: "calendar"), method: :post, class: "bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg shadow-sm flex items-center transition duration-150 ease-in-out" do %>
-          <i class="fas fa-plus mr-2"></i> Registrar Ponto
-        <% end %>
+        <% is_weekend_today = Date.today.saturday? || Date.today.sunday? %>
+        <% can_register_today = can_register_on_date?(current_user, Date.today) %>
+
+        <div class="relative group">
+          <%= button_to quick_register_time_entries_path(return_to: "calendar"),
+              method: :post,
+              disabled: !can_register_today,
+              class: "#{registration_button_classes(current_user, Date.today, 'bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg shadow-sm flex items-center transition duration-150 ease-in-out')}" do %>
+            <i class="fas fa-plus mr-2"></i> Registrar Ponto
+          <% end %>
+
+          <% if is_weekend_today && !can_register_today %>
+            <div class="absolute right-0 mt-2 w-64 bg-gray-900 text-white text-sm rounded-lg shadow-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+              <%= weekend_registration_tooltip %>
+            </div>
+          <% end %>
+        </div>
       </div>
     </div>
 
@@ -191,9 +205,21 @@
               <% else %>
                 <div class="flex justify-center items-center h-20">
                   <% if day <= Date.today %>
-                    <%= link_to new_time_entry_path(date: day, return_to: "calendar"), class: "text-xs text-indigo-600 hover:text-indigo-800 flex items-center bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded-md transition-colors duration-150" do %>
-                      <i class="fas fa-plus-circle mr-1"></i> Registrar ponto
-                    <% end %>
+                    <% can_register_on_day = can_register_on_date?(current_user, day) %>
+                    <% is_day_weekend = day.saturday? || day.sunday? %>
+
+                    <div class="relative group">
+                      <%= link_to new_time_entry_path(date: day, return_to: "calendar"),
+                          class: "#{registration_button_classes(current_user, day, 'text-xs text-indigo-600 hover:text-indigo-800 flex items-center bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded-md transition-colors duration-150')}" do %>
+                        <i class="fas fa-plus-circle mr-1"></i> Registrar ponto
+                      <% end %>
+
+                      <% if is_day_weekend && !can_register_on_day %>
+                        <div class="absolute left-0 bottom-full mb-1 w-48 bg-gray-900 text-white text-xs rounded-lg shadow-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
+                          <%= weekend_registration_tooltip %>
+                        </div>
+                      <% end %>
+                    </div>
                   <% end %>
                 </div>
               <% end %>

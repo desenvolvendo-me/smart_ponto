@@ -1,0 +1,286 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center">
+      <%= link_to time_sheets_path, class: "mr-4 text-gray-600 hover:text-indigo-600 transition-colors duration-150 flex items-center" do %>
+        <i class="fas fa-arrow-left text-lg"></i>
+        <span class="ml-2 hidden sm:inline text-sm font-medium">Voltar</span>
+      <% end %>
+      <h1 class="text-2xl font-bold text-gray-900">Gestão de Equipe</h1>
+    </div>
+
+    <div class="text-sm text-gray-500 hidden md:block">
+      <span class="bg-indigo-100 text-indigo-800 px-2.5 py-1 rounded-md font-medium">
+        <i class="fas fa-users mr-1"></i>
+        Total: <%= @users.total_count %>
+      </span>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-6">
+    <div class="bg-gradient-to-r from-indigo-50 to-white p-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">
+        <i class="fas fa-filter text-indigo-600 mr-2"></i>
+        Filtros
+      </h2>
+      <%= form_with url: manager_team_members_path, method: :get, class: "flex flex-col lg:flex-row lg:items-end space-y-4 lg:space-y-0 lg:space-x-4" do |f| %>
+        <div class="flex-grow">
+          <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar por nome, email ou ID</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <i class="fas fa-search text-gray-400"></i>
+            </div>
+            <%= f.text_field :search, value: params[:search], id: "search", class: "bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full pl-10 p-2.5 shadow-sm focus:ring-indigo-500 focus:border-indigo-500", placeholder: "Digite para buscar..." %>
+          </div>
+        </div>
+
+        <div class="w-full lg:w-48">
+          <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Departamento</label>
+          <%= f.select :department,
+                      options_for_select([['Todos', '']] + @departments.map { |d| [d, d] }, params[:department]),
+                      {},
+                      { id: "department", class: "bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" } %>
+        </div>
+
+        <div class="w-full lg:w-48">
+          <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Função</label>
+          <%= f.select :position,
+                      options_for_select([['Todas', '']] + @positions.map { |p| [p, p] }, params[:position]),
+                      {},
+                      { id: "position", class: "bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" } %>
+        </div>
+
+        <div class="w-full lg:w-48">
+          <label for="weekend_status" class="block text-sm font-medium text-gray-700 mb-1">Status Fim de Semana</label>
+          <%= f.select :weekend_status,
+                      options_for_select([['Todos', ''], ['Habilitados', 'enabled'], ['Desabilitados', 'disabled']], params[:weekend_status]),
+                      {},
+                      { id: "weekend_status", class: "bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" } %>
+        </div>
+
+        <div class="flex space-x-2">
+          <% if params[:search].present? || params[:department].present? || params[:position].present? || params[:weekend_status].present? %>
+            <%= link_to manager_team_members_path, class: "w-full lg:w-auto bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg text-sm px-4 py-2.5 shadow-sm transition-colors duration-150 flex items-center justify-center" do %>
+              <i class="fas fa-times mr-2"></i> Limpar
+            <% end %>
+          <% end %>
+
+          <%= button_tag type: 'submit', class: "w-full lg:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm px-5 py-2.5 shadow-sm transition-colors duration-150 flex items-center justify-center" do %>
+            <i class="fas fa-filter mr-2"></i> Aplicar Filtros
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+    <% if @users.empty? %>
+      <div class="p-12 text-center">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-indigo-100 text-indigo-500 mb-6 shadow-inner">
+          <i class="fas fa-users text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-medium text-gray-900 mb-3">Nenhum usuário encontrado</h3>
+        <p class="text-gray-500 max-w-md mx-auto text-sm">
+          Tente ajustar os filtros para encontrar usuários.
+        </p>
+      </div>
+    <% else %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Usuário
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Departamento
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Função
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Matrícula
+              </th>
+              <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Registro Fim de Semana
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @users.each do |user| %>
+              <tr class="hover:bg-gray-50 transition-colors duration-150">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10">
+                      <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                        <i class="fas fa-user text-indigo-600"></i>
+                      </div>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900"><%= user.name %></div>
+                      <div class="text-sm text-gray-500"><%= user.email %></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900"><%= user.department || '-' %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900"><%= user.position || '-' %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900"><%= user.employee_id || '-' %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="flex items-center justify-center space-x-2">
+                    <label class="relative inline-flex items-center cursor-pointer group">
+                      <input type="checkbox"
+                             class="sr-only peer weekend-toggle"
+                             data-user-id="<%= user.id %>"
+                             data-toggle-url="<%= toggle_weekend_registration_manager_team_member_path(user) %>"
+                             <%= 'checked' if user.weekend_registration_allowed %>>
+                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                      <span class="ml-3 text-sm font-medium text-gray-700" data-status-label>
+                        <%= user.weekend_registration_allowed ? 'Habilitado' : 'Desabilitado' %>
+                      </span>
+                    </label>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <% if @users.total_pages > 1 %>
+        <div class="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-gray-200 bg-gray-50">
+          <div class="text-sm text-gray-500">
+            Mostrando <span class="font-medium text-indigo-700"><%= @users.offset_value + 1 %></span> a
+            <span class="font-medium text-indigo-700"><%= [@users.offset_value + @users.limit_value, @users.total_count].min %></span>
+            de <span class="font-medium text-indigo-700"><%= @users.total_count %></span> usuários
+          </div>
+          <div>
+            <%= paginate @users %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <!-- Help Section -->
+  <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <i class="fas fa-info-circle text-blue-400 text-xl"></i>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-blue-800">Sobre Registro em Fins de Semana</h3>
+        <div class="mt-2 text-sm text-blue-700">
+          <p>Quando habilitado, o funcionário poderá:</p>
+          <ul class="list-disc list-inside mt-1 space-y-1">
+            <li>Usar o botão "Registrar Ponto" aos sábados e domingos</li>
+            <li>Criar registros manualmente em dias de fim de semana</li>
+            <li>Visualizar esses registros no calendário e lista</li>
+          </ul>
+          <p class="mt-2">Quando desabilitado, os botões ficarão inativos com a mensagem: <em>"Não liberado registrar ponto no fim de semana"</em></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('turbo:load', function() {
+  // Handle weekend registration toggle
+  document.querySelectorAll('.weekend-toggle').forEach(checkbox => {
+    checkbox.addEventListener('change', async function(e) {
+      const toggleUrl = this.dataset.toggleUrl;
+      const label = this.closest('label').querySelector('[data-status-label]');
+
+      try {
+        const response = await fetch(toggleUrl, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Update label
+          label.textContent = data.status ? 'Habilitado' : 'Desabilitado';
+
+          // Show success notification
+          const notice = document.createElement('div');
+          notice.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-lg z-50 animate-fade-in';
+          notice.innerHTML = `
+            <div class="flex items-center">
+              <i class="fas fa-check-circle mr-2"></i>
+              <span>${data.message}</span>
+            </div>
+          `;
+          document.body.appendChild(notice);
+
+          // Remove notification after 3 seconds
+          setTimeout(() => {
+            notice.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+            setTimeout(() => notice.remove(), 300);
+          }, 3000);
+        } else {
+          throw new Error(data.message || 'Erro ao atualizar permissão');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+
+        // Revert checkbox state
+        this.checked = !this.checked;
+
+        // Show error notification
+        const errorNotice = document.createElement('div');
+        errorNotice.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50';
+        errorNotice.innerHTML = `
+          <div class="flex items-center">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span>Erro ao atualizar permissão. Tente novamente.</span>
+          </div>
+        `;
+        document.body.appendChild(errorNotice);
+
+        setTimeout(() => {
+          errorNotice.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+          setTimeout(() => errorNotice.remove(), 300);
+        }, 3000);
+      }
+    });
+  });
+});
+</script>
+
+<% content_for :styles do %>
+<style>
+  .pagination {
+    @apply inline-flex items-center -space-x-px rounded-md shadow-sm overflow-hidden;
+  }
+
+  .pagination span.page, .pagination span.next, .pagination span.prev, .pagination span.first, .pagination span.last {
+    @apply relative inline-flex items-center px-4 py-2 text-sm font-medium;
+  }
+
+  .pagination span.page.current {
+    @apply z-10 bg-indigo-50 border-indigo-500 text-indigo-700 relative inline-flex items-center px-4 py-2 border text-sm font-medium;
+  }
+
+  .pagination span.page a, .pagination span.next a, .pagination span.prev a, .pagination span.first a, .pagination span.last a {
+    @apply bg-white border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-150;
+  }
+
+  .pagination .gap {
+    @apply bg-white border-gray-300 text-gray-700 relative inline-flex items-center px-4 py-2 border text-sm font-medium;
+  }
+</style>
+<% end %>

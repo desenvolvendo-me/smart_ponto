@@ -12,6 +12,15 @@ class User < ApplicationRecord
   validates :name, presence: true
   validates :employee_id, uniqueness: true, allow_blank: true
 
+  # Verifica se usuário pode registrar ponto no fim de semana
+  def can_register_on_weekend?
+    weekend_registration_allowed == true
+  end
+
+  # Scopes para filtros
+  scope :with_weekend_registration, -> { where(weekend_registration_allowed: true) }
+  scope :without_weekend_registration, -> { where(weekend_registration_allowed: false) }
+
   after_create :create_default_preferences
 
   private
