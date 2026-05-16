@@ -151,8 +151,8 @@ class TimeEntriesController < ApplicationController
   def validate_weekend_registration
     date_to_check = params[:date]&.to_date || Date.today
 
-    if (date_to_check.saturday? || date_to_check.sunday?) && !current_user.can_register_on_weekend?
-      flash[:alert] = "Você não tem permissão para registrar ponto em fins de semana. Entre em contato com seu gestor."
+    unless current_user.can_register_on_date?(date_to_check)
+      flash[:alert] = "Você não tem permissão para registrar ponto em fins de semana. Liberação automática somente para gestor."
       redirect_to determine_return_path || time_sheets_path
       return false
     end

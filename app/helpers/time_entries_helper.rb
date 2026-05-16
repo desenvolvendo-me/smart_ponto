@@ -1,13 +1,17 @@
 module TimeEntriesHelper
   # Verifica se usuário pode registrar na data
   def can_register_on_date?(user, date)
-    return true unless date.saturday? || date.sunday?
-    user.can_register_on_weekend?
+    user.can_register_on_date?(date)
   end
 
-  # Tooltip para registro bloqueado
-  def weekend_registration_tooltip
-    "Não liberado registrar ponto no fim de semana"
+  def weekend_registration_tooltip(user, date)
+    return unless date.saturday? || date.sunday?
+
+    if user.gestor?
+      "Como gestor, a regra de bloqueio de fim de semana não se aplica ao seu perfil."
+    elsif !can_register_on_date?(user, date)
+      "Não liberado registrar ponto no fim de semana. Liberação automática somente para gestor."
+    end
   end
 
   # Classes CSS para botão baseado em permissão

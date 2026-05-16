@@ -14,7 +14,17 @@ class User < ApplicationRecord
 
   # Verifica se usuário pode registrar ponto no fim de semana
   def can_register_on_weekend?
-    weekend_registration_allowed == true
+    gestor? || weekend_registration_allowed == true
+  end
+
+  def can_register_on_date?(date)
+    return true unless date&.saturday? || date&.sunday?
+
+    can_register_on_weekend?
+  end
+
+  def gestor?
+    role == 'gestor'
   end
 
   # Scopes para filtros

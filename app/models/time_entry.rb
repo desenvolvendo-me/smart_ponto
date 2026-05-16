@@ -23,8 +23,8 @@ class TimeEntry < ApplicationRecord
   def weekend_registration_allowed_check
     return unless date.present? && user.present?
 
-    if (date.saturday? || date.sunday?) && !user.can_register_on_weekend?
-      errors.add(:date, "não permitido para registro em fim de semana. Entre em contato com seu gestor.")
+    unless user.can_register_on_date?(date)
+      errors.add(:date, "não permitido para registro em fim de semana. Liberação automática somente para gestor.")
     end
   end
 
