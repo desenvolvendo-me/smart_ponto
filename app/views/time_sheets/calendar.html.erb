@@ -13,6 +13,7 @@
       <div>
         <% is_weekend_today = Date.today.saturday? || Date.today.sunday? %>
         <% can_register_today = can_register_on_date?(current_user, Date.today) %>
+        <% weekend_tooltip_today = weekend_registration_tooltip(current_user, Date.today) %>
 
         <div class="relative group">
           <%= button_to quick_register_time_entries_path(return_to: "calendar"),
@@ -22,9 +23,9 @@
             <i class="fas fa-plus mr-2"></i> Registrar Ponto
           <% end %>
 
-          <% if is_weekend_today && !can_register_today %>
+          <% if is_weekend_today && weekend_tooltip_today.present? %>
             <div class="absolute right-0 mt-2 w-64 bg-gray-900 text-white text-sm rounded-lg shadow-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
-              <%= weekend_registration_tooltip %>
+              <%= weekend_tooltip_today %>
             </div>
           <% end %>
         </div>
@@ -214,9 +215,9 @@
                         <i class="fas fa-plus-circle mr-1"></i> Registrar ponto
                       <% end %>
 
-                      <% if is_day_weekend && !can_register_on_day %>
+                      <% if is_day_weekend && weekend_registration_tooltip(current_user, day).present? %>
                         <div class="absolute left-0 bottom-full mb-1 w-48 bg-gray-900 text-white text-xs rounded-lg shadow-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
-                          <%= weekend_registration_tooltip %>
+                          <%= weekend_registration_tooltip(current_user, day) %>
                         </div>
                       <% end %>
                     </div>
