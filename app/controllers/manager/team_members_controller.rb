@@ -61,7 +61,7 @@ class Manager::TeamMembersController < ApplicationController
 
   def authorize_manager_or_admin
     unless current_user.role.in?(['gestor', 'admin'])
-      redirect_to root_path, alert: 'Você não tem permissão para acessar esta página.'
+      redirect_to authenticated_root_path, alert: 'Você não tem permissão para acessar esta página.'
     end
   end
 

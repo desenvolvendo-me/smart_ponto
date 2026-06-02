@@ -1,286 +1,202 @@
-<div class="container mx-auto px-4 py-8">
-  <div class="flex items-center justify-between mb-6">
-    <div class="flex items-center">
-      <%= link_to time_sheets_path, class: "mr-4 text-gray-600 hover:text-indigo-600 transition-colors duration-150 flex items-center" do %>
-        <i class="fas fa-arrow-left text-lg"></i>
-        <span class="ml-2 hidden sm:inline text-sm font-medium">Voltar</span>
+<% active_filters = [params[:search], params[:department], params[:position], params[:weekend_status]].count(&:present?) %>
+
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-5" data-controller="weekend-toggle">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div class="space-y-2">
+      <%= link_to time_sheets_path, class: "inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground" do %>
+        <i class="fas fa-arrow-left text-xs"></i>
+        <span>Voltar</span>
       <% end %>
-      <h1 class="text-2xl font-bold text-gray-900">Gestão de Equipe</h1>
-    </div>
 
-    <div class="text-sm text-gray-500 hidden md:block">
-      <span class="bg-indigo-100 text-indigo-800 px-2.5 py-1 rounded-md font-medium">
-        <i class="fas fa-users mr-1"></i>
-        Total: <%= @users.total_count %>
-      </span>
-    </div>
-  </div>
-
-  <!-- Filters -->
-  <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-6">
-    <div class="bg-gradient-to-r from-indigo-50 to-white p-4 border-b border-gray-200">
-      <h2 class="text-lg font-semibold text-gray-800 mb-3">
-        <i class="fas fa-filter text-indigo-600 mr-2"></i>
-        Filtros
-      </h2>
-      <%= form_with url: manager_team_members_path, method: :get, class: "flex flex-col lg:flex-row lg:items-end space-y-4 lg:space-y-0 lg:space-x-4" do |f| %>
-        <div class="flex-grow">
-          <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar por nome, email ou ID</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <i class="fas fa-search text-gray-400"></i>
-            </div>
-            <%= f.text_field :search, value: params[:search], id: "search", class: "bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full pl-10 p-2.5 shadow-sm focus:ring-indigo-500 focus:border-indigo-500", placeholder: "Digite para buscar..." %>
-          </div>
-        </div>
-
-        <div class="w-full lg:w-48">
-          <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Departamento</label>
-          <%= f.select :department,
-                      options_for_select([['Todos', '']] + @departments.map { |d| [d, d] }, params[:department]),
-                      {},
-                      { id: "department", class: "bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" } %>
-        </div>
-
-        <div class="w-full lg:w-48">
-          <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Função</label>
-          <%= f.select :position,
-                      options_for_select([['Todas', '']] + @positions.map { |p| [p, p] }, params[:position]),
-                      {},
-                      { id: "position", class: "bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" } %>
-        </div>
-
-        <div class="w-full lg:w-48">
-          <label for="weekend_status" class="block text-sm font-medium text-gray-700 mb-1">Status Fim de Semana</label>
-          <%= f.select :weekend_status,
-                      options_for_select([['Todos', ''], ['Habilitados', 'enabled'], ['Desabilitados', 'disabled']], params[:weekend_status]),
-                      {},
-                      { id: "weekend_status", class: "bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" } %>
-        </div>
-
-        <div class="flex space-x-2">
-          <% if params[:search].present? || params[:department].present? || params[:position].present? || params[:weekend_status].present? %>
-            <%= link_to manager_team_members_path, class: "w-full lg:w-auto bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg text-sm px-4 py-2.5 shadow-sm transition-colors duration-150 flex items-center justify-center" do %>
-              <i class="fas fa-times mr-2"></i> Limpar
-            <% end %>
-          <% end %>
-
-          <%= button_tag type: 'submit', class: "w-full lg:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm px-5 py-2.5 shadow-sm transition-colors duration-150 flex items-center justify-center" do %>
-            <i class="fas fa-filter mr-2"></i> Aplicar Filtros
-          <% end %>
-        </div>
-      <% end %>
-    </div>
-  </div>
-
-  <!-- Users Table -->
-  <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-    <% if @users.empty? %>
-      <div class="p-12 text-center">
-        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-indigo-100 text-indigo-500 mb-6 shadow-inner">
-          <i class="fas fa-users text-3xl"></i>
-        </div>
-        <h3 class="text-xl font-medium text-gray-900 mb-3">Nenhum usuário encontrado</h3>
-        <p class="text-gray-500 max-w-md mx-auto text-sm">
-          Tente ajustar os filtros para encontrar usuários.
+      <div class="space-y-2">
+        <h1 class="text-2xl font-semibold tracking-tight text-foreground sm:text-[1.9rem]">
+          Gestao de Equipe
+        </h1>
+        <p class="max-w-3xl text-sm leading-6 text-muted-foreground">
+          Ajuste permissoes de registro em fim de semana e acompanhe rapidamente os dados principais da equipe.
         </p>
       </div>
-    <% else %>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Usuário
-              </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Departamento
-              </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Função
-              </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Matrícula
-              </th>
-              <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Registro Fim de Semana
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <% @users.each do |user| %>
-              <tr class="hover:bg-gray-50 transition-colors duration-150">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0 h-10 w-10">
-                      <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                        <i class="fas fa-user text-indigo-600"></i>
-                      </div>
-                    </div>
-                    <div class="ml-4">
-                      <div class="text-sm font-medium text-gray-900"><%= user.name %></div>
-                      <div class="text-sm text-gray-500"><%= user.email %></div>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900"><%= user.department || '-' %></div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900"><%= user.position || '-' %></div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900"><%= user.employee_id || '-' %></div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <div class="flex items-center justify-center space-x-2">
-                    <label class="relative inline-flex items-center cursor-pointer group">
-                      <input type="checkbox"
-                             class="sr-only peer weekend-toggle"
-                             data-user-id="<%= user.id %>"
-                             data-toggle-url="<%= toggle_weekend_registration_manager_team_member_path(user) %>"
-                             <%= 'checked' if user.weekend_registration_allowed %>>
-                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                      <span class="ml-3 text-sm font-medium text-gray-700" data-status-label>
-                        <%= user.weekend_registration_allowed ? 'Habilitado' : 'Desabilitado' %>
-                      </span>
-                    </label>
-                  </div>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+    </div>
+
+    <div class="inline-flex items-center gap-2 self-start rounded-full bg-secondary/80 px-3 py-1.5 text-sm font-medium text-secondary-foreground lg:self-auto">
+      <i class="fas fa-users text-xs"></i>
+      <span><%= @users.total_count %> integrante<%= "s" unless @users.total_count == 1 %></span>
+    </div>
+  </div>
+
+  <%= render RubyUI::Card.new(class: "border-white/80 bg-white/92 shadow-[0_18px_45px_rgba(48,45,74,0.08)]") do %>
+    <%= render RubyUI::CardContent.new(class: "px-6 py-6 sm:px-8 sm:py-7") do %>
+      <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-1">
+          <h2 class="text-base font-semibold tracking-tight text-foreground">Filtros</h2>
+          <p class="text-sm text-muted-foreground">
+            Encontre rapidamente quem precisa de ajuste ou revisao.
+          </p>
+        </div>
+
+        <% if active_filters.positive? %>
+          <span class="inline-flex items-center gap-2 self-start rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground sm:self-auto">
+            <i class="fas fa-filter text-[10px]"></i>
+            <%= active_filters %> filtro<%= "s" unless active_filters == 1 %> ativo<%= "s" unless active_filters == 1 %>
+          </span>
+        <% end %>
       </div>
 
-      <!-- Pagination -->
-      <% if @users.total_pages > 1 %>
-        <div class="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-gray-200 bg-gray-50">
-          <div class="text-sm text-gray-500">
-            Mostrando <span class="font-medium text-indigo-700"><%= @users.offset_value + 1 %></span> a
-            <span class="font-medium text-indigo-700"><%= [@users.offset_value + @users.limit_value, @users.total_count].min %></span>
-            de <span class="font-medium text-indigo-700"><%= @users.total_count %></span> usuários
-          </div>
-          <div>
-            <%= paginate @users %>
-          </div>
+      <%= form_with url: manager_team_members_path, method: :get, class: "grid gap-3 xl:grid-cols-[minmax(0,1.5fr)_170px_170px_200px_auto]" do |f| %>
+        <%= render RubyUI::FormField.new(class: "space-y-2") do %>
+          <%= render RubyUI::FormFieldLabel.new(for: "search", class: "text-sm font-medium text-foreground") do %>
+            Buscar por nome, email ou ID
+          <% end %>
+          <%= f.text_field :search,
+                value: params[:search],
+                id: "search",
+                class: "flex h-11 w-full rounded-md border border-border/80 bg-white px-3 py-2 text-sm text-foreground shadow-none outline-none transition-[color,box-shadow] placeholder:text-muted-foreground/80 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50",
+                placeholder: "Digite para buscar..." %>
+        <% end %>
+
+        <%= render RubyUI::FormField.new(class: "space-y-2") do %>
+          <%= render RubyUI::FormFieldLabel.new(for: "department", class: "text-sm font-medium text-foreground") do %>
+            Departamento
+          <% end %>
+          <%= f.select :department,
+                options_for_select([["Todos", ""]] + @departments.map { |d| [d, d] }, params[:department]),
+                {},
+                { id: "department", class: "flex h-11 w-full rounded-md border border-border/80 bg-white px-3 py-2 text-sm text-foreground shadow-none outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50" } %>
+        <% end %>
+
+        <%= render RubyUI::FormField.new(class: "space-y-2") do %>
+          <%= render RubyUI::FormFieldLabel.new(for: "position", class: "text-sm font-medium text-foreground") do %>
+            Funcao
+          <% end %>
+          <%= f.select :position,
+                options_for_select([["Todas", ""]] + @positions.map { |p| [p, p] }, params[:position]),
+                {},
+                { id: "position", class: "flex h-11 w-full rounded-md border border-border/80 bg-white px-3 py-2 text-sm text-foreground shadow-none outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50" } %>
+        <% end %>
+
+        <%= render RubyUI::FormField.new(class: "space-y-2") do %>
+          <%= render RubyUI::FormFieldLabel.new(for: "weekend_status", class: "text-sm font-medium text-foreground") do %>
+            Fim de semana
+          <% end %>
+          <%= f.select :weekend_status,
+                options_for_select([["Todos", ""], ["Habilitados", "enabled"], ["Desabilitados", "disabled"]], params[:weekend_status]),
+                {},
+                { id: "weekend_status", class: "flex h-11 w-full rounded-md border border-border/80 bg-white px-3 py-2 text-sm text-foreground shadow-none outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50" } %>
+        <% end %>
+
+        <div class="flex flex-col gap-3 sm:flex-row xl:items-end xl:justify-end">
+          <% if active_filters.positive? %>
+            <%= link_to manager_team_members_path, class: "inline-flex h-11 items-center justify-center rounded-md border border-border bg-white px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent" do %>
+              Limpar
+            <% end %>
+          <% end %>
+
+          <%= render RubyUI::Button.new(type: :submit, class: "h-11 px-5 text-sm font-semibold shadow-sm") do %>
+            Aplicar filtros
+          <% end %>
         </div>
       <% end %>
     <% end %>
-  </div>
+  <% end %>
 
-  <!-- Help Section -->
-  <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-    <div class="flex">
-      <div class="flex-shrink-0">
-        <i class="fas fa-info-circle text-blue-400 text-xl"></i>
-      </div>
-      <div class="ml-3">
-        <h3 class="text-sm font-medium text-blue-800">Sobre Registro em Fins de Semana</h3>
-        <div class="mt-2 text-sm text-blue-700">
-          <p>Quando habilitado, o funcionário poderá:</p>
-          <ul class="list-disc list-inside mt-1 space-y-1">
-            <li>Usar o botão "Registrar Ponto" aos sábados e domingos</li>
-            <li>Criar registros manualmente em dias de fim de semana</li>
-            <li>Visualizar esses registros no calendário e lista</li>
-          </ul>
-          <p class="mt-2">Quando desabilitado, os botões ficarão inativos com a mensagem: <em>"Não liberado registrar ponto no fim de semana"</em></p>
+  <%= render RubyUI::Card.new(class: "border-white/80 bg-white/92 shadow-[0_18px_45px_rgba(48,45,74,0.08)] overflow-hidden") do %>
+    <% if @users.empty? %>
+      <div class="px-6 py-14 text-center sm:px-8">
+        <div class="mx-auto mb-5 inline-flex h-16 w-16 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+          <i class="fas fa-users text-2xl"></i>
         </div>
+        <h3 class="text-lg font-semibold text-foreground">Nenhum usuario encontrado</h3>
+        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+          Tente ajustar os filtros para encontrar os integrantes da equipe que voce procura.
+        </p>
       </div>
-    </div>
-  </div>
-</div>
+    <% else %>
+      <div class="flex flex-col gap-3 border-b border-border/70 px-6 py-5 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
+        <div class="space-y-1">
+          <h2 class="text-base font-semibold tracking-tight text-foreground">Liberacao de fim de semana</h2>
+          <p class="text-sm text-muted-foreground">
+            Ative apenas para quem precisa registrar ou ajustar ponto aos sabados e domingos.
+          </p>
+        </div>
+        <p class="text-sm text-muted-foreground lg:max-w-xs lg:text-right">
+          Revise a pessoa e confirme a permissao no mesmo bloco.
+        </p>
+      </div>
 
-<script>
-document.addEventListener('turbo:load', function() {
-  // Handle weekend registration toggle
-  document.querySelectorAll('.weekend-toggle').forEach(checkbox => {
-    checkbox.addEventListener('change', async function(e) {
-      const toggleUrl = this.dataset.toggleUrl;
-      const label = this.closest('label').querySelector('[data-status-label]');
+      <div class="divide-y divide-border/70">
+        <% @users.each do |user| %>
+          <div class="px-6 py-5 sm:px-8">
+            <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+              <div class="flex min-w-0 items-start gap-4">
+                <div class="flex h-12 w-12 flex-none items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+                  <i class="fas fa-user"></i>
+                </div>
 
-      try {
-        const response = await fetch(toggleUrl, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json'
-          }
-        });
+                <div class="min-w-0 space-y-2">
+                  <div class="space-y-1">
+                    <h3 class="text-lg font-semibold tracking-tight text-foreground">
+                      <%= user.name %>
+                    </h3>
+                    <p class="text-sm text-muted-foreground"><%= user.email %></p>
+                  </div>
 
-        const data = await response.json();
+                  <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
+                    <span class="inline-flex items-center gap-2 rounded-full bg-secondary/80 px-3 py-1 text-secondary-foreground">
+                      <i class="fas fa-building text-xs"></i>
+                      <%= user.department.presence || "Sem departamento" %>
+                    </span>
+                    <span class="inline-flex items-center gap-2 rounded-full bg-secondary/80 px-3 py-1 text-secondary-foreground">
+                      <i class="fas fa-briefcase text-xs"></i>
+                      <%= user.position.presence || "Sem funcao" %>
+                    </span>
+                    <span class="inline-flex items-center gap-2 rounded-full bg-secondary/80 px-3 py-1 text-secondary-foreground">
+                      <i class="fas fa-id-badge text-xs"></i>
+                      <%= user.employee_id.presence || "Sem matricula" %>
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-        if (data.success) {
-          // Update label
-          label.textContent = data.status ? 'Habilitado' : 'Desabilitado';
+              <div class="flex flex-col gap-2 rounded-2xl border border-border/70 bg-secondary/10 px-4 py-3 xl:min-w-[250px] xl:items-end">
+                <div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between xl:justify-end">
+                  <span class="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                    Registro em fim de semana
+                  </span>
 
-          // Show success notification
-          const notice = document.createElement('div');
-          notice.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-lg z-50 animate-fade-in';
-          notice.innerHTML = `
-            <div class="flex items-center">
-              <i class="fas fa-check-circle mr-2"></i>
-              <span>${data.message}</span>
+                  <label class="inline-flex items-center gap-3">
+                  <input type="checkbox"
+                         class="peer sr-only"
+                         data-weekend-toggle-target="checkbox"
+                         data-action="change->weekend-toggle#toggle"
+                         data-user-id="<%= user.id %>"
+                         data-toggle-url="<%= toggle_weekend_registration_manager_team_member_path(user) %>"
+                         <%= "checked" if user.weekend_registration_allowed %>>
+                    <span class="relative h-6 w-11 rounded-full bg-muted transition-colors after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-transform peer-checked:bg-primary peer-checked:after:translate-x-full"></span>
+                    <span class="text-sm font-medium text-foreground" data-weekend-toggle-target="label" data-user-id="<%= user.id %>">
+                      <%= user.weekend_registration_allowed ? "Habilitado" : "Desabilitado" %>
+                    </span>
+                  </label>
+                </div>
+
+                <p class="text-sm text-muted-foreground xl:text-right" data-weekend-toggle-target="description" data-user-id="<%= user.id %>">
+                  <%= user.weekend_registration_allowed ? "Pode registrar ponto e ajustes no fim de semana." : "Nao pode registrar ponto no fim de semana." %>
+                </p>
+              </div>
             </div>
-          `;
-          document.body.appendChild(notice);
-
-          // Remove notification after 3 seconds
-          setTimeout(() => {
-            notice.classList.add('opacity-0', 'transition-opacity', 'duration-300');
-            setTimeout(() => notice.remove(), 300);
-          }, 3000);
-        } else {
-          throw new Error(data.message || 'Erro ao atualizar permissão');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-
-        // Revert checkbox state
-        this.checked = !this.checked;
-
-        // Show error notification
-        const errorNotice = document.createElement('div');
-        errorNotice.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50';
-        errorNotice.innerHTML = `
-          <div class="flex items-center">
-            <i class="fas fa-exclamation-circle mr-2"></i>
-            <span>Erro ao atualizar permissão. Tente novamente.</span>
           </div>
-        `;
-        document.body.appendChild(errorNotice);
+        <% end %>
+      </div>
 
-        setTimeout(() => {
-          errorNotice.classList.add('opacity-0', 'transition-opacity', 'duration-300');
-          setTimeout(() => errorNotice.remove(), 300);
-        }, 3000);
-      }
-    });
-  });
-});
-</script>
-
-<% content_for :styles do %>
-<style>
-  .pagination {
-    @apply inline-flex items-center -space-x-px rounded-md shadow-sm overflow-hidden;
-  }
-
-  .pagination span.page, .pagination span.next, .pagination span.prev, .pagination span.first, .pagination span.last {
-    @apply relative inline-flex items-center px-4 py-2 text-sm font-medium;
-  }
-
-  .pagination span.page.current {
-    @apply z-10 bg-indigo-50 border-indigo-500 text-indigo-700 relative inline-flex items-center px-4 py-2 border text-sm font-medium;
-  }
-
-  .pagination span.page a, .pagination span.next a, .pagination span.prev a, .pagination span.first a, .pagination span.last a {
-    @apply bg-white border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-150;
-  }
-
-  .pagination .gap {
-    @apply bg-white border-gray-300 text-gray-700 relative inline-flex items-center px-4 py-2 border text-sm font-medium;
-  }
-</style>
-<% end %>
+      <% if @users.total_pages > 1 %>
+        <div class="flex flex-col gap-4 border-t border-border/70 px-6 py-5 text-sm text-muted-foreground sm:px-8 lg:flex-row lg:items-center lg:justify-between">
+          <p>
+            Mostrando <span class="font-medium text-foreground"><%= @users.offset_value + 1 %></span> a
+            <span class="font-medium text-foreground"><%= [@users.offset_value + @users.limit_value, @users.total_count].min %></span>
+            de <span class="font-medium text-foreground"><%= @users.total_count %></span> usuarios.
+          </p>
+          <%= paginate @users %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
