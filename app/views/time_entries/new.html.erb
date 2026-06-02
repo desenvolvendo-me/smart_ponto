@@ -1,45 +1,145 @@
-<div class="flex items-center mb-4">
-  <%= link_to time_sheets_path, class: "text-2xl" do %>
-    <i class="fas fa-arrow-left"></i>
-  <% end %>
-  <h1 class="text-2xl font-bold ml-4">Registrar Ponto</h1>
-</div>
+<% return_to = params[:return_to].presence %>
+<% back_path = return_to == "calendar" ? calendar_time_sheets_path : time_sheets_path %>
+<% input_classes = "h-11 border-border/80 bg-white shadow-none placeholder:text-muted-foreground/80" %>
+<% text_area_classes = "flex min-h-28 w-full rounded-md border border-border/80 bg-white px-3 py-2.5 text-sm text-foreground shadow-none outline-none transition-[color,box-shadow] placeholder:text-muted-foreground/80 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50" %>
+<% select_classes = "flex h-11 w-full rounded-md border border-border/80 bg-white px-3 py-2 text-sm text-foreground shadow-none outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50" %>
 
-<div class="bg-white p-6 rounded-lg shadow">
-  <%= form_with(model: @time_entry, class: "space-y-4") do |form| %>
-    <% if @time_entry.errors.any? %>
-      <div class="bg-red-100 p-4 rounded">
-        <h2 class="font-bold text-red-700"><%= pluralize(@time_entry.errors.count, "erro") %> encontrado:</h2>
-        <ul class="list-disc pl-5">
-          <% @time_entry.errors.full_messages.each do |message| %>
-            <li class="text-red-700"><%= message %></li>
-          <% end %>
-        </ul>
-      </div>
+<div class="mx-auto w-full max-w-3xl">
+  <div class="space-y-3">
+    <%= link_to back_path, class: "inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground" do %>
+      <i class="fas fa-arrow-left text-xs"></i>
+      <span>Voltar</span>
     <% end %>
 
-    <div>
-      <%= form.label :date, "Data", class: "block text-gray-700 font-medium mb-1" %>
-      <%= form.date_field :date, value: Date.today, class: "w-full p-2 border rounded" %>
-    </div>
+    <div class="space-y-2">
+      <h1 class="text-2xl font-semibold tracking-tight text-foreground sm:text-[1.9rem]">
+        Registrar ponto
+      </h1>
 
-    <div>
-      <%= form.label :time, "Hora", class: "block text-gray-700 font-medium mb-1" %>
-      <%= form.time_field :time, value: Time.current.strftime("%H:%M"), class: "w-full p-2 border rounded" %>
+      <p class="max-w-2xl text-sm leading-6 text-muted-foreground">
+        Ajuste uma entrada ou saida manualmente e atualize seu espelho de ponto.
+      </p>
     </div>
+  </div>
 
-    <div>
-      <%= form.label :entry_type, "Tipo", class: "block text-gray-700 font-medium mb-1" %>
-      <%= form.select :entry_type, [["Entrada", "entrada"], ["Saída", "saída"]], {}, class: "w-full p-2 border rounded" %>
-    </div>
+  <%= render RubyUI::Card.new(class: "mt-5 border-white/80 bg-white/92 shadow-[0_18px_45px_rgba(48,45,74,0.08)]") do %>
+    <%= render RubyUI::CardHeader.new(class: "space-y-4 px-6 pt-6 sm:px-8 sm:pt-8") do %>
+      <%= render RubyUI::CardTitle.new(class: "text-xl tracking-tight text-foreground") do %>
+        Dados do registro
+      <% end %>
 
-    <div>
-      <%= form.label :observation, "Observação", class: "block text-gray-700 font-medium mb-1" %>
-      <%= form.text_area :observation, class: "w-full p-2 border rounded", rows: 3, placeholder: "Ex: Atraso devido a consulta médica" %>
-    </div>
+      <%= render RubyUI::CardDescription.new(class: "max-w-xl text-sm leading-6 text-muted-foreground") do %>
+        Preencha os campos abaixo. Depois de salvar, voce retorna para <%= return_to == "calendar" ? "o calendario" : "a lista do ponto" %>.
+      <% end %>
+    <% end %>
 
-    <div class="flex justify-end">
-      <%= form.submit "Registrar Ponto", class: "bg-black text-white px-6 py-2 rounded" %>
-    </div>
+    <%= render RubyUI::CardContent.new(class: "space-y-6 px-6 pb-6 sm:px-8 sm:pb-8") do %>
+      <%= form_with(model: @time_entry, class: "space-y-6") do |form| %>
+        <% if return_to.present? %>
+          <%= hidden_field_tag :return_to, return_to %>
+        <% end %>
+
+        <% if @time_entry.errors.any? %>
+          <%= render RubyUI::Alert.new(variant: :destructive, class: "rounded-2xl border-destructive/20 bg-destructive/5 text-destructive shadow-none") do %>
+            <i class="fas fa-exclamation-circle"></i>
+            <div class="space-y-2">
+              <%= render RubyUI::AlertTitle.new(class: "text-sm font-semibold") do %>
+                <%= pluralize(@time_entry.errors.count, "erro") %> impediram o registro
+              <% end %>
+
+              <%= render RubyUI::AlertDescription.new(class: "text-sm leading-6 text-destructive/90") do %>
+                <ul class="list-disc space-y-1 pl-5">
+                  <% @time_entry.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+
+        <div class="grid gap-5 md:grid-cols-2">
+          <%= render RubyUI::FormField.new(class: "space-y-2") do %>
+            <%= render RubyUI::FormFieldLabel.new(for: "time_entry_date", class: "text-sm font-medium text-foreground") do %>
+              Data
+            <% end %>
+            <%= render RubyUI::Input.new(
+                  type: :date,
+                  id: "time_entry_date",
+                  name: "time_entry[date]",
+                  value: (@time_entry.date || Date.today).to_s,
+                  required: true,
+                  class: input_classes
+                ) %>
+            <%= render RubyUI::FormFieldHint.new(class: "text-xs text-muted-foreground") do %>
+              Use a data em que o ponto realmente aconteceu.
+            <% end %>
+          <% end %>
+
+          <%= render RubyUI::FormField.new(class: "space-y-2") do %>
+            <%= render RubyUI::FormFieldLabel.new(for: "time_entry_time", class: "text-sm font-medium text-foreground") do %>
+              Hora
+            <% end %>
+            <%= render RubyUI::Input.new(
+                  type: :time,
+                  id: "time_entry_time",
+                  name: "time_entry[time]",
+                  value: @time_entry.time&.strftime("%H:%M") || Time.current.strftime("%H:%M"),
+                  required: true,
+                  class: input_classes
+                ) %>
+            <%= render RubyUI::FormFieldHint.new(class: "text-xs text-muted-foreground") do %>
+              Informe no formato de 24 horas.
+            <% end %>
+          <% end %>
+        </div>
+
+        <%= render RubyUI::FormField.new(class: "space-y-2") do %>
+          <%= render RubyUI::FormFieldLabel.new(for: "time_entry_entry_type", class: "text-sm font-medium text-foreground") do %>
+            Tipo de registro
+          <% end %>
+          <%= form.select :entry_type,
+                [["Entrada", "entrada"], ["Saida", "saída"]],
+                {},
+                { id: "time_entry_entry_type", class: select_classes, required: true } %>
+          <%= render RubyUI::FormFieldHint.new(class: "text-xs text-muted-foreground") do %>
+            <%= @entry_type_suggested ? "Sugerido com base no ultimo registro do dia. Ajuste se necessario." : "Escolha entrada para iniciar um periodo e saida para encerrar." %>
+          <% end %>
+        <% end %>
+
+        <%= render RubyUI::FormField.new(class: "space-y-2") do %>
+          <div class="flex items-center justify-between gap-3">
+            <%= render RubyUI::FormFieldLabel.new(for: "time_entry_observation", class: "text-sm font-medium text-foreground") do %>
+              Observacao
+            <% end %>
+            <%= render RubyUI::FormFieldHint.new(class: "text-xs text-muted-foreground") do %>
+              Opcional
+            <% end %>
+          </div>
+
+          <%= form.text_area :observation,
+                id: "time_entry_observation",
+                class: text_area_classes,
+                rows: 3,
+                placeholder: "Ex: consulta medica ou reuniao externa" %>
+          <%= render RubyUI::FormFieldHint.new(class: "text-xs text-muted-foreground") do %>
+            Preencha apenas se precisar contextualizar o ajuste.
+          <% end %>
+        <% end %>
+
+        <div class="flex flex-col gap-3 border-t border-border/70 pt-5">
+          <p class="text-sm text-muted-foreground">
+            O registro sera vinculado automaticamente ao espelho da data informada.
+          </p>
+
+          <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
+            <%= link_to "Cancelar", back_path, class: "inline-flex h-11 items-center justify-center rounded-md border border-border bg-white px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent" %>
+            <%= render RubyUI::Button.new(type: :submit, class: "h-11 px-5 text-sm font-semibold shadow-sm") do %>
+              Registrar ponto
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
   <% end %>
 </div>

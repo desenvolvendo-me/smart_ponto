@@ -14,6 +14,8 @@ class TimeEntriesController < ApplicationController
     @time_entry = TimeEntry.new
     @time_entry.date = params[:date] || Date.today
     @time_entry.time = Time.current
+    @time_entry.entry_type = suggested_entry_type_for(@time_entry.date)
+    @entry_type_suggested = @time_entry.entry_type.present?
   end
 
   def edit
@@ -158,5 +160,14 @@ class TimeEntriesController < ApplicationController
     end
 
     true
+  end
+
+  def suggested_entry_type_for(date)
+    time_sheet = current_user.time_sheets.find_by(date: date)
+    last_entry = time_sheet&.time_entries&.order(time: :desc)&.first
+
+    return "entrada" if last_entry.nil? || last_entry.entry_type != "entrada"
+
+    "saída"
   end
 end
