@@ -1,91 +1,112 @@
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-800 to-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8 bg-white rounded-xl shadow-2xl p-8">
-    <div class="text-center">
-      <div class="flex justify-center">
-        <i class="fas fa-user-plus text-indigo-600 text-5xl mb-4"></i>
-      </div>
-      <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Criar Conta</h2>
-      <p class="text-sm text-gray-600">Preencha os dados abaixo para se registrar</p>
-    </div>
-
-    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "mt-8 space-y-6" }) do |f| %>
-      <%= render "devise/shared/error_messages", resource: resource %>
-
-      <div class="mb-4">
-        <%= f.label :name, "Nome", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <div class="relative">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <i class="fas fa-user text-gray-400"></i>
-          </div>
-          <%= f.text_field :name, autofocus: true, 
-              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
-              placeholder: "Seu nome completo" %>
-        </div>
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+  <%= render RubyUI::Card.new(class: "w-full max-w-md shadow-xl") do %>
+    <%= render RubyUI::CardHeader.new(class: "space-y-3 text-center") do %>
+      <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+        <i class="fas fa-user-plus text-xl"></i>
       </div>
 
-      <div class="mb-4">
-        <%= f.label :employee_id, "ID de Funcionário (opcional)", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <div class="relative">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <i class="fas fa-id-badge text-gray-400"></i>
-          </div>
-          <%= f.text_field :employee_id, 
-              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
-              placeholder: "Seu ID de funcionário (se aplicável)" %>
-        </div>
-      </div>
+      <div class="space-y-1">
+        <%= render RubyUI::CardTitle.new(class: "text-2xl") do %>
+          Criar Conta
+        <% end %>
 
-      <div class="mb-4">
-        <%= f.label :email, class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <div class="relative">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <i class="fas fa-envelope text-gray-400"></i>
-          </div>
-          <%= f.email_field :email, autocomplete: "email", 
-              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
-              placeholder: "Seu endereço de email" %>
-        </div>
-      </div>
-
-      <div class="mb-4">
-        <%= f.label :password, "Senha", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <div class="relative">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <i class="fas fa-lock text-gray-400"></i>
-          </div>
-          <%= f.password_field :password, autocomplete: "new-password", 
-              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
-              placeholder: "Crie uma senha" %>
-        </div>
-        <p class="mt-1 text-xs text-gray-500">
-          <% if @minimum_password_length %>
-            <em>Mínimo de <%= @minimum_password_length %> caracteres</em>
-          <% end %>
-        </p>
-      </div>
-
-      <div class="mb-4">
-        <%= f.label :password_confirmation, "Confirme a senha", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <div class="relative">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <i class="fas fa-lock text-gray-400"></i>
-          </div>
-          <%= f.password_field :password_confirmation, autocomplete: "new-password", 
-              class: "appearance-none rounded-lg relative block w-full pl-10 py-3 px-4 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm",
-              placeholder: "Confirme sua senha" %>
-        </div>
-      </div>
-
-      <div>
-        <%= f.submit "Registrar", class: "group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200" %>
+        <%= render RubyUI::CardDescription.new do %>
+          Preencha os dados abaixo para se registrar
+        <% end %>
       </div>
     <% end %>
 
-    <div class="mt-6 text-center">
-      <p class="text-sm text-gray-600">
-        Já tem uma conta?
-        <%= link_to "Entrar", new_session_path(resource_name), class: "ml-1 text-indigo-600 hover:text-indigo-500 transition-colors duration-200" %>
-      </p>
-    </div>
-  </div>
+    <%= render RubyUI::CardContent.new do %>
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "space-y-5" }) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
+
+        <%= render RubyUI::FormField.new do %>
+          <%= render RubyUI::FormFieldLabel.new(for: "#{resource_name}_name") do %>
+            Nome
+          <% end %>
+          <%= render RubyUI::Input.new(
+                id: "#{resource_name}_name",
+                name: "#{resource_name}[name]",
+                value: resource.name,
+                autofocus: true,
+                autocomplete: "name",
+                placeholder: "Seu nome completo",
+                required: true
+              ) %>
+        <% end %>
+
+        <%= render RubyUI::FormField.new do %>
+          <%= render RubyUI::FormFieldLabel.new(for: "#{resource_name}_employee_id") do %>
+            ID de Funcionario
+          <% end %>
+          <%= render RubyUI::FormFieldHint.new do %>
+            Opcional
+          <% end %>
+          <%= render RubyUI::Input.new(
+                id: "#{resource_name}_employee_id",
+                name: "#{resource_name}[employee_id]",
+                value: resource.employee_id,
+                placeholder: "Seu ID de funcionario, se aplicavel"
+              ) %>
+        <% end %>
+
+        <%= render RubyUI::FormField.new do %>
+          <%= render RubyUI::FormFieldLabel.new(for: "#{resource_name}_email") do %>
+            Email
+          <% end %>
+          <%= render RubyUI::Input.new(
+                type: :email,
+                id: "#{resource_name}_email",
+                name: "#{resource_name}[email]",
+                value: resource.email,
+                autocomplete: "email",
+                placeholder: "voce@empresa.com",
+                required: true
+              ) %>
+        <% end %>
+
+        <%= render RubyUI::FormField.new do %>
+          <%= render RubyUI::FormFieldLabel.new(for: "#{resource_name}_password") do %>
+            Senha
+          <% end %>
+          <% if @minimum_password_length %>
+            <%= render RubyUI::FormFieldHint.new do %>
+              Minimo de <%= @minimum_password_length %> caracteres
+            <% end %>
+          <% end %>
+          <%= render RubyUI::Input.new(
+                type: :password,
+                id: "#{resource_name}_password",
+                name: "#{resource_name}[password]",
+                autocomplete: "new-password",
+                placeholder: "Crie uma senha",
+                required: true
+              ) %>
+        <% end %>
+
+        <%= render RubyUI::FormField.new do %>
+          <%= render RubyUI::FormFieldLabel.new(for: "#{resource_name}_password_confirmation") do %>
+            Confirme a senha
+          <% end %>
+          <%= render RubyUI::Input.new(
+                type: :password,
+                id: "#{resource_name}_password_confirmation",
+                name: "#{resource_name}[password_confirmation]",
+                autocomplete: "new-password",
+                placeholder: "Confirme sua senha",
+                required: true
+              ) %>
+        <% end %>
+
+        <%= render RubyUI::Button.new(type: :submit, class: "w-full") do %>
+          Registrar
+        <% end %>
+      <% end %>
+
+      <div class="mt-6 border-t pt-6 text-center text-sm text-muted-foreground">
+        <span>Ja tem uma conta?</span>
+        <%= link_to "Entrar", new_session_path(resource_name), class: "ml-1 font-medium text-foreground hover:text-primary transition-colors" %>
+      </div>
+    <% end %>
+  <% end %>
 </div>

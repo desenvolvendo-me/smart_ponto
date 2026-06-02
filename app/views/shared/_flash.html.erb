@@ -1,14 +1,26 @@
-<!-- app/views/shared/_flash.html.erb -->
 <% flash.each do |type, message| %>
-  <% alert_class = case type.to_sym
-                   when :notice then "bg-green-100 border-green-500 text-green-700"
-                   when :alert, :error then "bg-red-100 border-red-500 text-red-700"
-                   else "bg-blue-100 border-blue-500 text-blue-700"
-                   end %>
-  <div class="<%= alert_class %> px-4 py-3 rounded relative mb-4 border-l-4" role="alert" data-controller="flash">
-    <span class="block sm:inline"><%= message %></span>
-    <button class="absolute top-0 bottom-0 right-0 px-4 py-3" data-action="click->flash#dismiss">
-      <span class="text-xl">&times;</span>
-    </button>
+  <% variant = case type.to_sym
+               when :notice then :success
+               when :alert, :error then :destructive
+               else nil
+               end %>
+  <% icon = case type.to_sym
+            when :notice then "check-circle"
+            when :alert, :error then "exclamation-circle"
+            else "info-circle"
+            end %>
+  <div class="fixed right-4 top-4 z-50 w-[calc(100%-2rem)] max-w-md" data-controller="flash">
+    <%= render RubyUI::Alert.new(variant: variant, class: "pr-11 shadow-lg") do %>
+      <i class="fas fa-<%= icon %>"></i>
+      <div>
+        <%= render RubyUI::AlertDescription.new do %>
+          <%= message %>
+        <% end %>
+      </div>
+      <button class="absolute right-3 top-3 text-current/70 hover:text-current transition-colors" data-action="click->flash#dismiss" type="button">
+        <span class="sr-only">Fechar</span>
+        <i class="fas fa-times"></i>
+      </button>
+    <% end %>
   </div>
 <% end %>
