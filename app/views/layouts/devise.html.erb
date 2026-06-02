@@ -13,11 +13,69 @@
 </head>
 
 <body class="bg-background text-foreground">
-  <div class="relative min-h-screen overflow-hidden">
-    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.16),_transparent_40%),linear-gradient(180deg,_rgba(238,242,255,0.8),_transparent_45%)]"></div>
+  <div class="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,_rgba(248,248,252,0.98),_rgba(248,248,252,0.92))]">
+    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(96,85,246,0.18),_transparent_34%),radial-gradient(circle_at_bottom_right,_rgba(122,106,247,0.12),_transparent_30%)]"></div>
+    <div class="pointer-events-none absolute inset-y-0 left-0 hidden w-1/2 bg-[linear-gradient(135deg,_rgba(255,255,255,0.92),_rgba(237,234,249,0.72))] lg:block"></div>
     <div class="relative z-10">
       <%= render "shared/flash" %>
-      <%= yield %>
+      <main class="mx-auto flex min-h-screen w-full max-w-7xl items-center px-4 py-8 sm:px-6 lg:px-8">
+        <div class="grid w-full gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,460px)] lg:items-center">
+          <section class="hidden lg:block">
+            <div class="max-w-xl space-y-8">
+              <div class="space-y-5">
+                <div class="inline-flex items-center gap-3 rounded-full border border-white/70 bg-white/80 px-4 py-2 text-sm font-medium text-foreground shadow-sm backdrop-blur">
+                  <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+                    <i class="fas fa-clock text-sm"></i>
+                  </span>
+                  <span>Smart Ponto</span>
+                </div>
+
+                <div class="space-y-4">
+                  <p class="text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                    Painel institucional agil
+                  </p>
+                  <h1 class="max-w-lg text-4xl font-semibold tracking-tight text-foreground xl:text-5xl">
+                    Registro, aprovacao e auditoria com clareza desde a primeira tela.
+                  </h1>
+                  <p class="max-w-lg text-base leading-7 text-muted-foreground xl:text-lg">
+                    Um fluxo direto para colaboradores, gestores e RH resolverem o ponto do dia sem atrito, com linguagem clara e estados previsiveis.
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid gap-4 sm:grid-cols-3">
+                <div class="rounded-2xl border border-white/80 bg-white/88 p-4 shadow-sm backdrop-blur">
+                  <p class="text-sm font-semibold text-foreground">Agilidade</p>
+                  <p class="mt-1 text-sm leading-6 text-muted-foreground">Acoes principais aparecem com clareza e pouco ruido visual.</p>
+                </div>
+                <div class="rounded-2xl border border-white/80 bg-white/88 p-4 shadow-sm backdrop-blur">
+                  <p class="text-sm font-semibold text-foreground">Transparencia</p>
+                  <p class="mt-1 text-sm leading-6 text-muted-foreground">Erros, pendencias e proximos passos ficam sempre explicitos.</p>
+                </div>
+                <div class="rounded-2xl border border-white/80 bg-white/88 p-4 shadow-sm backdrop-blur">
+                  <p class="text-sm font-semibold text-foreground">Confianca</p>
+                  <p class="mt-1 text-sm leading-6 text-muted-foreground">Visual leve, institucional e acessivel para uso recorrente.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="w-full">
+            <div class="mx-auto w-full max-w-md lg:max-w-none">
+              <div class="mb-6 flex items-center justify-center lg:hidden">
+                <div class="inline-flex items-center gap-3 rounded-full border border-white/80 bg-white/88 px-4 py-2 text-sm font-medium text-foreground shadow-sm backdrop-blur">
+                  <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+                    <i class="fas fa-clock text-sm"></i>
+                  </span>
+                  <span>Smart Ponto</span>
+                </div>
+              </div>
+
+              <%= yield %>
+            </div>
+          </section>
+        </div>
+      </main>
     </div>
   </div>
 </body>

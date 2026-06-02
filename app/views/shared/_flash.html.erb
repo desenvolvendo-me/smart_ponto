@@ -9,11 +9,11 @@
             when :alert, :error then "exclamation-circle"
             else "info-circle"
             end %>
-  <div class="fixed right-4 top-4 z-50 w-[calc(100%-2rem)] max-w-md" data-controller="flash">
-    <%= render RubyUI::Alert.new(variant: variant, class: "pr-11 shadow-lg") do %>
+  <div class="fixed left-1/2 top-4 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 px-1 sm:px-0" data-controller="flash">
+    <%= render RubyUI::Alert.new(variant: variant, class: "pr-11 shadow-[0_16px_40px_rgba(48,45,74,0.16)] backdrop-blur") do %>
       <i class="fas fa-<%= icon %>"></i>
       <div>
-        <%= render RubyUI::AlertDescription.new do %>
+        <%= render RubyUI::AlertDescription.new(class: "text-sm leading-6") do %>
           <%= message %>
         <% end %>
       </div>

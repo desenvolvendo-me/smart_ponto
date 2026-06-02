@@ -1,49 +1,54 @@
-<div class="min-h-screen flex items-center justify-center px-4 py-12">
-  <%= render RubyUI::Card.new(class: "w-full max-w-md shadow-xl") do %>
-    <%= render RubyUI::CardHeader.new(class: "space-y-3 text-center") do %>
+<%= render RubyUI::Card.new(class: "w-full border-white/80 bg-white/92 shadow-[0_18px_45px_rgba(48,45,74,0.12)] backdrop-blur") do %>
+  <%= render RubyUI::CardHeader.new(class: "space-y-4 px-6 pt-6 text-center sm:px-8 sm:pt-8") do %>
+    <div class="space-y-4">
+      <div class="mx-auto inline-flex items-center rounded-full bg-secondary px-3 py-1 text-xs font-medium tracking-[0.14em] text-secondary-foreground uppercase">
+        Recuperacao
+      </div>
+
       <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
         <i class="fas fa-lock text-xl"></i>
       </div>
 
       <div class="space-y-1">
-        <%= render RubyUI::CardTitle.new(class: "text-2xl") do %>
-          Recuperar Senha
+        <%= render RubyUI::CardTitle.new(class: "text-2xl tracking-tight sm:text-[1.9rem]") do %>
+          Recuperar senha
         <% end %>
 
-        <%= render RubyUI::CardDescription.new do %>
-          Enviaremos instrucoes para redefinir sua senha
+        <%= render RubyUI::CardDescription.new(class: "mx-auto max-w-sm text-sm leading-6 text-muted-foreground") do %>
+          Informe seu email para receber as instrucoes de redefinicao com clareza e seguranca.
         <% end %>
       </div>
-    <% end %>
+    </div>
+  <% end %>
 
-    <%= render RubyUI::CardContent.new do %>
-      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "space-y-5" }) do |f| %>
-        <%= render "devise/shared/error_messages", resource: resource %>
+  <%= render RubyUI::CardContent.new(class: "space-y-6 px-6 pb-6 sm:px-8 sm:pb-8") do %>
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "space-y-5" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
 
-        <%= render RubyUI::FormField.new do %>
-          <%= render RubyUI::FormFieldLabel.new(for: "#{resource_name}_email") do %>
-            Email
-          <% end %>
-          <%= render RubyUI::Input.new(
-                type: :email,
-                id: "#{resource_name}_email",
-                name: "#{resource_name}[email]",
-                value: resource.email,
-                autofocus: true,
-                autocomplete: "email",
-                placeholder: "voce@empresa.com",
-                required: true
-              ) %>
+      <%= render RubyUI::FormField.new(class: "space-y-2") do %>
+        <%= render RubyUI::FormFieldLabel.new(for: "#{resource_name}_email", class: "text-sm font-medium text-foreground") do %>
+          Email
         <% end %>
-
-        <%= render RubyUI::Button.new(type: :submit, class: "w-full") do %>
-          Enviar instrucoes
-        <% end %>
+        <%= render RubyUI::Input.new(
+              type: :email,
+              id: "#{resource_name}_email",
+              name: "#{resource_name}[email]",
+              value: resource.email,
+              autofocus: true,
+              autocomplete: "email",
+              placeholder: "voce@empresa.com",
+              required: true,
+              class: "h-11 border-border/80 bg-white shadow-none placeholder:text-muted-foreground/80"
+            ) %>
       <% end %>
 
-      <div class="mt-6 border-t pt-6 text-center text-sm text-muted-foreground">
-        <%= link_to "Voltar para o login", new_session_path(resource_name), class: "font-medium text-foreground hover:text-primary transition-colors" %>
-      </div>
+      <%= render RubyUI::Button.new(type: :submit, class: "h-11 w-full text-sm font-semibold shadow-sm") do %>
+        Enviar instrucoes
+      <% end %>
     <% end %>
+
+    <div class="rounded-2xl border border-secondary/70 bg-secondary/35 px-4 py-3 text-center text-sm text-muted-foreground">
+      <%= link_to "Voltar para o login", new_session_path(resource_name), class: "font-semibold text-primary hover:text-primary/80 transition-colors" %>
+    </div>
   <% end %>
-</div>
+<% end %>

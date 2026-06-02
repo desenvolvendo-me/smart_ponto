@@ -1,68 +1,76 @@
-<div class="min-h-screen flex items-center justify-center px-4 py-12">
-  <%= render RubyUI::Card.new(class: "w-full max-w-md shadow-xl") do %>
-    <%= render RubyUI::CardHeader.new(class: "space-y-3 text-center") do %>
+<%= render RubyUI::Card.new(class: "w-full border-white/80 bg-white/92 shadow-[0_18px_45px_rgba(48,45,74,0.12)] backdrop-blur") do %>
+  <%= render RubyUI::CardHeader.new(class: "space-y-4 px-6 pt-6 text-center sm:px-8 sm:pt-8") do %>
+    <div class="space-y-4">
+      <div class="mx-auto inline-flex items-center rounded-full bg-secondary px-3 py-1 text-xs font-medium tracking-[0.14em] text-secondary-foreground uppercase">
+        Nova senha
+      </div>
+
       <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
         <i class="fas fa-key text-xl"></i>
       </div>
 
       <div class="space-y-1">
-        <%= render RubyUI::CardTitle.new(class: "text-2xl") do %>
-          Alterar Senha
+        <%= render RubyUI::CardTitle.new(class: "text-2xl tracking-tight sm:text-[1.9rem]") do %>
+          Alterar senha
         <% end %>
 
-        <%= render RubyUI::CardDescription.new do %>
-          Defina sua nova senha
+        <%= render RubyUI::CardDescription.new(class: "mx-auto max-w-sm text-sm leading-6 text-muted-foreground") do %>
+          Defina uma nova senha para voltar ao sistema com seguranca e continuidade.
         <% end %>
       </div>
-    <% end %>
+    </div>
+  <% end %>
 
-    <%= render RubyUI::CardContent.new do %>
-      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "space-y-5" }) do |f| %>
-        <%= render "devise/shared/error_messages", resource: resource %>
-        <%= f.hidden_field :reset_password_token %>
+  <%= render RubyUI::CardContent.new(class: "space-y-6 px-6 pb-6 sm:px-8 sm:pb-8") do %>
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "space-y-5" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+      <%= f.hidden_field :reset_password_token %>
 
-        <%= render RubyUI::FormField.new do %>
-          <%= render RubyUI::FormFieldLabel.new(for: "#{resource_name}_password") do %>
+      <%= render RubyUI::FormField.new(class: "space-y-2") do %>
+        <div class="flex items-center justify-between gap-3">
+          <%= render RubyUI::FormFieldLabel.new(for: "#{resource_name}_password", class: "text-sm font-medium text-foreground") do %>
             Nova senha
           <% end %>
           <% if @minimum_password_length %>
-            <%= render RubyUI::FormFieldHint.new do %>
+            <%= render RubyUI::FormFieldHint.new(class: "text-xs text-muted-foreground") do %>
               Minimo de <%= @minimum_password_length %> caracteres
             <% end %>
           <% end %>
-          <%= render RubyUI::Input.new(
-                type: :password,
-                id: "#{resource_name}_password",
-                name: "#{resource_name}[password]",
-                autofocus: true,
-                autocomplete: "new-password",
-                placeholder: "Nova senha",
-                required: true
-              ) %>
-        <% end %>
-
-        <%= render RubyUI::FormField.new do %>
-          <%= render RubyUI::FormFieldLabel.new(for: "#{resource_name}_password_confirmation") do %>
-            Confirme a nova senha
-          <% end %>
-          <%= render RubyUI::Input.new(
-                type: :password,
-                id: "#{resource_name}_password_confirmation",
-                name: "#{resource_name}[password_confirmation]",
-                autocomplete: "new-password",
-                placeholder: "Confirme a nova senha",
-                required: true
-              ) %>
-        <% end %>
-
-        <%= render RubyUI::Button.new(type: :submit, class: "w-full") do %>
-          Alterar minha senha
-        <% end %>
+        </div>
+        <%= render RubyUI::Input.new(
+              type: :password,
+              id: "#{resource_name}_password",
+              name: "#{resource_name}[password]",
+              autofocus: true,
+              autocomplete: "new-password",
+              placeholder: "Nova senha",
+              required: true,
+              class: "h-11 border-border/80 bg-white shadow-none placeholder:text-muted-foreground/80"
+            ) %>
       <% end %>
 
-      <div class="mt-6 border-t pt-6 text-center text-sm text-muted-foreground">
-        <%= render "devise/shared/links" %>
-      </div>
+      <%= render RubyUI::FormField.new(class: "space-y-2") do %>
+        <%= render RubyUI::FormFieldLabel.new(for: "#{resource_name}_password_confirmation", class: "text-sm font-medium text-foreground") do %>
+          Confirme a nova senha
+        <% end %>
+        <%= render RubyUI::Input.new(
+              type: :password,
+              id: "#{resource_name}_password_confirmation",
+              name: "#{resource_name}[password_confirmation]",
+              autocomplete: "new-password",
+              placeholder: "Repita sua nova senha",
+              required: true,
+              class: "h-11 border-border/80 bg-white shadow-none placeholder:text-muted-foreground/80"
+            ) %>
+      <% end %>
+
+      <%= render RubyUI::Button.new(type: :submit, class: "h-11 w-full text-sm font-semibold shadow-sm") do %>
+        Alterar minha senha
+      <% end %>
     <% end %>
+
+    <div class="rounded-2xl border border-secondary/70 bg-secondary/35 px-4 py-3 text-center text-sm text-muted-foreground">
+      <%= render "devise/shared/links" %>
+    </div>
   <% end %>
-</div>
+<% end %>
