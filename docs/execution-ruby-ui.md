@@ -1,10 +1,10 @@
-# Execution Guide: RubyUI
+# Execution Guide: RubyUI + Impeccable
 
 ## Objetivo
 
 Este arquivo documenta o processo padrao para migrar qualquer tela do `smart_ponto` para RubyUI com risco controlado, reaproveitando a base atual do projeto e usando o MCP do RubyUI quando isso reduzir tentativa e erro.
 
-O objetivo futuro da skill e combinar:
+O objetivo da skill e combinar:
 
 - `https://rubyui.com/`
 - `https://impeccable.style`
@@ -18,6 +18,8 @@ O foco e:
 - migrar por partes, sem rewrite global
 - usar componentes RubyUI oficiais sempre que fizer sentido
 - usar o Impeccable como criterio de refinamento visual e ergonomia de interface
+
+O processo abaixo ja foi validado neste projeto na migracao das telas de autenticacao e no refinamento do shell Devise.
 
 ## Quando usar este processo
 
@@ -49,6 +51,29 @@ Antes de migrar telas, confirme que a base RubyUI esta ativa:
 - [app/components/ruby_ui/base.rb](/home/marcodotcastro/RubymineProjects/smart_ponto/app/components/ruby_ui/base.rb:1)
 - [app/assets/tailwind/application.css](/home/marcodotcastro/RubymineProjects/smart_ponto/app/assets/tailwind/application.css:1)
 - layouts usando `stylesheet_link_tag "tailwind"`
+- componentes RubyUI gerados em `app/components/ruby_ui`
+- controllers RubyUI em `app/javascript/controllers/ruby_ui`
+- MCP configurado em [.vscode/mcp.json](/home/marcodotcastro/RubymineProjects/smart_ponto/.vscode/mcp.json:1)
+
+Contexto visual do Impeccable ja definido no projeto:
+
+- [PRODUCT.md](/home/marcodotcastro/RubymineProjects/smart_ponto/PRODUCT.md:1)
+- [DESIGN.md](/home/marcodotcastro/RubymineProjects/smart_ponto/DESIGN.md:1)
+- [.impeccable/design.json](/home/marcodotcastro/RubymineProjects/smart_ponto/.impeccable/design.json:1)
+
+Direcao visual vigente:
+
+- north star: `painel institucional agil`
+- personalidade: `clara, confiavel, humana`
+- efeito: `agilidade e transparencia`
+- anti-referencias: `burocratica`, `sistema legado`, `ERP generico`
+- componente: `leve e amigavel`
+
+Observacao pratica:
+
+- o projeto usa Tailwind local
+- o Tailwind CDN foi removido dos layouts
+- a dependencia `tw-animate-css` foi resolvida via `@import` no CSS, porque o pin via importmap falhou no setup inicial
 
 ## Regra principal
 
@@ -125,7 +150,7 @@ Regra:
   - semantica visual
   - estados interativos
 
-### Etapa 3 - Usar o MCP do RubyUI quando houver duvida
+### Etapa 3 - Usar o MCP do RubyUI quando houver duvida ou dependencia estrutural
 
 Arquivo local ja preparado:
 
@@ -141,6 +166,7 @@ Use MCP principalmente quando:
 - precisar ver exemplos reais antes de instalar
 - quiser instalar com o comando oficial correto
 - precisar inspecionar dependencias do componente
+- precisar confirmar se a primitive existe oficialmente antes de compor localmente
 
 Fluxo recomendado de MCP:
 
@@ -170,7 +196,13 @@ Quando usar MCP e obrigatorio:
 
 Porque nesses casos a chance de dependencia extra ou estrutura errada e maior.
 
-### Etapa 3.1 - Usar o Impeccable como camada de design
+Quando nao precisa usar MCP:
+
+- tela simples com stack ja validada no projeto
+- evolucao visual de telas que ja usam `Card`, `Input`, `Button`, `Alert`, `Checkbox`
+- refinamento de copy, densidade, hierarquia e shell
+
+### Etapa 3.1 - Usar o Impeccable como camada de design e consistencia
 
 Depois de descobrir os componentes corretos no RubyUI, usar o `https://impeccable.style` como referencia de execucao visual.
 
@@ -193,6 +225,15 @@ Regra:
 
 - RubyUI define as primitives e a estrutura base
 - Impeccable guia como organizar, polir e evoluir os componentes
+- `PRODUCT.md` define o comportamento de marca do produto
+- `DESIGN.md` define tokens, linguagem visual e criterio de composicao
+
+Perguntas extras obrigatorias no contexto deste projeto:
+
+- a tela parece institucional sem ficar fria?
+- a composicao parece clara para pessoas menos fluentes digitalmente?
+- o CTA principal esta obvio?
+- a pagina comunica o proximo passo sem depender de interpretacao?
 
 ### Etapa 4 - Instalar apenas os componentes necessarios
 
@@ -326,6 +367,21 @@ rtk bundle exec rails runner 'puts :boot_ok'
 
 Se o app nao bootar, nao migrar tela ainda.
 
+### Passo 0.1 - Confirmar o contexto do Impeccable
+
+Antes de refinar visualmente qualquer tela, confirme se estes arquivos existem:
+
+- `PRODUCT.md`
+- `DESIGN.md`
+- `.impeccable/design.json`
+
+Se nao existirem:
+
+1. inicializar o fluxo do Impeccable
+2. documentar produto
+3. documentar design
+4. voltar para a tela
+
 ### Passo 1 - Ler a tela alvo
 
 Rodar:
@@ -346,6 +402,7 @@ Se ja souber:
 Se nao souber:
 
 - usar MCP RubyUI
+- comparar a tela com `PRODUCT.md` e `DESIGN.md`
 
 ### Passo 3 - Gerar os componentes
 
@@ -376,6 +433,8 @@ Depois disso, aplicar um passe de refinamento com lente Impeccable:
 3. revisar densidade da interface
 4. reforcar CTA principal
 5. revisar estados vazios, secundarios e links auxiliares
+6. revisar shell, headline e texto de apoio
+7. revisar se o fluxo parece um bloco unico e nao uma soma de cards soltos
 
 ### Passo 5 - Compilar e validar
 
@@ -392,6 +451,30 @@ Opcional:
 rtk ruby -c app/components/base.rb app/components/ruby_ui/base.rb
 ```
 
+Observacao:
+
+- `erb` compilado fora do contexto do Rails nem sempre valida bem views com helpers/blocos do RubyUI
+- neste projeto, o sinal confiavel foi `bundle exec rails runner 'puts :boot_ok'`
+
+### Passo 6 - Revisar o diff e separar commits
+
+Separar as entregas reduz risco e ajuda a reusar o processo depois.
+
+Sequencia validada neste projeto:
+
+1. commit de `foundation`
+2. commit da primeira tela
+3. commit do lote de telas irmas
+4. commit de refinamento visual com Impeccable
+5. commit de contexto de design do Impeccable
+
+Modelo de cortes:
+
+- `build`: setup RubyUI, Phlex, Tailwind local, initializers, MCP
+- `feat`: migracao funcional da tela
+- `feat`: refinamento visual do shell e das telas irmas
+- `docs`: contexto de produto e design
+
 ## Heuristica de escolha da proxima tela
 
 Ordem recomendada:
@@ -403,16 +486,27 @@ Ordem recomendada:
 5. dashboards
 6. calendario
 
-Para este projeto, a ordem segura e:
+Para este projeto, a ordem segura validada ficou assim:
 
 1. `devise/sessions/new`
-2. `layouts/devise`
-3. `devise/registrations/new`
-4. `devise/passwords/new`
-5. `time_entries/new`
-6. `approvals/index`
-7. `dashboard/index`
-8. `time_sheets/calendar`
+2. `devise/registrations/new`
+3. `devise/passwords/new`
+4. `devise/passwords/edit`
+5. `layouts/devise`
+6. `devise/shared/_error_messages`
+7. `devise/shared/_links`
+8. `shared/_flash`
+9. `time_entries/new`
+10. `approvals/index`
+11. `dashboard/index`
+12. `time_sheets/calendar`
+
+Motivo:
+
+- primeiro validar primitives
+- depois fechar telas irmas
+- depois consolidar o shell compartilhado
+- so entao partir para telas de negocio
 
 ## Boas praticas
 
@@ -424,6 +518,8 @@ Para este projeto, a ordem segura e:
 - usar o MCP para evitar instalar componente errado
 - usar o Impeccable para refinar a composicao final, nao para ignorar a base tecnica do RubyUI
 - criar componentes compostos locais quando a primitive RubyUI pura nao resolver bem a UX
+- separar setup, migracao funcional e refinamento visual em commits diferentes
+- usar `PRODUCT.md` e `DESIGN.md` como criterio de consistencia, nao como documento ornamental
 
 ## Antipadroes
 
@@ -432,6 +528,8 @@ Para este projeto, a ordem segura e:
 - instalar dezenas de componentes antes de saber se a tela precisa
 - remover Stimulus legado cedo demais
 - converter dashboard/calendario antes de validar o processo numa tela pequena
+- pular o shell compartilhado e refinar apenas views isoladas
+- fazer polimento visual sem antes estabilizar a tela funcionalmente
 
 ## Template de execucao por tela
 
@@ -449,9 +547,19 @@ Use este roteiro curto:
 
 ## Exemplo real ja validado
 
-Tela migrada com esse processo:
+Telas migradas com esse processo:
 
 - [app/views/devise/sessions/new.html.erb](/home/marcodotcastro/RubymineProjects/smart_ponto/app/views/devise/sessions/new.html.erb:1)
+- [app/views/devise/registrations/new.html.erb](/home/marcodotcastro/RubymineProjects/smart_ponto/app/views/devise/registrations/new.html.erb:1)
+- [app/views/devise/passwords/new.html.erb](/home/marcodotcastro/RubymineProjects/smart_ponto/app/views/devise/passwords/new.html.erb:1)
+- [app/views/devise/passwords/edit.html.erb](/home/marcodotcastro/RubymineProjects/smart_ponto/app/views/devise/passwords/edit.html.erb:1)
+
+Shell e compartilhados refinados:
+
+- [app/views/layouts/devise.html.erb](/home/marcodotcastro/RubymineProjects/smart_ponto/app/views/layouts/devise.html.erb:1)
+- [app/views/devise/shared/_error_messages.html.erb](/home/marcodotcastro/RubymineProjects/smart_ponto/app/views/devise/shared/_error_messages.html.erb:1)
+- [app/views/devise/shared/_links.html.erb](/home/marcodotcastro/RubymineProjects/smart_ponto/app/views/devise/shared/_links.html.erb:1)
+- [app/views/shared/_flash.html.erb](/home/marcodotcastro/RubymineProjects/smart_ponto/app/views/shared/_flash.html.erb:1)
 
 Base criada para suportar a migracao:
 
@@ -460,6 +568,24 @@ Base criada para suportar a migracao:
 - [config/initializers/ruby_ui.rb](/home/marcodotcastro/RubymineProjects/smart_ponto/config/initializers/ruby_ui.rb:1)
 - [app/components/base.rb](/home/marcodotcastro/RubymineProjects/smart_ponto/app/components/base.rb:1)
 - [app/components/ruby_ui/base.rb](/home/marcodotcastro/RubymineProjects/smart_ponto/app/components/ruby_ui/base.rb:1)
+
+Commits que materializaram o processo:
+
+- `a0620ac build: setup RubyUI foundation`
+- `c778909 feat: migrate login screen to RubyUI`
+- `3c679a6 feat: migrate devise auth screens to RubyUI`
+- `70de047 feat: refine devise screens with impeccable theme`
+- `ffc9981 docs: add impeccable product and design context`
+
+## Fluxo resumido ja validado
+
+1. preparar a base RubyUI
+2. migrar a menor tela com formulario simples
+3. reaplicar o padrao nas telas irmas
+4. consolidar layout e parciais compartilhados
+5. documentar produto e design no Impeccable
+6. refinar shell, hierarquia, copy e estados
+7. so depois partir para telas de negocio
 
 ## Proximo uso deste documento
 
