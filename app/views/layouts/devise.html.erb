@@ -6,13 +6,13 @@
   <title>Smart Ponto - Login</title>
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
+  <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
   <%= javascript_importmap_tags %>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-background text-foreground">
   <% if notice %>
     <div class="fixed top-4 right-4 z-50">
       <div class="bg-green-50 p-4 rounded-lg shadow-lg border-l-4 border-green-400">

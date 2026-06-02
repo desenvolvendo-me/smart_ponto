@@ -7,13 +7,13 @@
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
   <%= yield :head %>
+  <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
   <%= javascript_importmap_tags %>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-background text-foreground">
 <div class="flex h-screen overflow-hidden" data-controller="sidebar">
   <!-- Sidebar para desktop -->
   <div id="desktop-sidebar" data-sidebar-target="desktopSidebar" class="hidden md:flex md:flex-shrink-0 transition-all duration-300 ease-in-out">
