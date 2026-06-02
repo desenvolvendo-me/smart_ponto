@@ -14,13 +14,13 @@ module ApprovalsHelper
   def status_badge_class(status)
     case status
     when 'enviado', 'pendente'
-      'bg-yellow-500 text-white shadow-sm'
+      'border border-amber-200 bg-amber-50 text-amber-700'
     when 'aprovado'
-      'bg-green-500 text-white shadow-sm'
+      'border border-green-200 bg-green-50 text-green-700'
     when 'rejeitado'
-      'bg-red-500 text-white shadow-sm'
+      'border border-red-200 bg-red-50 text-red-700'
     else
-      'bg-gray-500 text-white shadow-sm'
+      'border border-border bg-muted text-muted-foreground'
     end
   end
 end

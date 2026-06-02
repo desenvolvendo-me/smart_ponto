@@ -1,83 +1,100 @@
-<!-- app/views/approvals/_approval_item.html.erb -->
-<div class="p-6 border-b border-gray-200 last:border-b-0 hover:bg-gray-50 transition-colors duration-150">
-  <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
-    <div class="flex-grow">
-      <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
-        <h3 class="text-lg font-semibold text-gray-900"><%= time_sheet.user.name %></h3>
-        <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs rounded-md font-medium inline-flex items-center">
-          <i class="fas fa-user-tag mr-1.5"></i>
-          <%= time_sheet.user.position.present? ? time_sheet.user.position : "Sem função" %>
-        </span>
+<% request_type = determine_request_type(time_sheet) %>
+<% approved_by_name = User.find_by(id: time_sheet.approved_by)&.name || "Usuario desconhecido" %>
+
+<div class="px-6 py-6 sm:px-8">
+  <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
+    <div class="space-y-4">
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div class="space-y-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <h3 class="text-lg font-semibold tracking-tight text-foreground">
+              <%= time_sheet.user.name %>
+            </h3>
+            <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium <%= status_badge_class(time_sheet.approval_status) %>">
+              <% if time_sheet.approval_status == 'enviado' %>
+                <i class="fas fa-clock text-xs"></i>
+              <% elsif time_sheet.approval_status == 'aprovado' %>
+                <i class="fas fa-check text-xs"></i>
+              <% elsif time_sheet.approval_status == 'rejeitado' %>
+                <i class="fas fa-times text-xs"></i>
+              <% end %>
+              <%= time_sheet.approval_status.capitalize %>
+            </span>
+          </div>
+
+          <p class="text-sm text-muted-foreground">
+            <%= time_sheet.user.position.presence || "Sem funcao cadastrada" %>
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2 text-sm">
+          <span class="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-secondary-foreground">
+            <i class="fas fa-building text-xs"></i>
+            <%= time_sheet.user.department.presence || "Sem departamento" %>
+          </span>
+
+          <span class="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-secondary-foreground">
+            <i class="fas fa-calendar text-xs"></i>
+            <%= time_sheet.date.strftime('%d/%m/%Y') %>
+          </span>
+
+          <span class="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-secondary-foreground">
+            <i class="fas <%= request_type == 'Horas Extras' ? 'fa-clock' : 'fa-calendar-alt' %> text-xs"></i>
+            <%= request_type %>
+          </span>
+        </div>
       </div>
 
-      <div class="flex flex-wrap items-center text-sm text-gray-600 mb-4 gap-y-2">
-        <span class="mr-4 bg-gray-100 px-2.5 py-1 rounded-md inline-flex items-center">
-          <i class="fas fa-building mr-1.5 text-gray-500"></i>
-          <%= time_sheet.user.department.present? ? time_sheet.user.department : "Sem departamento" %>
-        </span>
-        <span class="mr-4 bg-gray-100 px-2.5 py-1 rounded-md inline-flex items-center">
-          <i class="fas fa-calendar mr-1.5 text-gray-500"></i>
-          <%= time_sheet.date.strftime('%d/%m/%Y') %>
-        </span>
-
-        <% request_type = determine_request_type(time_sheet) %>
-        <span class="bg-indigo-100 text-indigo-800 px-2.5 py-1 rounded-md inline-flex items-center font-medium">
-          <i class="fas <%= request_type == 'Horas Extras' ? 'fa-clock' : 'fa-calendar-alt' %> mr-1.5"></i>
-          <%= request_type %>
-        </span>
-      </div>
-
-      <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
-        <p class="text-gray-700">
-          <span class="font-medium text-gray-900 block mb-1">Justificativa:</span> 
-          <%= time_sheet.justification %>
+      <% if time_sheet.justification.present? %>
+        <div class="rounded-xl border border-border/70 bg-secondary/15 px-4 py-3">
+          <p class="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Justificativa</p>
+          <p class="text-sm leading-6 text-foreground/85">
+            <%= time_sheet.justification %>
+          </p>
+        </div>
+      <% else %>
+        <p class="text-sm text-muted-foreground">
+          Nenhuma justificativa informada.
         </p>
-      </div>
+      <% end %>
     </div>
 
-    <div class="flex flex-col items-end gap-3">
-      <span class="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium shadow-sm <%= status_badge_class(time_sheet.approval_status) %>">
-        <% if time_sheet.approval_status == 'enviado' %>
-          <i class="fas fa-clock mr-1.5"></i>
-        <% elsif time_sheet.approval_status == 'aprovado' %>
-          <i class="fas fa-check mr-1.5"></i>
-        <% elsif time_sheet.approval_status == 'rejeitado' %>
-          <i class="fas fa-times mr-1.5"></i>
-        <% end %>
-        <%= time_sheet.approval_status.capitalize %>
-      </span>
-
+    <div class="w-full space-y-3 lg:pl-4">
       <% if time_sheet.approval_status == 'enviado' %>
-        <div class="flex flex-col gap-2 mt-2 w-full sm:w-auto">
-          <!-- Botão Discussão - Sempre visível para justificativas pendentes -->
-          <% if time_sheet.justification_status == 'pendente' %>
-            <%= link_to time_sheet_justification_comments_path(time_sheet),
-                class: "inline-flex items-center justify-center px-4 py-2 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors duration-150 w-full" do %>
-              <i class="fas fa-comments mr-2"></i>
-              Discussão
-              <% if time_sheet.justification_comments.any? %>
-                <span class="ml-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-                  <%= time_sheet.justification_comments.count %>
-                </span>
-              <% end %>
+        <% if time_sheet.justification_status == 'pendente' %>
+          <%= link_to time_sheet_justification_comments_path(time_sheet),
+              class: "inline-flex w-full items-center justify-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100" do %>
+            <i class="fas fa-comments text-xs"></i>
+            Discussao
+            <% if time_sheet.justification_comments.any? %>
+              <span class="rounded-full bg-blue-600 px-2 py-0.5 text-xs font-semibold text-white">
+                <%= time_sheet.justification_comments.count %>
+              </span>
             <% end %>
           <% end %>
+        <% end %>
 
-          <!-- Botões de Ação -->
-          <div class="flex flex-col sm:flex-row gap-2">
-            <%= button_to reject_approval_path(time_sheet), method: :patch, class: "inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors duration-150 w-full sm:w-auto" do %>
-              <i class="fas fa-times mr-2"></i> Rejeitar
-            <% end %>
+        <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+          <%= button_to approve_approval_path(time_sheet), method: :patch, class: "inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90" do %>
+            <i class="fas fa-check text-xs"></i>
+            Aprovar
+          <% end %>
 
-            <%= button_to approve_approval_path(time_sheet), method: :patch, class: "inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition-colors duration-150 w-full sm:w-auto" do %>
-              <i class="fas fa-check mr-2"></i> Aprovar
-            <% end %>
-          </div>
+          <%= button_to reject_approval_path(time_sheet), method: :patch, class: "inline-flex w-full items-center justify-center gap-2 rounded-md border border-red-200 bg-white px-4 py-2.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-50" do %>
+            <i class="fas fa-times text-xs"></i>
+            Rejeitar
+          <% end %>
         </div>
       <% elsif time_sheet.approved_at.present? %>
-        <div class="text-xs text-gray-500 mt-1 text-right">
-          <div><i class="fas fa-user-check mr-1"></i> Por: <%= User.find_by(id: time_sheet.approved_by)&.name || "Usuário desconhecido" %></div>
-          <div><i class="fas fa-clock mr-1"></i> Em: <%= time_sheet.approved_at.strftime('%d/%m/%Y %H:%M') %></div>
+        <div class="rounded-2xl border border-border/70 bg-background/80 p-4 text-sm text-muted-foreground">
+          <p class="mb-1 flex items-center gap-2">
+            <i class="fas fa-user-check text-xs"></i>
+            <span>Por: <%= approved_by_name %></span>
+          </p>
+          <p class="flex items-center gap-2">
+            <i class="fas fa-clock text-xs"></i>
+            <span>Em: <%= time_sheet.approved_at.strftime('%d/%m/%Y %H:%M') %></span>
+          </p>
         </div>
       <% end %>
     </div>

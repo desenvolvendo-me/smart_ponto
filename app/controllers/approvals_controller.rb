@@ -4,6 +4,7 @@ class ApprovalsController < ApplicationController
 
   def index
     @positions = User.distinct.pluck(:position).compact.reject(&:blank?).sort
+    @current_tab = params[:tab] == 'history' ? 'history' : 'pending'
 
     pending_query = TimeSheet.joins(:user).where(approval_status: 'enviado')
     history_query = TimeSheet.joins(:user).where(approval_status: ['aprovado', 'rejeitado'])
@@ -22,13 +23,13 @@ class ApprovalsController < ApplicationController
     # Calculate pending count after applying filters
     @pending_count = pending_query.count
 
-    @pending_sheets = pending_query.includes(:user)
+    @pending_sheets = pending_query.includes(:user, :justification_comments)
                                   .chronological
-                                  .page(params[:page]).per(10)
+                                  .page(params[:pending_page]).per(10)
 
     @history_sheets = history_query.includes(:user)
                                   .chronological
-                                  .page(params[:page]).per(10)
+                                  .page(params[:history_page]).per(10)
   end
 
   def approve
@@ -53,7 +54,7 @@ class ApprovalsController < ApplicationController
 
   def authorize_manager_or_admin
     unless current_user.role == 'gestor'
-      redirect_to root_path, alert: 'Você não tem permissão para acessar esta página.'
+      redirect_to authenticated_root_path, alert: 'Você não tem permissão para acessar esta página.'
     end
   end
 end

@@ -1,197 +1,152 @@
-<!-- app/views/approvals/index.html.erb -->
-<div class="container mx-auto px-4 py-8">
-  <div class="flex items-center justify-between mb-6">
-    <div class="flex items-center">
-      <%= link_to time_sheets_path, class: "mr-4 text-gray-600 hover:text-indigo-600 transition-colors duration-150 flex items-center" do %>
-        <i class="fas fa-arrow-left text-lg"></i>
-        <span class="ml-2 hidden sm:inline text-sm font-medium">Voltar</span>
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div class="space-y-2">
+      <%= link_to time_sheets_path, class: "inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground" do %>
+        <i class="fas fa-arrow-left text-xs"></i>
+        <span>Voltar</span>
       <% end %>
-      <h1 class="text-2xl font-bold text-gray-900">Aprovações</h1>
-    </div>
 
-    <div class="text-sm text-gray-500 hidden md:block">
-      <span class="bg-indigo-100 text-indigo-800 px-2.5 py-1 rounded-md font-medium">
-        <i class="fas fa-clipboard-check mr-1"></i>
-        Total pendente: <%= @pending_count %>
-      </span>
+      <div class="space-y-2">
+        <h1 class="text-2xl font-semibold tracking-tight text-foreground sm:text-[1.9rem]">
+          Aprovações
+        </h1>
+        <p class="max-w-3xl text-sm leading-6 text-muted-foreground">
+          Revise solicitações enviadas pela equipe, filtre por contexto e decida rapidamente o que aprovar ou rejeitar.
+        </p>
+      </div>
     </div>
   </div>
 
-  <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-6">
-    <div class="bg-gradient-to-r from-indigo-50 to-white p-4 border-b border-gray-200">
-      <h2 class="text-lg font-semibold text-gray-800 mb-3">
-        <i class="fas fa-filter text-indigo-600 mr-2"></i>
+  <%= render RubyUI::Card.new(class: "border-white/80 bg-white/92 shadow-[0_18px_45px_rgba(48,45,74,0.08)]") do %>
+    <%= render RubyUI::CardHeader.new(class: "space-y-2 px-6 pt-6 sm:px-8 sm:pt-8") do %>
+      <%= render RubyUI::CardTitle.new(class: "text-lg tracking-tight text-foreground") do %>
         Filtros
-      </h2>
-      <%= form_with url: approvals_path, method: :get, class: "flex flex-col lg:flex-row lg:items-end space-y-4 lg:space-y-0 lg:space-x-4" do |f| %>
-        <div class="flex-grow">
-          <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar por nome ou justificativa</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <i class="fas fa-search text-gray-400"></i>
-            </div>
-            <%= f.text_field :search, value: params[:search], id: "search", class: "bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full pl-10 p-2.5 shadow-sm focus:ring-indigo-500 focus:border-indigo-500", placeholder: "Digite um termo para buscar..." %>
-          </div>
-        </div>
+      <% end %>
+      <%= render RubyUI::CardDescription.new(class: "text-sm leading-6 text-muted-foreground") do %>
+        Refine a lista por colaborador, justificativa ou funcao.
+      <% end %>
+    <% end %>
 
-        <div class="w-full lg:w-64">
-          <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Filtrar por função</label>
-          <%= f.select :position, 
-                      options_for_select([['Todas as funções', '']] + @positions.map { |p| [p, p] }, params[:position]), 
-                      {}, 
-                      { id: "position", class: "bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" } %>
-        </div>
+    <%= render RubyUI::CardContent.new(class: "px-6 pb-6 sm:px-8 sm:pb-8") do %>
+      <%= form_with url: approvals_path, method: :get, class: "grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_220px_auto]" do |f| %>
+        <%= render RubyUI::FormField.new(class: "space-y-2") do %>
+          <%= render RubyUI::FormFieldLabel.new(for: "search", class: "text-sm font-medium text-foreground") do %>
+            Buscar por nome ou justificativa
+          <% end %>
+          <%= f.text_field :search,
+                value: params[:search],
+                id: "search",
+                class: "flex h-11 w-full rounded-md border border-border/80 bg-white px-3 py-2 text-sm text-foreground shadow-none outline-none transition-[color,box-shadow] placeholder:text-muted-foreground/80 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50",
+                placeholder: "Digite um termo para buscar..." %>
+        <% end %>
 
-        <div class="flex space-x-2">
+        <%= render RubyUI::FormField.new(class: "space-y-2") do %>
+          <%= render RubyUI::FormFieldLabel.new(for: "position", class: "text-sm font-medium text-foreground") do %>
+            Funcao
+          <% end %>
+          <%= f.select :position,
+                options_for_select([['Todas as funcoes', '']] + @positions.map { |p| [p, p] }, params[:position]),
+                {},
+                { id: "position", class: "flex h-11 w-full rounded-md border border-border/80 bg-white px-3 py-2 text-sm text-foreground shadow-none outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50" } %>
+        <% end %>
+
+        <div class="flex flex-col gap-3 sm:flex-row lg:items-end lg:justify-end">
           <% if params[:search].present? || params[:position].present? %>
-            <%= link_to approvals_path(tab: params[:tab]), class: "w-full lg:w-auto bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg text-sm px-4 py-2.5 shadow-sm transition-colors duration-150 flex items-center justify-center" do %>
-              <i class="fas fa-times mr-2"></i> Limpar
+            <%= link_to approvals_path(tab: @current_tab), class: "inline-flex h-11 items-center justify-center rounded-md border border-border bg-white px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent" do %>
+              Limpar
             <% end %>
           <% end %>
 
-          <%= button_tag type: 'submit', class: "w-full lg:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm px-5 py-2.5 shadow-sm transition-colors duration-150 flex items-center justify-center" do %>
-            <i class="fas fa-filter mr-2"></i> Aplicar Filtros
+          <%= render RubyUI::Button.new(type: :submit, class: "h-11 px-5 text-sm font-semibold shadow-sm") do %>
+            Aplicar filtros
           <% end %>
         </div>
 
-        <%= f.hidden_field :tab, value: params[:tab] if params[:tab].present? %>
+        <%= f.hidden_field :tab, value: @current_tab %>
       <% end %>
-    </div>
-  </div>
+    <% end %>
+  <% end %>
 
-  <div class="bg-white shadow-lg rounded-lg overflow-hidden" data-controller="tabs">
-    <!-- Tabs de navegação -->
-    <div class="flex border-b">
-      <%= link_to "#",
-                  data: { tab: "pending", action: "click->tabs#switch", tabs_target: "tab" },
-                  class: "flex-1 md:flex-none px-6 py-4 text-center text-sm font-medium transition-colors duration-150 #{params[:tab] != 'history' ? 'border-b-2 border-indigo-600 text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}" do %>
-        <div class="flex items-center justify-center">
-          <i class="fas fa-clock mr-2"></i>
+  <%= render RubyUI::Card.new(class: "border-white/80 bg-white/92 shadow-[0_18px_45px_rgba(48,45,74,0.08)] overflow-hidden", data: { controller: "tabs" }) do %>
+    <div class="border-b border-border/70 bg-secondary/20 px-3 py-3 sm:px-4">
+      <div class="grid grid-cols-2 gap-2">
+        <%= link_to "#",
+              data: { tab: "pending", action: "click->tabs#switch", tabs_target: "tab" },
+              class: "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-colors #{@current_tab == 'pending' ? 'bg-white text-foreground shadow-sm ring-1 ring-border/70' : 'text-muted-foreground hover:bg-white/70 hover:text-foreground'}" do %>
+          <i class="fas fa-clock text-xs"></i>
           <span>Pendentes</span>
-          <span class="ml-2 bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full"><%= @pending_count %></span>
-        </div>
-      <% end %>
+          <span class="rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold text-secondary-foreground"><%= @pending_count %></span>
+        <% end %>
 
-      <%= link_to "#",
-                  data: { tab: "history", action: "click->tabs#switch", tabs_target: "tab" },
-                  class: "flex-1 md:flex-none px-6 py-4 text-center text-sm font-medium transition-colors duration-150 #{params[:tab] == 'history' ? 'border-b-2 border-indigo-600 text-indigo-700 bg-indigo-50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}" do %>
-        <div class="flex items-center justify-center">
-          <i class="fas fa-history mr-2"></i>
-          <span>Histórico</span>
-        </div>
-      <% end %>
+        <%= link_to "#",
+              data: { tab: "history", action: "click->tabs#switch", tabs_target: "tab" },
+              class: "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-colors #{@current_tab == 'history' ? 'bg-white text-foreground shadow-sm ring-1 ring-border/70' : 'text-muted-foreground hover:bg-white/70 hover:text-foreground'}" do %>
+          <i class="fas fa-history text-xs"></i>
+          <span>Historico</span>
+        <% end %>
+      </div>
     </div>
 
-    <!-- Conteúdo da tab Pendentes -->
-    <div data-tabs-target="content" data-tab="pending" class="<%= params[:tab] == 'history' ? 'hidden' : '' %>">
+    <div data-tabs-target="content" data-tab="pending" class="<%= @current_tab == 'history' ? 'hidden' : '' %>">
       <% if @pending_sheets.empty? %>
-        <div class="p-12 text-center">
-          <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-amber-100 text-amber-500 mb-6 shadow-inner">
-            <i class="fas fa-inbox text-3xl"></i>
+        <div class="px-6 py-14 text-center sm:px-8">
+          <div class="mx-auto mb-5 inline-flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+            <i class="fas fa-inbox text-2xl"></i>
           </div>
-          <h3 class="text-xl font-medium text-gray-900 mb-3">Nenhuma solicitação pendente</h3>
-          <p class="text-gray-500 max-w-md mx-auto text-sm">
-            Todas as solicitações foram processadas. Novas solicitações aparecerão aqui quando forem enviadas.
+          <h3 class="text-lg font-semibold text-foreground">Nenhuma solicitacao pendente</h3>
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+            Todas as solicitacoes enviadas ja foram processadas. Quando novas aprovacoes chegarem, elas aparecerao aqui.
           </p>
-          <div class="mt-6">
-            <a href="javascript:window.location.reload()" class="inline-flex items-center px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-sm font-medium transition-colors duration-150">
-              <i class="fas fa-sync-alt mr-2"></i> Atualizar página
-            </a>
-          </div>
         </div>
       <% else %>
-        <div class="divide-y divide-gray-200">
+        <div class="divide-y divide-border/70">
           <% @pending_sheets.each do |time_sheet| %>
-            <%= render 'approval_item', time_sheet: time_sheet %>
+            <%= render "approval_item", time_sheet: time_sheet %>
           <% end %>
         </div>
 
         <% if @pending_sheets.total_pages > 1 %>
-          <div class="mt-6 px-6 pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-gray-200 pt-6">
-            <div class="text-sm text-gray-500 bg-gray-50 px-3 py-2 rounded-md">
-              Mostrando <span class="font-medium text-indigo-700"><%= @pending_sheets.offset_value + 1 %></span> a 
-              <span class="font-medium text-indigo-700"><%= [@pending_sheets.offset_value + @pending_sheets.limit_value, @pending_sheets.total_count].min %></span> 
-              de <span class="font-medium text-indigo-700"><%= @pending_sheets.total_count %></span> solicitações
-            </div>
-            <div class="pagination-container self-center sm:self-auto">
-              <%= paginate @pending_sheets, param_name: 'pending_page', class: "pagination" %>
-            </div>
+          <div class="flex flex-col gap-4 border-t border-border/70 px-6 py-5 text-sm text-muted-foreground sm:px-8 lg:flex-row lg:items-center lg:justify-between">
+            <p>
+              Mostrando <span class="font-medium text-foreground"><%= @pending_sheets.offset_value + 1 %></span> a
+              <span class="font-medium text-foreground"><%= [@pending_sheets.offset_value + @pending_sheets.limit_value, @pending_sheets.total_count].min %></span>
+              de <span class="font-medium text-foreground"><%= @pending_sheets.total_count %></span> solicitacoes.
+            </p>
+            <%= paginate @pending_sheets, param_name: "pending_page" %>
           </div>
         <% end %>
       <% end %>
     </div>
 
-    <!-- Conteúdo da tab Histórico -->
-    <div data-tabs-target="content" data-tab="history" class="<%= params[:tab] != 'history' ? 'hidden' : '' %>">
+    <div data-tabs-target="content" data-tab="history" class="<%= @current_tab != 'history' ? 'hidden' : '' %>">
       <% if @history_sheets.empty? %>
-        <div class="p-12 text-center">
-          <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-indigo-100 text-indigo-500 mb-6 shadow-inner">
-            <i class="fas fa-history text-3xl"></i>
+        <div class="px-6 py-14 text-center sm:px-8">
+          <div class="mx-auto mb-5 inline-flex h-16 w-16 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+            <i class="fas fa-history text-2xl"></i>
           </div>
-          <h3 class="text-xl font-medium text-gray-900 mb-3">Histórico vazio</h3>
-          <p class="text-gray-500 max-w-md mx-auto text-sm">
-            Nenhuma solicitação foi aprovada ou rejeitada ainda. O histórico de aprovações aparecerá aqui.
+          <h3 class="text-lg font-semibold text-foreground">Historico vazio</h3>
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+            Nenhuma solicitacao foi aprovada ou rejeitada ainda. O historico aparecera aqui assim que as primeiras decisoes forem tomadas.
           </p>
-          <div class="mt-6">
-            <a href="javascript:window.location.reload()" class="inline-flex items-center px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg text-sm font-medium transition-colors duration-150">
-              <i class="fas fa-sync-alt mr-2"></i> Atualizar página
-            </a>
-          </div>
         </div>
       <% else %>
-        <div class="divide-y divide-gray-200">
+        <div class="divide-y divide-border/70">
           <% @history_sheets.each do |time_sheet| %>
-            <%= render 'approval_item', time_sheet: time_sheet %>
+            <%= render "approval_item", time_sheet: time_sheet %>
           <% end %>
         </div>
 
         <% if @history_sheets.total_pages > 1 %>
-          <div class="mt-6 px-6 pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-gray-200 pt-6">
-            <div class="text-sm text-gray-500 bg-gray-50 px-3 py-2 rounded-md">
-              Mostrando <span class="font-medium text-indigo-700"><%= @history_sheets.offset_value + 1 %></span> a 
-              <span class="font-medium text-indigo-700"><%= [@history_sheets.offset_value + @history_sheets.limit_value, @history_sheets.total_count].min %></span> 
-              de <span class="font-medium text-indigo-700"><%= @history_sheets.total_count %></span> solicitações
-            </div>
-            <div class="pagination-container self-center sm:self-auto">
-              <%= paginate @history_sheets, param_name: 'history_page', class: "pagination" %>
-            </div>
+          <div class="flex flex-col gap-4 border-t border-border/70 px-6 py-5 text-sm text-muted-foreground sm:px-8 lg:flex-row lg:items-center lg:justify-between">
+            <p>
+              Mostrando <span class="font-medium text-foreground"><%= @history_sheets.offset_value + 1 %></span> a
+              <span class="font-medium text-foreground"><%= [@history_sheets.offset_value + @history_sheets.limit_value, @history_sheets.total_count].min %></span>
+              de <span class="font-medium text-foreground"><%= @history_sheets.total_count %></span> solicitacoes.
+            </p>
+            <%= paginate @history_sheets, param_name: "history_page" %>
           </div>
         <% end %>
       <% end %>
     </div>
-  </div>
+  <% end %>
 </div>
-
-<% content_for :styles do %>
-<style>
-  .pagination {
-    @apply inline-flex items-center -space-x-px rounded-md shadow-sm overflow-hidden;
-  }
-
-  .pagination span.page, .pagination span.next, .pagination span.prev, .pagination span.first, .pagination span.last {
-    @apply relative inline-flex items-center px-4 py-2 text-sm font-medium;
-  }
-
-  .pagination span.page.current {
-    @apply z-10 bg-indigo-50 border-indigo-500 text-indigo-700 relative inline-flex items-center px-4 py-2 border text-sm font-medium;
-  }
-
-  .pagination span.page a, .pagination span.next a, .pagination span.prev a, .pagination span.first a, .pagination span.last a {
-    @apply bg-white border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-150;
-  }
-
-  .pagination .gap {
-    @apply bg-white border-gray-300 text-gray-700 relative inline-flex items-center px-4 py-2 border text-sm font-medium;
-  }
-
-  /* Estilização especial para os botões de navegação */
-  .pagination span.next a, .pagination span.prev a, .pagination span.first a, .pagination span.last a {
-    @apply bg-gray-50;
-  }
-
-  /* Hover mais destacado */
-  .pagination span.page a:hover, .pagination span.next a:hover, .pagination span.prev a:hover, .pagination span.first a:hover, .pagination span.last a:hover {
-    @apply bg-indigo-50 border-indigo-200;
-  }
-</style>
-<% end %>
