@@ -1,376 +1,355 @@
-<div class="container mx-auto px-4 py-8">
-  <div class="mb-6">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-      <div class="flex items-center">
+<% is_weekend_today = Date.current.saturday? || Date.current.sunday? %>
+<% can_register_today = can_register_on_date?(current_user, Date.current) %>
+<% month_summary = calendar_month_summary(@time_sheets, @date) %>
+
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div class="space-y-2">
+      <div class="flex items-center gap-3">
         <% if request.referer && request.referer != request.original_url %>
-          <%= link_to :back, class: "text-2xl text-gray-700 hover:text-gray-900 mr-3" do %>
-            <i class="fas fa-arrow-left"></i>
+          <%= link_to :back, class: "inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" do %>
+            <i class="fas fa-arrow-left text-sm"></i>
           <% end %>
         <% end %>
-        <h1 class="text-2xl font-bold text-gray-800">Calendário de Ponto</h1>
+
+        <div class="space-y-1">
+          <h1 class="text-2xl font-semibold tracking-tight text-foreground sm:text-[1.9rem]">Calendário de Ponto</h1>
+          <p class="max-w-3xl text-sm leading-6 text-muted-foreground">
+            Visualize sua jornada por dia, navegue pelo mês e acesse rapidamente dias com registros ou pendências.
+          </p>
+        </div>
       </div>
 
-      <div>
-        <% is_weekend_today = Date.today.saturday? || Date.today.sunday? %>
-        <% can_register_today = can_register_on_date?(current_user, Date.today) %>
-
-        <div class="relative group">
-          <%= button_to quick_register_time_entries_path(return_to: "calendar"),
-              method: :post,
-              disabled: !can_register_today,
-              class: "#{registration_button_classes(current_user, Date.today, 'bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg shadow-sm flex items-center transition duration-150 ease-in-out')}" do %>
-            <i class="fas fa-plus mr-2"></i> Registrar Ponto
-          <% end %>
-
-          <% if is_weekend_today && !can_register_today %>
-            <div class="absolute right-0 mt-2 w-64 bg-gray-900 text-white text-sm rounded-lg shadow-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
-              <%= weekend_registration_tooltip %>
-            </div>
-          <% end %>
-        </div>
+      <div class="inline-flex w-fit items-center gap-2 rounded-full bg-secondary/80 px-3 py-1.5 text-sm font-medium text-secondary-foreground">
+        <i class="fas fa-calendar-week text-xs"></i>
+        <span><%= l(@date, format: "%B %Y").capitalize %></span>
       </div>
     </div>
 
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-      <div class="flex space-x-2 bg-gray-100 p-1 rounded-lg">
-        <%= link_to time_sheets_path, class: "px-4 py-2 rounded-md flex items-center #{current_page?(time_sheets_path) ? 'bg-white shadow-sm text-indigo-700 font-medium' : 'text-gray-700 hover:bg-gray-50'}" do %>
-          <i class="fas fa-list mr-2"></i> Lista
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <%= link_to export_form_time_sheets_path, class: "inline-flex h-11 items-center justify-center gap-2 rounded-md border border-border/80 bg-white/70 px-4 text-sm font-medium text-muted-foreground transition-colors hover:bg-white hover:text-foreground" do %>
+        <i class="fas fa-file-export text-sm"></i>
+        Exportar
+      <% end %>
+
+      <div class="relative group">
+        <%= button_to quick_register_time_entries_path(return_to: "calendar"),
+            method: :post,
+            disabled: !can_register_today,
+            class: registration_button_classes(current_user, Date.current, "inline-flex h-11 items-center justify-center rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90") do %>
+          <i class="fas fa-plus mr-2 text-sm"></i>
+          Registrar ponto
         <% end %>
 
-        <%= link_to calendar_time_sheets_path, class: "px-4 py-2 rounded-md flex items-center #{current_page?(calendar_time_sheets_path) ? 'bg-white shadow-sm text-indigo-700 font-medium' : 'text-gray-700 hover:bg-gray-50'}" do %>
-          <i class="fas fa-calendar-alt mr-2"></i> Calendário
-        <% end %>
-      </div>
-
-      <div>
-        <%= link_to export_form_time_sheets_path, class: "inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-150 ease-in-out shadow-sm" do %>
-          <i class="fas fa-file-export mr-2"></i> Exportar
+        <% if is_weekend_today && !can_register_today %>
+          <div class="absolute right-0 top-full z-10 mt-2 w-64 rounded-xl bg-foreground px-3 py-2 text-sm text-background opacity-0 shadow-lg transition-opacity duration-200 pointer-events-none group-hover:opacity-100">
+            <%= weekend_registration_tooltip %>
+          </div>
         <% end %>
       </div>
     </div>
   </div>
 
-  <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-    <div class="flex flex-col sm:flex-row justify-between items-center bg-gradient-to-r from-indigo-50 to-indigo-100 p-5 border-b border-indigo-200">
-      <div class="flex items-center space-x-2 mb-3 sm:mb-0">
-        <%= link_to calendar_time_sheets_path(month: @date.prev_month.month, year: @date.prev_month.year),
-                  class: "bg-white hover:bg-gray-50 text-gray-700 p-2 rounded-full shadow-sm flex items-center justify-center transition duration-150 ease-in-out" do %>
-          <i class="fas fa-chevron-left"></i>
-        <% end %>
+  <div class="inline-flex w-fit items-center gap-1 rounded-xl bg-secondary/70 p-1">
+    <%= link_to time_sheets_path, class: "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition #{current_page?(time_sheets_path) ? 'bg-white text-foreground shadow-sm ring-1 ring-border/70' : 'text-muted-foreground hover:bg-white/70 hover:text-foreground'}" do %>
+      <i class="fas fa-list text-sm"></i>
+      Lista
+    <% end %>
 
-        <h2 class="text-2xl font-bold text-indigo-800 px-3">
-          <%= l(@date, format: '%B %Y').capitalize %>
-        </h2>
+    <%= link_to calendar_time_sheets_path, class: "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition #{current_page?(calendar_time_sheets_path) ? 'bg-white text-foreground shadow-sm ring-1 ring-border/70' : 'text-muted-foreground hover:bg-white/70 hover:text-foreground'}" do %>
+      <i class="fas fa-calendar-alt text-sm"></i>
+      Calendário
+    <% end %>
+  </div>
 
-        <%= link_to calendar_time_sheets_path(month: @date.next_month.month, year: @date.next_month.year),
-                  class: "bg-white hover:bg-gray-50 text-gray-700 p-2 rounded-full shadow-sm flex items-center justify-center transition duration-150 ease-in-out" do %>
-          <i class="fas fa-chevron-right"></i>
-        <% end %>
-      </div>
-
-      <div class="flex items-center">
-        <% if @date.month != Date.today.month || @date.year != Date.today.year %>
-          <%= link_to calendar_time_sheets_path, class: "text-indigo-600 hover:text-indigo-800 px-3 py-1 rounded-md text-sm flex items-center" do %>
-            <i class="fas fa-calendar-day mr-1"></i> Mês Atual
+  <%= render RubyUI::Card.new(class: "overflow-hidden border-white/80 bg-white/92 shadow-[0_18px_45px_rgba(48,45,74,0.08)]") do %>
+    <%= render RubyUI::CardContent.new(class: "px-5 py-5 sm:px-7 sm:py-6") do %>
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center gap-3">
+          <%= link_to calendar_time_sheets_path(month: @date.prev_month.month, year: @date.prev_month.year),
+                class: "inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-foreground transition-colors hover:bg-accent" do %>
+            <i class="fas fa-chevron-left text-sm"></i>
           <% end %>
-        <% end %>
 
-        <div class="relative group ml-2">
-          <button type="button" class="bg-white hover:bg-gray-50 text-gray-700 px-3 py-1 rounded-md shadow-sm text-sm flex items-center">
-            <i class="fas fa-info-circle mr-1 text-indigo-500"></i> Ajuda
-          </button>
-          <div class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg p-3 hidden group-hover:block z-10 text-sm text-gray-600">
-            <p class="mb-2"><strong>Dicas:</strong></p>
-            <ul class="list-disc pl-4 space-y-1">
-              <li>Clique em um dia para ver detalhes</li>
-              <li>As cores indicam o status do registro</li>
-              <li>Use o botão "Registrar Ponto" para marcar sua presença</li>
-            </ul>
+          <div class="space-y-1">
+            <h2 class="text-[1.75rem] font-semibold tracking-tight text-foreground">
+              <%= l(@date, format: "%B %Y").capitalize %>
+            </h2>
+            <p class="text-sm text-muted-foreground">
+              <%= month_summary[:total_days] %> dia<%= "s" unless month_summary[:total_days] == 1 %> com registro neste mês
+            </p>
           </div>
+
+          <%= link_to calendar_time_sheets_path(month: @date.next_month.month, year: @date.next_month.year),
+                class: "inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-foreground transition-colors hover:bg-accent" do %>
+            <i class="fas fa-chevron-right text-sm"></i>
+          <% end %>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <% if @date.month != Date.current.month || @date.year != Date.current.year %>
+            <%= link_to calendar_time_sheets_path, class: "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border bg-white px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent" do %>
+              <i class="fas fa-calendar-day text-sm"></i>
+              Mês atual
+            <% end %>
+          <% end %>
+
+          <span class="inline-flex h-10 items-center rounded-md bg-secondary/70 px-4 text-sm text-secondary-foreground">
+            Selecione um dia para ver detalhes ou registrar ponto.
+          </span>
         </div>
       </div>
-    </div>
+    <% end %>
+  <% end %>
 
-    <div class="grid grid-cols-7 bg-gray-50">
-      <% ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].each_with_index do |day, index| %>
-        <div class="py-3 text-center font-medium <%= index == 0 || index == 6 ? 'text-red-500' : 'text-gray-700' %> border-b border-gray-200">
-          <span class="hidden sm:inline"><%= ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][index] %></span>
-          <span class="sm:hidden"><%= day %></span>
+  <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
+    <div class="space-y-4">
+      <%= render RubyUI::Card.new(class: "overflow-hidden border-white/80 bg-white/92 shadow-[0_18px_45px_rgba(48,45,74,0.08)] hidden md:block") do %>
+        <div class="grid grid-cols-7 border-b border-border/70 bg-secondary/20">
+          <% ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].each_with_index do |day, index| %>
+            <div class="px-3 py-3 text-center text-sm font-medium <%= index == 0 || index == 6 ? 'text-red-600' : 'text-foreground' %>">
+              <%= day %>
+            </div>
+          <% end %>
         </div>
-      <% end %>
-    </div>
 
-    <div class="grid grid-cols-7">
-      <% @calendar_days.each do |day| %>
-        <%
-          time_sheet = @time_sheets_by_date[day]
-          is_today = day == Date.today
-          current_month = day.month == @date.month
-          weekend = day.saturday? || day.sunday?
-          holiday = false # Implementar verificação de feriado se aplicável
+        <div class="grid grid-cols-7">
+          <% @calendar_days.each do |day| %>
+            <% time_sheet = @time_sheets_by_date[day] %>
+            <% day_meta = calendar_day_meta(day, @date, time_sheet) %>
+            <% entry_pairs = calendar_entry_pair(time_sheet) %>
 
-          # Determine status for styling
-          status_class = if !current_month
-                           "opacity-40"
-                         elsif is_today
-                           "bg-indigo-50 shadow-inner"
-                         elsif weekend
-                           "bg-gray-50"
-                         else
-                           ""
-                         end
+            <div class="relative min-h-[136px] border-b border-r border-border/70 p-2.5 transition-colors hover:bg-secondary/20 last:border-r-0 <%= day_meta[:base_classes] %>">
+              <% if day_meta[:accent_classes].present? %>
+                <div class="absolute inset-x-0 top-0 h-1 <%= day_meta[:accent_classes] %>"></div>
+              <% end %>
 
-          # Status color and label for time sheets
-          status_color, status_label = if time_sheet
-                                        case time_sheet.approval_status
-                                        when 'pendente' then ['bg-yellow-400', 'Pendente']
-                                        when 'enviado' then ['bg-blue-400', 'Enviado']
-                                        when 'aprovado' then ['bg-green-400', 'Aprovado']
-                                        when 'rejeitado' then ['bg-red-400', 'Rejeitado']
-                                        else ['bg-gray-400', 'Desconhecido']
-                                        end
-                                      else
-                                        ['', '']
-                                      end
-        %>
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="<%= day_meta[:day_number_classes] %>"><%= day.day %></span>
+                  <% if day_meta[:today] %>
+                    <span class="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">Hoje</span>
+                  <% end %>
+                </div>
 
-        <div class="border-r border-b last:border-r-0 min-h-[150px] relative group <%= status_class %> <%= is_today ? 'ring-2 ring-indigo-500 z-10' : '' %> hover:bg-indigo-50 transition-colors duration-150">
-          <div class="p-3">
-            <div class="flex justify-between items-center mb-1">
-              <div class="flex items-center">
-                <span class="<%= current_month ? 'font-semibold' : 'text-gray-400' %> <%= weekend ? 'text-red-600' : '' %> <%= is_today ? 'text-indigo-700 font-bold' : '' %> text-lg">
-                  <%= day.day %>
-                </span>
-
-                <% if is_today %>
-                  <span class="ml-1 text-xs bg-indigo-100 text-indigo-800 px-1.5 py-0.5 rounded-full">Hoje</span>
+                <% if time_sheet && day_meta[:in_month] %>
+                  <span class="<%= day_meta[:status][:classes] %> inline-flex h-2.5 w-2.5 rounded-full border-0 p-0"></span>
                 <% end %>
               </div>
 
-              <% if time_sheet && current_month %>
-                <div class="flex items-center" title="<%= status_label %>">
-                  <div class="<%= status_color %> rounded-full w-4 h-4 shadow-sm"></div>
-                  <% if time_sheet.signature %>
-                    <i class="fas fa-signature text-green-600 text-xs ml-1" title="Assinado digitalmente"></i>
+              <% if day_meta[:in_month] %>
+                <div class="mt-2.5 space-y-2">
+                  <% if time_sheet %>
+                    <%= link_to time_sheet_path(time_sheet), class: "block rounded-xl border border-border/70 bg-white/90 p-2 transition hover:bg-white hover:shadow-sm" do %>
+                      <div class="space-y-1">
+                        <% entry_pairs.first(2).each do |pair| %>
+                          <div class="flex items-center justify-between rounded-lg bg-secondary/20 px-2 py-1 text-[11px] font-medium text-foreground">
+                            <span><%= pair[:entry] %></span>
+                            <span class="text-muted-foreground">→</span>
+                            <span><%= pair[:exit] %></span>
+                          </div>
+                        <% end %>
+                      </div>
+
+                      <div class="mt-1.5 flex items-center justify-between gap-2 text-[11px]">
+                        <span class="font-medium text-foreground"><%= day_meta[:total_hours] %></span>
+                        <span class="<%= day_meta[:status][:classes] %> inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium">
+                          <%= day_meta[:status][:label] %>
+                        </span>
+                      </div>
+                    <% end %>
+                  <% elsif day <= Date.current %>
+                    <% if day_meta[:empty_today] %>
+                      <%= link_to new_time_entry_path(date: day, return_to: "calendar"),
+                          class: registration_button_classes(current_user, day, "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-50 px-2.5 py-2 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100") do %>
+                        <i class="fas fa-plus-circle text-[11px]"></i>
+                        Registrar
+                      <% end %>
+                    <% else %>
+                      <div class="rounded-xl border border-dashed border-border/70 bg-white/70 px-2.5 py-2 text-center">
+                        <p class="text-[11px] font-medium text-muted-foreground">Sem registro</p>
+                        <%= link_to new_time_entry_path(date: day, return_to: "calendar"),
+                            class: registration_button_classes(current_user, day, "mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-indigo-700 transition hover:text-indigo-800") do %>
+                          <i class="fas fa-plus-circle text-[10px]"></i>
+                          Registrar
+                        <% end %>
+                      </div>
+                    <% end %>
                   <% end %>
                 </div>
               <% end %>
             </div>
+          <% end %>
+        </div>
+      <% end %>
 
-            <% if current_month %>
-              <% if time_sheet %>
-                <%= link_to time_sheet_path(time_sheet), class: "block hover:bg-white rounded-lg p-2 transition duration-150 shadow-sm hover:shadow" do %>
-                  <% entries = time_sheet.time_entries.order(:time) %>
-                  <% if entries.any? %>
-                    <div class="text-xs space-y-2">
-                      <% entries.each_slice(2) do |entry_pair| %>
-                        <div class="flex justify-between text-gray-600 bg-gray-50 rounded-md p-1.5">
-                          <div class="flex items-center">
-                            <i class="fas fa-sign-in-alt text-green-500 mr-1"></i>
-                            <span class="<%= entry_pair[0]&.entry_type == 'entrada' ? 'text-green-600 font-medium' : '' %>">
-                              <%= entry_pair[0]&.time&.strftime("%H:%M") || "--:--" %>
-                            </span>
-                          </div>
-                          <div class="flex items-center">
-                            <span class="<%= entry_pair[1]&.entry_type == 'saida' ? 'text-red-600 font-medium' : '' %>">
-                              <%= entry_pair[1]&.time&.strftime("%H:%M") || "--:--" %>
-                            </span>
-                            <i class="fas fa-sign-out-alt text-red-500 ml-1"></i>
-                          </div>
-                        </div>
-                      <% end %>
+      <div class="space-y-3 md:hidden">
+        <% @calendar_days.each do |day| %>
+          <% next unless day.month == @date.month %>
+          <% time_sheet = @time_sheets_by_date[day] %>
+          <% day_meta = calendar_day_meta(day, @date, time_sheet) %>
+          <% entry_pairs = calendar_entry_pair(time_sheet) %>
 
-                      <div class="flex justify-between items-center mt-2 border-t pt-1 border-gray-200">
-                        <span class="font-medium text-gray-800 flex items-center">
-                          <i class="fas fa-clock text-indigo-400 mr-1"></i>
-                          <%= time_sheet.total_hours.to_f rescue 0 %>h
-                        </span>
-                        <% if time_sheet.approval_status == 'aprovado' %>
-                          <span class="text-green-600 flex items-center text-xs bg-green-50 px-1.5 py-0.5 rounded-full">
-                            <i class="fas fa-check-circle mr-1"></i> Aprovado
-                          </span>
-                        <% elsif time_sheet.approval_status == 'rejeitado' %>
-                          <span class="text-red-600 flex items-center text-xs bg-red-50 px-1.5 py-0.5 rounded-full">
-                            <i class="fas fa-times-circle mr-1"></i> Rejeitado
-                          </span>
-                        <% end %>
-                      </div>
-                    </div>
-                  <% else %>
-                    <div class="text-xs text-gray-500 mt-2 flex items-center justify-center py-2">
-                      <i class="fas fa-calendar-times mr-1"></i> Sem registros
-                    </div>
-                  <% end %>
+          <%= render RubyUI::Card.new(class: "overflow-hidden #{day_meta[:today] ? 'border-indigo-200 bg-indigo-50/40' : 'border-white/80 bg-white/92'} shadow-[0_12px_30px_rgba(48,45,74,0.08)]") do %>
+            <%= render RubyUI::CardContent.new(class: "px-5 py-4") do %>
+              <div class="flex items-start justify-between gap-3">
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <span class="<%= day_meta[:day_number_classes] %>"><%= l(day, format: "%d/%m") %></span>
+                    <% if day_meta[:today] %>
+                      <span class="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">Hoje</span>
+                    <% end %>
+                  </div>
+                  <p class="text-sm text-muted-foreground"><%= l(day, format: "%A").capitalize %></p>
+                </div>
+
+                <% if time_sheet %>
+                  <span class="<%= day_meta[:status][:classes] %> inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-medium">
+                    <%= day_meta[:status][:label] %>
+                  </span>
                 <% end %>
-              <% else %>
-                <div class="flex justify-center items-center h-20">
-                  <% if day <= Date.today %>
-                    <% can_register_on_day = can_register_on_date?(current_user, day) %>
-                    <% is_day_weekend = day.saturday? || day.sunday? %>
+              </div>
 
-                    <div class="relative group">
-                      <%= link_to new_time_entry_path(date: day, return_to: "calendar"),
-                          class: "#{registration_button_classes(current_user, day, 'text-xs text-indigo-600 hover:text-indigo-800 flex items-center bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded-md transition-colors duration-150')}" do %>
-                        <i class="fas fa-plus-circle mr-1"></i> Registrar ponto
-                      <% end %>
+              <% if time_sheet %>
+                <div class="mt-4 space-y-3">
+                  <div class="grid grid-cols-2 gap-2">
+                    <% entry_pairs.first(2).each do |pair| %>
+                      <div class="rounded-xl border border-border/70 bg-white px-3 py-2.5 text-sm">
+                        <div class="text-xs font-medium text-muted-foreground">Entrada / saída</div>
+                        <div class="mt-1 font-semibold text-foreground"><%= pair[:entry] %> <span class="text-muted-foreground">→</span> <%= pair[:exit] %></div>
+                      </div>
+                    <% end %>
+                  </div>
 
-                      <% if is_day_weekend && !can_register_on_day %>
-                        <div class="absolute left-0 bottom-full mb-1 w-48 bg-gray-900 text-white text-xs rounded-lg shadow-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
-                          <%= weekend_registration_tooltip %>
-                        </div>
-                      <% end %>
-                    </div>
+                  <div class="flex items-center justify-between rounded-xl bg-secondary/20 px-3 py-2.5 text-sm">
+                    <span class="text-muted-foreground">Total do dia</span>
+                    <span class="font-semibold text-foreground"><%= day_meta[:total_hours] %></span>
+                  </div>
+
+                  <%= link_to time_sheet_path(time_sheet), class: "inline-flex h-10 w-full items-center justify-center gap-2 rounded-md border border-border bg-white text-sm font-medium text-foreground transition-colors hover:bg-accent" do %>
+                    <i class="fas fa-eye text-sm"></i>
+                    Ver detalhes
                   <% end %>
+                </div>
+              <% elsif day <= Date.current %>
+                <div class="mt-4">
+                  <%= link_to new_time_entry_path(date: day, return_to: "calendar"),
+                      class: registration_button_classes(current_user, day, "inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-secondary/70 text-sm font-medium text-secondary-foreground transition hover:bg-secondary") do %>
+                    <i class="fas fa-plus-circle text-sm"></i>
+                    Registrar ponto
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="mt-4 rounded-xl bg-secondary/20 px-3 py-2.5 text-sm text-muted-foreground">
+                  Dia futuro sem registro disponível.
                 </div>
               <% end %>
             <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <%= render RubyUI::Card.new(class: "border-white/80 bg-white/92 shadow-[0_18px_45px_rgba(48,45,74,0.08)]") do %>
+        <%= render RubyUI::CardContent.new(class: "px-5 py-5 sm:px-6") do %>
+          <div class="space-y-3">
+            <div class="space-y-1">
+              <h3 class="text-lg font-semibold tracking-tight text-foreground">Legenda</h3>
+              <p class="text-sm text-muted-foreground">Use as cores para localizar exceções mais rápido.</p>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex items-start gap-3 rounded-xl bg-secondary/20 px-3 py-2.5">
+                <span class="mt-1 h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+                <div>
+                  <p class="text-sm font-medium text-foreground">Pendente</p>
+                  <p class="text-xs text-muted-foreground">Ainda não enviado ou fora da tolerância.</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3 rounded-xl bg-secondary/20 px-3 py-2.5">
+                <span class="mt-1 h-2.5 w-2.5 rounded-full bg-blue-400"></span>
+                <div>
+                  <p class="text-sm font-medium text-foreground">Enviado</p>
+                  <p class="text-xs text-muted-foreground">Aguardando aprovação ou análise.</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3 rounded-xl bg-secondary/20 px-3 py-2.5">
+                <span class="mt-1 h-2.5 w-2.5 rounded-full bg-green-400"></span>
+                <div>
+                  <p class="text-sm font-medium text-foreground">Aprovado</p>
+                  <p class="text-xs text-muted-foreground">Dia concluído sem pendências.</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3 rounded-xl bg-secondary/20 px-3 py-2.5">
+                <span class="mt-1 h-2.5 w-2.5 rounded-full bg-red-400"></span>
+                <div>
+                  <p class="text-sm font-medium text-foreground">Rejeitado</p>
+                  <p class="text-xs text-muted-foreground">Requer revisão ou correção.</p>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        <% end %>
       <% end %>
-    </div>
-  </div>
 
-  <div class="grid md:grid-cols-2 gap-6">
-    <div class="bg-white p-6 rounded-lg shadow-lg border border-gray-100">
-      <h3 class="font-bold text-lg mb-4 text-gray-800 flex items-center">
-        <i class="fas fa-info-circle text-indigo-500 mr-2"></i> Legenda
-      </h3>
+      <%= render RubyUI::Card.new(class: "border-white/80 bg-white/92 shadow-[0_18px_45px_rgba(48,45,74,0.08)]") do %>
+        <%= render RubyUI::CardContent.new(class: "px-5 py-5 sm:px-6") do %>
+          <div class="space-y-4">
+            <div class="space-y-1">
+              <h3 class="text-lg font-semibold tracking-tight text-foreground">Resumo do mês</h3>
+              <p class="text-sm text-muted-foreground">Uma visão rápida do volume e do estado dos registros neste período.</p>
+            </div>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div class="flex items-center p-2 rounded-md hover:bg-gray-50 transition-colors duration-150">
-          <div class="rounded-full w-5 h-5 bg-yellow-400 shadow-sm mr-2"></div>
-          <div>
-            <span class="text-sm font-medium">Pendente</span>
-            <p class="text-xs text-gray-500">Registro não enviado</p>
+            <div>
+              <div class="mb-2 flex items-center justify-between text-sm">
+                <span class="text-muted-foreground">Progresso do mês</span>
+                <span class="font-medium text-foreground"><%= month_summary[:completion_percentage] %>%</span>
+              </div>
+              <div class="h-2.5 rounded-full bg-secondary">
+                <div class="h-2.5 rounded-full bg-primary" style="width: <%= month_summary[:completion_percentage] %>%"></div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="rounded-2xl bg-secondary/30 px-4 py-3">
+                <div class="text-xs font-medium uppercase tracking-[0.1em] text-muted-foreground">Dias trabalhados</div>
+                <div class="mt-1 text-2xl font-semibold text-foreground">
+                  <%= month_summary[:total_days] %>
+                  <span class="text-xs font-medium text-muted-foreground">/ <%= month_summary[:business_days] %> úteis</span>
+                </div>
+              </div>
+
+              <div class="rounded-2xl bg-secondary/30 px-4 py-3">
+                <div class="text-xs font-medium uppercase tracking-[0.1em] text-muted-foreground">Total de horas</div>
+                <div class="mt-1 text-2xl font-semibold text-foreground"><%= month_summary[:total_hours] %>h</div>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-secondary/20">
+                <span class="flex items-center gap-2 text-foreground"><span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>Pendentes</span>
+                <span class="font-medium text-foreground"><%= month_summary[:pending_count] %></span>
+              </div>
+              <div class="flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-secondary/20">
+                <span class="flex items-center gap-2 text-foreground"><span class="h-2.5 w-2.5 rounded-full bg-blue-400"></span>Enviados</span>
+                <span class="font-medium text-foreground"><%= month_summary[:sent_count] %></span>
+              </div>
+              <div class="flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-secondary/20">
+                <span class="flex items-center gap-2 text-foreground"><span class="h-2.5 w-2.5 rounded-full bg-green-400"></span>Aprovados</span>
+                <span class="font-medium text-foreground"><%= month_summary[:approved_count] %></span>
+              </div>
+              <div class="flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-secondary/20">
+                <span class="flex items-center gap-2 text-foreground"><span class="h-2.5 w-2.5 rounded-full bg-red-400"></span>Rejeitados</span>
+                <span class="font-medium text-foreground"><%= month_summary[:rejected_count] %></span>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div class="flex items-center p-2 rounded-md hover:bg-gray-50 transition-colors duration-150">
-          <div class="rounded-full w-5 h-5 bg-blue-400 shadow-sm mr-2"></div>
-          <div>
-            <span class="text-sm font-medium">Enviado</span>
-            <p class="text-xs text-gray-500">Aguardando aprovação</p>
-          </div>
-        </div>
-
-        <div class="flex items-center p-2 rounded-md hover:bg-gray-50 transition-colors duration-150">
-          <div class="rounded-full w-5 h-5 bg-green-400 shadow-sm mr-2"></div>
-          <div>
-            <span class="text-sm font-medium">Aprovado</span>
-            <p class="text-xs text-gray-500">Registro confirmado</p>
-          </div>
-        </div>
-
-        <div class="flex items-center p-2 rounded-md hover:bg-gray-50 transition-colors duration-150">
-          <div class="rounded-full w-5 h-5 bg-red-400 shadow-sm mr-2"></div>
-          <div>
-            <span class="text-sm font-medium">Rejeitado</span>
-            <p class="text-xs text-gray-500">Necessita correção</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-4 pt-4 border-t border-gray-100">
-        <h4 class="font-medium text-sm mb-2 text-gray-700">Ícones</h4>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="flex items-center">
-            <i class="fas fa-signature text-green-600 mr-2"></i>
-            <span class="text-xs text-gray-600">Assinado digitalmente</span>
-          </div>
-          <div class="flex items-center">
-            <i class="fas fa-sign-in-alt text-green-500 mr-2"></i>
-            <span class="text-xs text-gray-600">Entrada</span>
-          </div>
-          <div class="flex items-center">
-            <i class="fas fa-sign-out-alt text-red-500 mr-2"></i>
-            <span class="text-xs text-gray-600">Saída</span>
-          </div>
-          <div class="flex items-center">
-            <i class="fas fa-clock text-indigo-400 mr-2"></i>
-            <span class="text-xs text-gray-600">Total de horas</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-white p-6 rounded-lg shadow-lg border border-gray-100">
-      <h3 class="font-bold text-lg mb-4 text-gray-800 flex items-center">
-        <i class="fas fa-chart-pie text-indigo-500 mr-2"></i> Resumo do Mês
-      </h3>
-
-      <% 
-        # Calculate statistics
-        total_days = @time_sheets.count
-        total_hours = 0
-        @time_sheets.each { |ts| total_hours += ts.total_hours.to_f rescue 0 }
-        pending_count = @time_sheets.select { |ts| ts&.approval_status == 'pendente' }.count
-        approved_count = @time_sheets.select { |ts| ts&.approval_status == 'aprovado' }.count
-        sent_count = @time_sheets.select { |ts| ts&.approval_status == 'enviado' }.count
-        rejected_count = @time_sheets.select { |ts| ts&.approval_status == 'rejeitado' }.count
-
-        # Calculate expected work days (excluding weekends)
-        business_days = ((@date.beginning_of_month..@date.end_of_month).to_a - (@date.beginning_of_month..@date.end_of_month).to_a.select {|d| d.saturday? || d.sunday?}).count
-
-        # Calculate completion percentage
-        completion_percentage = business_days > 0 ? (total_days.to_f / business_days * 100).round : 0
-        completion_percentage = [completion_percentage, 100].min
-      %>
-
-      <div class="mb-4">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-sm font-medium text-gray-700">Progresso do mês</span>
-          <span class="text-sm font-medium text-indigo-600"><%= completion_percentage %>%</span>
-        </div>
-        <div class="w-full bg-gray-200 rounded-full h-2.5">
-          <div class="bg-indigo-600 h-2.5 rounded-full" style="width: <%= completion_percentage %>%"></div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4 mb-4">
-        <div class="bg-indigo-50 p-3 rounded-lg">
-          <div class="text-xs text-indigo-600 mb-1">Dias Trabalhados</div>
-          <div class="text-xl font-bold text-indigo-800"><%= total_days %> <span class="text-xs font-normal text-indigo-600">/ <%= business_days %> dias úteis</span></div>
-        </div>
-
-        <div class="bg-indigo-50 p-3 rounded-lg">
-          <div class="text-xs text-indigo-600 mb-1">Total de Horas</div>
-          <div class="text-xl font-bold text-indigo-800"><%= total_hours.round(1) %> <span class="text-xs font-normal text-indigo-600">horas</span></div>
-        </div>
-      </div>
-
-      <div class="space-y-2">
-        <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded-md">
-          <span class="text-gray-700 flex items-center">
-            <div class="w-3 h-3 rounded-full bg-yellow-400 mr-2"></div>
-            Pendentes:
-          </span>
-          <span class="font-medium"><%= pending_count %></span>
-        </div>
-
-        <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded-md">
-          <span class="text-gray-700 flex items-center">
-            <div class="w-3 h-3 rounded-full bg-blue-400 mr-2"></div>
-            Enviados:
-          </span>
-          <span class="font-medium"><%= sent_count %></span>
-        </div>
-
-        <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded-md">
-          <span class="text-gray-700 flex items-center">
-            <div class="w-3 h-3 rounded-full bg-green-400 mr-2"></div>
-            Aprovados:
-          </span>
-          <span class="font-medium"><%= approved_count %></span>
-        </div>
-
-        <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded-md">
-          <span class="text-gray-700 flex items-center">
-            <div class="w-3 h-3 rounded-full bg-red-400 mr-2"></div>
-            Rejeitados:
-          </span>
-          <span class="font-medium"><%= rejected_count %></span>
-        </div>
-      </div>
+        <% end %>
+      <% end %>
     </div>
   </div>
 </div>

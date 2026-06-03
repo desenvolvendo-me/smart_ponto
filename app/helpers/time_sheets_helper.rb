@@ -246,4 +246,103 @@ module TimeSheetsHelper
       }
     end
   end
+
+  def calendar_day_meta(day, reference_month, time_sheet = nil)
+    in_month = day.month == reference_month.month
+    today = day == Date.current
+    weekend = day.saturday? || day.sunday?
+    status = time_sheet_status_meta(time_sheet) if time_sheet
+
+    base_classes = if !in_month
+      "bg-white/45 text-muted-foreground/60"
+    elsif time_sheet&.approval_status == "rejeitado"
+      "bg-red-50/60 ring-1 ring-red-200"
+    elsif time_sheet&.justification_status == "pendente"
+      "bg-blue-50/60 ring-1 ring-blue-200"
+    elsif time_sheet && !time_sheet.within_tolerance?
+      "bg-amber-50/60 ring-1 ring-amber-200"
+    elsif time_sheet&.approval_status == "aprovado"
+      "bg-green-50/45 ring-1 ring-green-200"
+    elsif time_sheet&.approval_status == "enviado"
+      "bg-blue-50/45 ring-1 ring-blue-200"
+    elsif today
+      "bg-indigo-50 ring-2 ring-indigo-500 ring-inset"
+    elsif weekend
+      "bg-secondary/20"
+    else
+      "bg-white"
+    end
+
+    accent_classes = if time_sheet&.approval_status == "rejeitado"
+      "bg-red-500"
+    elsif time_sheet&.justification_status == "pendente"
+      "bg-blue-500"
+    elsif time_sheet && !time_sheet.within_tolerance?
+      "bg-amber-500"
+    elsif time_sheet&.approval_status == "aprovado"
+      "bg-green-500"
+    elsif time_sheet&.approval_status == "enviado"
+      "bg-blue-500"
+    elsif time_sheet
+      "bg-indigo-500"
+    else
+      nil
+    end
+
+    {
+      in_month:,
+      today:,
+      weekend:,
+      base_classes:,
+      accent_classes:,
+      day_number_classes: [
+        "text-lg font-semibold",
+        (!in_month ? "text-muted-foreground/50" : "text-foreground"),
+        (weekend && in_month ? "text-red-600" : nil),
+        (today ? "text-indigo-700" : nil)
+      ].compact.join(" "),
+      status:,
+      total_hours: time_sheet ? format_hours(time_sheet.total_hours) : nil,
+      empty_past_day: in_month && day < Date.current && time_sheet.blank?,
+      empty_today: in_month && day == Date.current && time_sheet.blank?
+    }
+  end
+
+  def calendar_entry_pair(time_sheet)
+    return [] unless time_sheet
+
+    time_sheet.time_entries.order(:time).each_slice(2).map do |entry_pair|
+      {
+        entry: entry_pair[0]&.time&.strftime("%H:%M") || "--:--",
+        exit: entry_pair[1]&.time&.strftime("%H:%M") || "--:--"
+      }
+    end
+  end
+
+  def calendar_month_summary(time_sheets, date)
+    total_days = time_sheets.count
+    total_hours = time_sheets.sum { |ts| ts.total_hours.to_f }
+    pending_count = time_sheets.count { |ts| ts.approval_status == "pendente" }
+    approved_count = time_sheets.count { |ts| ts.approval_status == "aprovado" }
+    sent_count = time_sheets.count { |ts| ts.approval_status == "enviado" }
+    rejected_count = time_sheets.count { |ts| ts.approval_status == "rejeitado" }
+
+    business_days = (date.beginning_of_month..date.end_of_month).count { |day| !day.saturday? && !day.sunday? }
+    completion_percentage = if business_days.positive?
+      [(total_days.to_f / business_days * 100).round, 100].min
+    else
+      0
+    end
+
+    {
+      total_days:,
+      total_hours: total_hours.round(1),
+      pending_count:,
+      approved_count:,
+      sent_count:,
+      rejected_count:,
+      business_days:,
+      completion_percentage:
+    }
+  end
 end
