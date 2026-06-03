@@ -1,0 +1,6 @@
+<%= link_to_unless current_page.last?, raw('<span>Próxima</span><i class="fas fa-chevron-right text-[10px]"></i>'), url, rel: "next", remote: remote, class: "inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-border/80 bg-white px-3 text-sm font-medium text-foreground transition hover:bg-accent" do %>
+  <span class="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-border/60 bg-white/60 px-3 text-sm font-medium text-muted-foreground">
+    <span>Próxima</span>
+    <i class="fas fa-chevron-right text-[10px]"></i>
+  </span>
+<% end %>

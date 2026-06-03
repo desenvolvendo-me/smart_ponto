@@ -1,0 +1,28 @@
+<%= paginator.render do -%>
+  <nav class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" role="navigation" aria-label="Paginação">
+    <p class="text-sm text-muted-foreground">
+      Página <span class="font-medium text-foreground"><%= current_page %></span>
+      de <span class="font-medium text-foreground"><%= total_pages %></span>
+    </p>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <%= first_page_tag unless current_page.first? %>
+      <%= prev_page_tag unless current_page.first? %>
+
+      <div class="inline-flex items-center gap-1 rounded-xl bg-secondary/70 p-1">
+        <% each_page do |page| -%>
+          <% if page.display_tag? -%>
+            <%= page_tag page %>
+          <% elsif !page.was_truncated? -%>
+            <%= gap_tag %>
+          <% end -%>
+        <% end -%>
+      </div>
+
+      <% unless current_page.out_of_range? %>
+        <%= next_page_tag unless current_page.last? %>
+        <%= last_page_tag unless current_page.last? %>
+      <% end %>
+    </div>
+  </nav>
+<% end -%>
