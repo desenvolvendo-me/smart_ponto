@@ -22,6 +22,7 @@ O foco e:
 O processo abaixo ja foi validado neste projeto na migracao de:
 
 - autenticacao Devise
+- shell autenticado e navegacao global
 - `time_entries/new`
 - `approvals/index`
 - `manager/team_members/index`
@@ -134,6 +135,27 @@ Sequencia real que funcionou:
 - `dashboard/index`
 - `user_preferences/edit`
 - `time_sheets/export`
+- `layouts/application` com `shell_component`
+
+### 1.1. Shell deve entrar depois da base e antes do acabamento fino
+
+Aprendizado adicional:
+
+- o shell principal nao deve ser a primeira migracao
+- ele tambem nao deve ficar por ultimo demais
+- o melhor ponto foi depois que:
+  - `Card`, `Button`, `Input` e `Alert` ja estavam validados
+  - o dashboard e telas medias ja mostravam qual linguagem visual o produto realmente queria
+
+Motivo:
+
+- o shell depende mais de IA, responsividade e consistencia sistemica do que de primitives isoladas
+- antes disso, a chance de migrar o menu duas vezes e alta
+
+Regra:
+
+- migrar shell quando o design system basico ja estiver provado
+- mas antes da fase final de polimento, para o restante das telas ja nascerem dentro da casca certa
 
 ### 2. Migrar tela nao e trocar classes
 
@@ -255,6 +277,27 @@ Entao:
 - usar MCP quando houver duvida real de primitive
 - nao transformar o MCP em etapa burocratica para telas que ja repetem stack conhecida
 
+### 8.1. Shell autenticado confirmou onde o RubyUI rende mais
+
+Na migracao do shell, o ganho do RubyUI nao veio de um componente oficial de `Sidebar`.
+
+O ganho real veio de:
+
+- usar `Phlex` para centralizar a arvore do menu
+- usar `Card` para o bloco do usuario
+- usar tokens do design system para sidebar clara
+- mover comportamento para `Stimulus` simples
+
+Conclusao pratica:
+
+- RubyUI e mais eficiente quando resolve primitives e consistencia
+- a navegacao global normalmente ainda precisa de composicao propria da aplicacao
+
+Regra:
+
+- nao esperar um componente oficial pronto para shell complexo
+- usar RubyUI para base visual e Phlex para a composicao de produto
+
 ### 9. Bugs funcionais aparecem durante a migracao visual
 
 Durante a migracao surgiram bugs reais que nao eram apenas visuais:
@@ -282,6 +325,11 @@ Regra final:
 
 - antes de commitar, limpar artefatos temporarios
 - manter no commit apenas codigo, docs e contexto que realmente fazem parte do produto
+
+Excecao pragmatica:
+
+- se o time estiver usando os snapshots de critica como backlog vivo de UX no proprio branch, eles podem ficar temporariamente
+- mas isso deve ser intencional, nao efeito colateral
 
 ### 11. Dashboard grande deve ser tratado como triagem
 
@@ -437,6 +485,11 @@ Heuristica validada no projeto:
 - nem todo bloco precisa virar componente Phlex novo
 - em muitos casos, helper + ERB organizado foi suficiente
 
+Heuristica adicional para outros projetos:
+
+- se a superficie tiver regra de negocio de layout, usar componente local cedo
+- se a superficie for so apresentacao repetitiva, esticar RubyUI ao maximo primeiro
+
 ### Etapa 3 - Usar o MCP do RubyUI quando houver duvida ou dependencia estrutural
 
 Arquivo local ja preparado:
@@ -489,6 +542,11 @@ Quando nao precisa usar MCP:
 - evolucao visual de telas que ja usam `Card`, `Input`, `Button`, `Alert`, `Checkbox`
 - refinamento de copy, densidade, hierarquia e shell
 
+Sinal de boa eficiencia:
+
+- se voce ja sabe quais 3 ou 4 primitives vao compor a tela, pular MCP normalmente acelera
+- se ainda existe duvida sobre dependencia, estrutura ou comportamento do componente, usar MCP economiza retrabalho
+
 Aprendizado pratico:
 
 - depois da base estar pronta, a maior parte do trabalho passa a ser layout e UX
@@ -518,6 +576,71 @@ Regra:
 - RubyUI define as primitives e a estrutura base
 - Impeccable guia como organizar, polir e evoluir os componentes
 - `PRODUCT.md` define o comportamento de marca do produto
+
+## Eficiencia real observada do RubyUI
+
+### Onde o RubyUI foi muito eficiente
+
+- formularios pequenos e medios
+- cards, alerts, inputs e botoes
+- telas com repeticao clara de patterns
+- padronizacao visual rapida depois que a fundacao ficou pronta
+
+### Onde o RubyUI foi medianamente eficiente
+
+- tabelas e telas com filtros
+- tabs simples
+- dashboards com muitas secoes
+
+Nesses casos, o RubyUI ajudou, mas a maior parte do trabalho continuou sendo:
+
+- composicao
+- hierarquia
+- densidade
+- responsividade
+
+### Onde o RubyUI sozinho nao resolveu
+
+- shell autenticado
+- navegacao global
+- calendario
+- fluxos com estados muito especificos da aplicacao
+
+Nesses casos, o padrao que funcionou foi:
+
+1. usar RubyUI nas primitives
+2. usar `Phlex` para componentes compostos
+3. usar `Stimulus` apenas para comportamento fino
+
+### Regra de transferencia para outro projeto
+
+Se o objetivo for medir a eficiencia do RubyUI em outro produto Rails:
+
+- medir separado:
+  - eficiencia das primitives
+  - eficiencia da migracao de telas
+  - eficiencia de shell/navegacao
+- nao usar sucesso em formulario para prever sucesso em shell
+- nao usar sucesso em shell para prever sucesso em calendario ou data-heavy screens
+
+## Resumo executivo
+
+Neste projeto, o RubyUI foi eficiente de verdade para:
+
+- acelerar padronizacao visual
+- reduzir repeticao de markup
+- dar base segura para migracao incremental
+
+Ele foi menos eficiente como solucao completa para:
+
+- arquitetura de navegacao
+- composicao de telas densas
+- decisoes de UX especificas do produto
+
+Conclusao pratica:
+
+- RubyUI funciona melhor como fundacao e acelerador de consistencia
+- nao como substituto integral de design de produto ou arquitetura de interface
 - `DESIGN.md` define tokens, linguagem visual e criterio de composicao
 
 Perguntas extras obrigatorias no contexto deste projeto:
