@@ -1,557 +1,397 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-  <!-- Cabeçalho com Ações Rápidas -->
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 bg-gradient-to-r from-gray-50 to-white p-6 rounded-xl shadow-md border border-gray-100">
-    <div>
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">Meu Dashboard</h1>
-      <p class="text-gray-600"><%= l(Date.current, format: :long) %></p>
-    </div>
-    <div class="text-center">
-      <div data-controller="hello" class="hello">
-        <h1 data-hello-target="output">
-          <button data-action="click->hello#greet"><%= Rails.env %></button>
-        </h1>
-      </div>
-    </div>
-    <div class="mt-4 sm:mt-0 flex space-x-3">
-      <%= link_to time_sheets_path, class: "flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200 shadow-sm" do %>
-        <i class="fas fa-list-ul mr-2"></i> Ver Registros
-      <% end %>
-      <%= button_to quick_register_time_entries_path(return_to: "dashboard"), method: :post, class: "flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 shadow-sm" do %>
-        <i class="fas fa-plus mr-2"></i> Registrar Ponto
-      <% end %>
-    </div>
-  </div>
+<% daily_status = dashboard_daily_status_meta(@daily_summary) %>
+<% weekly_status = dashboard_weekly_status_meta(@weekly_summary) %>
+<% weekly_progress = [@weekly_summary[:completion_percentage], 100].min %>
+<% daily_has_activity = dashboard_has_activity?(@daily_summary) %>
 
-  <!-- Grid com Cards de Resumo -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-    <!-- Card Principal - Horas Trabalhadas Hoje -->
-    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-      <div class="text-center">
-        <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-blue-500 rounded-full mb-4">
-          <i class="fas fa-clock text-xl"></i>
-        </div>
-        <h2 class="text-lg font-semibold text-gray-700 mb-3">Horas Trabalhadas Hoje</h2>
-
-        <!-- Valor Principal -->
-        <div class="text-4xl font-bold text-gray-900 mb-3">
-          <%= format_hours_minutes(@daily_summary[:worked_hours]) %>
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+  <section class="overflow-hidden rounded-[24px] border border-border/70 bg-white shadow-sm">
+    <div class="bg-gradient-to-r from-indigo-50 via-white to-sky-50 px-5 py-5 sm:px-7">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="max-w-2xl space-y-2">
+          <span class="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white/80 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-indigo-700">
+            Painel diário
+          </span>
+          <div class="space-y-1">
+            <h1 class="text-2xl font-semibold tracking-tight text-slate-950 sm:text-[2rem]">Meu dashboard</h1>
+            <p class="max-w-xl text-sm leading-6 text-slate-600">
+              <%= l(Date.current, format: :long) %>. Acompanhe sua jornada, veja o que precisa de atenção e avance sem sair desta página.
+            </p>
+          </div>
         </div>
 
-        <!-- Meta -->
-        <div class="text-sm text-gray-500 mb-4">
-          Meta: <%= number_with_precision(@daily_summary[:daily_goal], precision: 0) %>h 00min
-        </div>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <%= link_to time_sheets_path, class: "inline-flex items-center justify-center gap-2 rounded-xl border border-border/70 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700" do %>
+            <i class="fas fa-list-ul text-indigo-500"></i>
+            Ver registros
+          <% end %>
 
-        <!-- Status Badge -->
-        <div class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium
-                    <%= @daily_summary[:status] == 'complete' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
-          <% if @daily_summary[:status] == 'complete' %>
-            <i class="fas fa-check-circle mr-1.5"></i> Completo
-          <% else %>
-            <i class="fas fa-hourglass-half mr-1.5"></i> Incompleto
+          <%= button_to quick_register_time_entries_path(return_to: "dashboard"), method: :post, class: "inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700" do %>
+            <i class="fas fa-plus"></i>
+            Registrar ponto
           <% end %>
         </div>
-
-        <!-- Informação adicional baseada no approval_status real -->
-        <% case @daily_summary[:approval_status] %>
-        <% when 'aprovado' %>
-          <div class="mt-3 text-sm text-green-600 bg-green-50 py-2 px-3 rounded-lg inline-block">
-            <i class="fas fa-check-circle mr-1"></i>
-            Ponto aprovado
-          </div>
-        <% when 'enviado' %>
-          <div class="mt-3 text-sm text-blue-600 bg-blue-50 py-2 px-3 rounded-lg inline-block">
-            <i class="fas fa-paper-plane mr-1"></i>
-            Ponto enviado para aprovação
-          </div>
-        <% when 'rejeitado' %>
-          <div class="mt-3 text-sm text-red-600 bg-red-50 py-2 px-3 rounded-lg inline-block">
-            <i class="fas fa-times-circle mr-1"></i>
-            Ponto rejeitado
-          </div>
-        <% when 'pendente' %>
-          <div class="mt-3 text-sm text-gray-600 bg-gray-50 py-2 px-3 rounded-lg inline-block">
-            <i class="fas fa-edit mr-1"></i>
-            Ponto em rascunho
-          </div>
-        <% end %>
       </div>
     </div>
+  </section>
 
-    <!-- Card - Desempenho Semanal -->
-    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-      <div class="text-center">
-        <div class="inline-flex items-center justify-center w-12 h-12 bg-indigo-50 text-indigo-500 rounded-full mb-4">
-          <i class="fas fa-chart-line text-xl"></i>
-        </div>
-        <h2 class="text-lg font-semibold text-gray-700 mb-3">Desempenho Semanal</h2>
-
-        <!-- Valor Principal -->
-        <div class="text-4xl font-bold text-gray-900 mb-3">
-          <%= format_hours_minutes(@weekly_summary[:worked_hours]) %>
-        </div>
-
-        <!-- Meta e Progresso -->
-        <div class="text-sm text-gray-500 mb-4">
-          Meta: <%= number_with_precision(@weekly_summary[:weekly_goal], precision: 0) %>h
-        </div>
-
-        <!-- Barra de Progresso -->
-        <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
-          <div class="bg-indigo-600 h-3 rounded-full transition-all duration-500 ease-in-out"
-               style="width: <%= [@weekly_summary[:completion_percentage], 100].min %>%"></div>
-        </div>
-
-        <!-- Percentual -->
-        <div class="text-sm font-medium text-gray-700 mb-3">
-          <%= @weekly_summary[:completion_percentage] %>% da meta semanal
-        </div>
-
-        <!-- Status Badge -->
-        <% case @weekly_summary[:status] %>
-        <% when 'complete' %>
-          <div class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
-            <i class="fas fa-trophy mr-1.5"></i>
-            Meta Atingida
+  <section class="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+    <div class="grid gap-4 md:grid-cols-2">
+      <article class="rounded-[22px] border border-border/70 bg-white p-5 shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-sm font-medium text-slate-500">Hoje</p>
+            <h2 class="mt-1 text-base font-semibold text-slate-900">Horas trabalhadas</h2>
           </div>
-        <% when 'on_track' %>
-          <div class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-            <i class="fas fa-chart-line mr-1.5"></i>
-            No Caminho Certo
-          </div>
-        <% else %>
-          <div class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
-            <i class="fas fa-exclamation-triangle mr-1.5"></i>
-            Atrás da Meta
-          </div>
-        <% end %>
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+            <i class="fas fa-clock"></i>
+          </span>
+        </div>
 
-        <!-- Informações Adicionais -->
-        <div class="mt-4 flex justify-center space-x-4">
-          <div class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-sm">
-            <i class="fas fa-calendar-check mr-1"></i> <%= @weekly_summary[:days_worked] %> dias trabalhados
+        <div class="mt-5 flex items-end justify-between gap-4">
+          <div>
+            <p class="text-4xl font-semibold tracking-tight text-slate-950">
+              <%= format_hours_minutes(@daily_summary[:worked_hours]) %>
+            </p>
+            <p class="mt-2 text-sm text-slate-500">
+              Meta do dia: <strong class="font-medium text-slate-700"><%= number_with_precision(@daily_summary[:daily_goal], precision: 0) %>h 00min</strong>
+            </p>
           </div>
-          <div class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-sm">
-            <i class="fas fa-calendar-week mr-1"></i> <%= @weekly_summary[:start_date].strftime("%d/%m") %> - <%= @weekly_summary[:end_date].strftime("%d/%m") %>
+          <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium <%= daily_status[:classes] %>">
+            <i class="fas <%= daily_status[:icon] %>"></i>
+            <%= daily_status[:label] %>
+          </span>
+        </div>
+
+        <p class="mt-3 text-sm leading-6 text-slate-600"><%= daily_status[:description] %></p>
+      </article>
+
+      <article class="rounded-[22px] border border-border/70 bg-white p-5 shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-sm font-medium text-slate-500">Semana atual</p>
+            <h2 class="mt-1 text-base font-semibold text-slate-900">Meta semanal</h2>
+          </div>
+          <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-sky-50 text-sky-600">
+            <i class="fas fa-chart-line"></i>
+          </span>
+        </div>
+
+        <div class="mt-5 flex items-end justify-between gap-4">
+          <div>
+            <p class="text-4xl font-semibold tracking-tight text-slate-950">
+              <%= format_hours_minutes(@weekly_summary[:worked_hours]) %>
+            </p>
+            <p class="mt-2 text-sm text-slate-500">
+              <%= @weekly_summary[:days_worked] %> dias registrados em <strong class="font-medium text-slate-700"><%= dashboard_period_label(@weekly_summary[:start_date], @weekly_summary[:end_date]) %></strong>
+            </p>
+          </div>
+          <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium <%= weekly_status[:classes] %>">
+            <i class="fas <%= weekly_status[:icon] %>"></i>
+            <%= weekly_status[:label] %>
+          </span>
+        </div>
+
+        <div class="mt-4 space-y-3">
+          <div class="h-3 overflow-hidden rounded-full bg-slate-100">
+            <div class="h-full rounded-full bg-indigo-600 transition-all duration-300" style="width: <%= weekly_progress %>%"></div>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-500">Meta: <%= number_with_precision(@weekly_summary[:weekly_goal], precision: 0) %>h</span>
+            <span class="font-medium <%= weekly_status[:tone] %>"><%= @weekly_summary[:completion_percentage] %>% concluído</span>
           </div>
         </div>
-      </div>
+      </article>
     </div>
-  </div>
 
-  <!-- Seção de Pendências -->
-  <% if current_user.role == 'gestor' && @pending_approvals_count > 0 %>
-    <!-- Card de Pendências para Gestores -->
-    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-10 transform transition-all duration-300 hover:shadow-xl">
-      <div class="flex items-center mb-6">
-        <div class="inline-flex items-center justify-center w-10 h-10 bg-amber-50 text-amber-500 rounded-full mr-3">
-          <i class="fas fa-bell"></i>
+    <article class="rounded-[22px] border border-border/70 bg-slate-950 p-5 text-white shadow-sm">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="text-sm font-medium text-slate-300">Ritmo do dia</p>
+          <h2 class="mt-1 text-base font-semibold">Próximo passo</h2>
         </div>
-        <h3 class="text-xl font-semibold text-gray-800">Pendências para Aprovação</h3>
-        <% if @pending_approvals_count > 0 %>
-          <div class="ml-3 inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
-            <i class="fas fa-exclamation-circle mr-1"></i>
-            Ação necessária
-          </div>
-        <% end %>
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white">
+          <i class="fas fa-bolt"></i>
+        </span>
       </div>
 
-      <div class="flex flex-col p-6 bg-amber-50 rounded-lg mb-6">
-        <div class="flex justify-center items-center mb-6">
-          <div class="text-4xl font-bold text-amber-600">
-            <%= @pending_approvals_count %>
+      <% if daily_has_activity %>
+        <div class="mt-5 space-y-3">
+          <div class="flex items-end justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <p class="text-xs uppercase tracking-[0.14em] text-slate-400">Último registro</p>
+              <p class="mt-2 text-3xl font-semibold"><%= @daily_summary[:entries].last.time.strftime("%H:%M") %></p>
+              <p class="mt-2 text-sm text-slate-300">
+                <%= dashboard_entry_meta(@daily_summary[:entries].last)[:label] %>
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs uppercase tracking-[0.14em] text-slate-400">Movimentos</p>
+              <p class="mt-2 text-2xl font-semibold"><%= @daily_summary[:entries].size %></p>
+            </div>
           </div>
-          <div class="ml-3 text-amber-700 text-lg">
-            <%= @pending_approvals_count == 1 ? 'registro aguardando aprovação' : 'registros aguardando aprovação' %>
+
+          <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+            <p class="text-xs uppercase tracking-[0.14em] text-slate-400">Estado atual</p>
+            <p class="mt-2 text-sm font-medium text-white"><%= daily_status[:label] %></p>
           </div>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div class="bg-white rounded-lg p-4 shadow-sm border border-amber-100">
-            <div class="flex items-center justify-between mb-2">
-              <span class="font-medium text-gray-800">Enviados para aprovação</span>
-              <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-sm font-medium">
-                <%= @pending_enviado_count %>
-              </span>
-            </div>
-            <p class="text-sm text-gray-600">Registros que foram enviados pelos funcionários e aguardam sua revisão.</p>
-          </div>
-
-          <div class="bg-white rounded-lg p-4 shadow-sm border border-amber-100">
-            <div class="flex items-center justify-between mb-2">
-              <span class="font-medium text-gray-800">Pendentes</span>
-              <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-sm font-medium">
-                <%= @pending_pendente_count %>
-              </span>
-            </div>
-            <p class="text-sm text-gray-600">Registros que ainda estão em rascunho e podem precisar de atenção.</p>
-          </div>
+      <% else %>
+        <div class="mt-5 rounded-2xl border border-dashed border-white/15 bg-white/5 p-4">
+          <p class="text-sm font-medium text-white">Seu dia ainda não começou.</p>
+          <p class="mt-1 text-sm leading-6 text-slate-300">Faça o primeiro registro para liberar o acompanhamento de hoje.</p>
         </div>
+      <% end %>
+    </article>
+  </section>
 
-        <%= link_to approvals_path, class: "inline-flex items-center px-5 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all duration-200 shadow-sm mx-auto" do %>
-          <i class="fas fa-check-circle mr-2"></i>
-          Revisar Todas as Aprovações
-        <% end %>
-      </div>
-
-      <!-- Lista de Funcionários com Pendências -->
-      <h4 class="text-lg font-semibold text-gray-800 mb-4">Funcionários com Registros Pendentes</h4>
-
-      <div class="space-y-6">
-        <% @employees_with_pending.each do |employee| %>
-          <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-            <!-- Cabeçalho do Funcionário -->
-            <div class="bg-gray-50 p-4 border-b border-gray-200">
-              <div class="flex justify-between items-center">
-                <div class="flex items-center">
-                  <div class="inline-flex items-center justify-center w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full mr-3">
-                    <i class="fas fa-user"></i>
-                  </div>
-                  <div>
-                    <h5 class="font-medium text-gray-900"><%= employee.name %></h5>
-                    <p class="text-sm text-gray-600"><%= employee.position %> - <%= employee.department %></p>
-                  </div>
-                </div>
-                <div class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-medium">
-                  <%= @pending_count_by_employee[employee.id] %> pendências
-                </div>
-              </div>
-            </div>
-
-            <!-- Lista de Registros Pendentes -->
-            <div class="divide-y divide-gray-200">
-              <% @pending_by_employee[employee.id].each do |time_sheet| %>
-                <div class="p-4 hover:bg-gray-50">
-                  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-                    <!-- Informações do Registro -->
-                    <div class="flex-1">
-                      <div class="flex items-center mb-2">
-                        <span class="font-medium text-gray-800 mr-3"><%= time_sheet.date.strftime("%d/%m/%Y") %></span>
-
-                        <% status_classes = time_sheet.approval_status == 'enviado' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700' %>
-                        <% status_icon = time_sheet.approval_status == 'enviado' ? 'paper-plane' : 'clock' %>
-                        <% status_text = time_sheet.approval_status == 'enviado' ? 'Enviado' : 'Pendente' %>
-
-                        <span class="<%= status_classes %> px-2 py-1 rounded-full text-xs font-medium flex items-center">
-                          <i class="fas fa-<%= status_icon %> mr-1"></i>
-                          <%= status_text %>
-                        </span>
-
-                        <% if time_sheet.total_hours.to_f > 8.0 %>
-                          <span class="ml-2 bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-medium flex items-center">
-                            <i class="fas fa-clock mr-1"></i>
-                            Horas extras
-                          </span>
-                        <% end %>
-
-                        <% unless time_sheet.within_tolerance? %>
-                          <span class="ml-2 bg-orange-100 text-orange-700 px-2 py-1 rounded-full text-xs font-medium flex items-center">
-                            <i class="fas fa-exclamation-triangle mr-1"></i>
-                            Ajuste
-                          </span>
-                        <% end %>
-                      </div>
-
-                      <div class="text-sm text-gray-600 mb-2">
-                        <span class="font-medium">Total:</span> <%= time_sheet.total_hours %>h
-                        <% if time_sheet.justification.present? %>
-                          <span class="ml-3 font-medium">Justificativa:</span> <%= truncate(time_sheet.justification, length: 50) %>
-                        <% end %>
-                      </div>
-                    </div>
-
-                    <!-- Ações -->
-                    <div class="flex space-x-2">
-                      <%= button_to approve_approval_path(time_sheet), method: :patch, class: "bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm font-medium flex items-center", form: { data: { turbo_confirm: "Aprovar este registro?" } } do %>
-                        <i class="fas fa-check mr-1.5"></i> Aprovar
-                      <% end %>
-
-                      <%= button_to reject_approval_path(time_sheet), method: :patch, class: "bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-sm font-medium flex items-center", form: { data: { turbo_confirm: "Rejeitar este registro?" } } do %>
-                        <i class="fas fa-times mr-1.5"></i> Rejeitar
-                      <% end %>
-                    </div>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-
-            <!-- Ver Todos os Registros deste Funcionário -->
-            <div class="bg-gray-50 p-3 border-t border-gray-200 text-center">
-              <%= link_to approvals_path(search: employee.name), class: "text-indigo-600 hover:text-indigo-800 text-sm font-medium" do %>
-                Ver todos os registros deste funcionário <i class="fas fa-arrow-right ml-1"></i>
-              <% end %>
-            </div>
+  <% if current_user.role == "gestor" && @pending_approvals_count.positive? %>
+    <section class="rounded-[24px] border border-amber-200 bg-amber-50/60 p-6 shadow-sm">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div class="max-w-2xl">
+          <div class="flex flex-wrap items-center gap-3">
+            <h2 class="text-xl font-semibold text-slate-950">Fila de aprovações</h2>
+            <span class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800">
+              <%= @pending_approvals_count %> aguardando revisão
+            </span>
           </div>
-        <% end %>
-      </div>
-    </div>
-  <% elsif current_user.role != 'gestor' && @pending_count > 0 %>
-    <!-- Card de Pendências para Funcionários -->
-    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-10 transform transition-all duration-300 hover:shadow-xl">
-      <div class="flex items-center mb-6">
-        <div class="inline-flex items-center justify-center w-10 h-10 bg-amber-50 text-amber-500 rounded-full mr-3">
-          <i class="fas fa-bell"></i>
-        </div>
-        <h3 class="text-xl font-semibold text-gray-800">Minhas Pendências</h3>
-        <% if @pending_count > 0 %>
-          <div class="ml-3 inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
-            <i class="fas fa-exclamation-circle mr-1"></i>
-            Ação necessária
-          </div>
-        <% end %>
-      </div>
-
-      <!-- Resumo das pendências -->
-      <div class="mb-6 p-5 bg-amber-50 rounded-lg border border-amber-100">
-        <div class="text-center mb-4">
-          <div class="text-2xl font-bold text-amber-600 mb-1">
-            <%= @pending_count %>
-          </div>
-          <p class="text-amber-700">
-            <%= @pending_count == 1 ? 'item pendente' : 'itens pendentes' %> que precisam da sua atenção
+          <p class="mt-2 text-sm leading-6 text-slate-600">
+            Priorize os registros enviados e use esta fila como atalho para destravar a equipe sem sair do dashboard.
           </p>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <% if @pending_pendente_count > 0 %>
-            <div class="bg-white rounded-lg p-3 shadow-sm border border-amber-100 text-center">
-              <div class="text-lg font-bold text-yellow-600 mb-1"><%= @pending_pendente_count %></div>
-              <div class="text-xs text-gray-600">Pendentes</div>
-            </div>
-          <% end %>
+        <%= link_to approvals_path, class: "inline-flex items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-amber-700" do %>
+          <i class="fas fa-check-circle"></i>
+          Revisar aprovações
+        <% end %>
+      </div>
 
-          <% if @pending_enviado_count > 0 %>
-            <div class="bg-white rounded-lg p-3 shadow-sm border border-amber-100 text-center">
-              <div class="text-lg font-bold text-blue-600 mb-1"><%= @pending_enviado_count %></div>
-              <div class="text-xs text-gray-600">Enviados</div>
-            </div>
-          <% end %>
+      <div class="mt-5 grid gap-3 sm:grid-cols-3">
+        <div class="rounded-2xl border border-amber-200 bg-white p-4">
+          <p class="text-sm text-slate-500">Total na fila</p>
+          <p class="mt-2 text-3xl font-semibold text-slate-950"><%= @pending_approvals_count %></p>
+        </div>
+        <div class="rounded-2xl border border-blue-200 bg-white p-4">
+          <p class="text-sm text-slate-500">Enviados</p>
+          <p class="mt-2 text-3xl font-semibold text-blue-700"><%= @pending_enviado_count %></p>
+        </div>
+        <div class="rounded-2xl border border-amber-200 bg-white p-4">
+          <p class="text-sm text-slate-500">Pendentes</p>
+          <p class="mt-2 text-3xl font-semibold text-amber-700"><%= @pending_pendente_count %></p>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <% @pending_items.each do |time_sheet| %>
-          <div class="bg-amber-50 rounded-lg p-4 border border-amber-100 shadow-sm hover:shadow-md transition-all duration-200">
-            <div class="flex justify-between items-center mb-3">
-              <span class="font-medium text-gray-800"><%= time_sheet.date.strftime("%d/%m/%Y") %></span>
-
-              <% status_classes = case time_sheet.approval_status 
-                 when 'enviado' then 'bg-blue-100 text-blue-700'
-                 when 'rejeitado' then 'bg-red-100 text-red-700'
-                 when 'pendente' then 'bg-yellow-100 text-yellow-700'
-                 else 'bg-gray-100 text-gray-700'
-                 end %>
-
-              <% status_icon = case time_sheet.approval_status 
-                 when 'enviado' then 'paper-plane'
-                 when 'rejeitado' then 'times-circle'
-                 when 'pendente' then 'clock'
-                 else 'question-circle'
-                 end %>
-
-              <% status_text = case time_sheet.approval_status 
-                 when 'enviado' then 'Enviado'
-                 when 'rejeitado' then 'Rejeitado'
-                 when 'pendente' then 'Pendente'
-                 else 'Desconhecido'
-                 end %>
-
-              <span class="<%= status_classes %> px-2 py-1 rounded-full text-xs font-medium flex items-center">
-                <i class="fas fa-<%= status_icon %> mr-1"></i>
-                <%= status_text %>
-              </span>
-            </div>
-
-            <% action_needed = time_sheet.approval_status == 'pendente' || time_sheet.approval_status == 'enviado' %>
-
-            <% if action_needed %>
-              <div class="mb-3 text-xs text-red-600 bg-red-50 py-1 px-2 rounded-lg inline-block">
-                <i class="fas fa-exclamation-circle mr-1"></i>
-                Ação necessária
-              </div>
-            <% end %>
-
-            <% if action_needed %>
-              <%= link_to time_sheet_path(time_sheet), class: "w-full bg-amber-600 text-white text-center py-2 rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors flex items-center justify-center" do %>
-                <i class="fas fa-eye mr-1.5"></i> Ver Detalhes
-              <% end %>
-            <% end %>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  <% end %>
-
-  <!-- Registros de Hoje (se houver) -->
-  <% if @daily_summary[:entries].any? %>
-    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-10 transform transition-all duration-300 hover:shadow-xl">
-      <div class="flex items-center mb-6">
-        <div class="inline-flex items-center justify-center w-10 h-10 bg-green-50 text-green-500 rounded-full mr-3">
-          <i class="fas fa-clipboard-list"></i>
-        </div>
-        <h3 class="text-xl font-semibold text-gray-800">Registros de Hoje</h3>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <% @daily_summary[:entries].each_with_index do |entry, index| %>
-          <div class="bg-gray-50 rounded-lg p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200">
-            <div class="flex items-center justify-between mb-2">
-              <% entry_icon = case entry.entry_type 
-                 when 'entrada', 'clock_in' then 'sign-in-alt'
-                 when 'saída', 'clock_out' then 'sign-out-alt'
-                 when 'break_start', 'inicio_intervalo' then 'coffee'
-                 when 'break_end', 'fim_intervalo' then 'walking'
-                 else 'clock'
-                 end %>
-              <div class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-500 rounded-full">
-                <i class="fas fa-<%= entry_icon %>"></i>
-              </div>
-              <span class="text-xs font-medium text-gray-500">#<%= index + 1 %></span>
-            </div>
-            <div class="text-center">
-              <div class="text-sm font-medium text-gray-600 mb-1">
-                <%= format_entry_type(entry.entry_type) %>
-              </div>
-              <div class="text-2xl font-bold text-gray-900">
-                <%= entry.time.strftime("%H:%M") %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  <% else %>
-    <!-- Estado sem registros -->
-    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 text-center mb-10 transform transition-all duration-300 hover:shadow-xl">
-      <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 text-gray-400 rounded-full mb-4">
-        <i class="fas fa-clock text-3xl"></i>
-      </div>
-      <h3 class="text-xl font-semibold text-gray-800 mb-3">Nenhum registro hoje</h3>
-      <p class="text-gray-600 mb-6 max-w-md mx-auto">Faça seu primeiro registro de ponto para começar a acompanhar seu dia e manter seu controle de horas atualizado.</p>
-      <%= button_to quick_register_time_entries_path(return_to: "dashboard"), method: :post, class: "inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 shadow-sm mx-auto" do %>
-        <i class="fas fa-plus mr-2"></i>
-        Registrar Ponto Agora
-      <% end %>
-    </div>
-  <% end %>
-
-  <!-- Registros Recentes -->
-  <div>
-    <div class="flex items-center mb-6">
-      <div class="inline-flex items-center justify-center w-10 h-10 bg-purple-50 text-purple-500 rounded-full mr-3">
-        <i class="fas fa-history"></i>
-      </div>
-      <h2 class="text-xl font-semibold text-gray-800">Registros Recentes</h2>
-    </div>
-
-    <% if @recent_time_sheets.any? %>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <% @recent_time_sheets.each do |time_sheet| %>
-          <div class="bg-white rounded-xl shadow-md border border-gray-100 p-5 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-            <div class="flex justify-between items-center mb-4">
-              <div class="flex items-center space-x-3">
-                <div class="bg-purple-50 text-purple-500 p-2 rounded-lg">
-                  <i class="fas fa-calendar-day text-lg"></i>
-                </div>
-                <span class="text-lg font-semibold text-gray-800"><%= time_sheet.date.strftime("%d/%m/%Y") %></span>
-              </div>
-
-              <% status_classes = case time_sheet.approval_status 
-                 when 'aprovado' then 'bg-green-100 text-green-700'
-                 when 'enviado' then 'bg-blue-100 text-blue-700'
-                 when 'rejeitado' then 'bg-red-100 text-red-700'
-                 else
-                   time_sheet.status == 'completo' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
-                 end %>
-
-              <% status_icon = case time_sheet.approval_status 
-                 when 'aprovado' then 'check-circle'
-                 when 'enviado' then 'paper-plane'
-                 when 'rejeitado' then 'times-circle'
-                 else
-                   time_sheet.status == 'completo' ? 'check' : 'exclamation-circle'
-                 end %>
-
-              <% status_text = case time_sheet.approval_status 
-                 when 'aprovado' then 'Aprovado'
-                 when 'enviado' then 'Enviado'
-                 when 'rejeitado' then 'Rejeitado'
-                 else
-                   time_sheet.status == 'completo' ? 'Completo' : 'Incompleto'
-                 end %>
-
-              <span class="<%= status_classes %> px-3 py-1.5 rounded-full text-sm font-medium flex items-center">
-                <i class="fas fa-<%= status_icon %> mr-1.5"></i>
-                <%= status_text %>
-              </span>
-            </div>
-
-            <div class="flex justify-between items-center">
+      <div class="mt-6 space-y-4">
+        <% @employees_with_pending.each do |employee| %>
+          <div class="rounded-[22px] border border-white/80 bg-white p-5 shadow-sm">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <div class="flex items-center space-x-2 mb-2">
-                  <i class="fas fa-clock text-gray-400"></i>
-                  <span class="font-medium text-gray-800">
-                    <% hours = time_sheet.total_hours.to_f rescue 0 %>
-                    Total: <%= time_sheet.total_hours %>h
+                <div class="flex flex-wrap items-center gap-3">
+                  <h3 class="text-base font-semibold text-slate-950"><%= employee.name %></h3>
+                  <span class="inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700">
+                    <%= @pending_count_by_employee[employee.id] %> pendências
                   </span>
                 </div>
-
-                <% if time_sheet.justification.present? %>
-                  <% justification_classes = case time_sheet.justification_status 
-                     when 'aprovada' then 'bg-green-50 text-green-600'
-                     when 'rejeitada' then 'bg-red-50 text-red-600'
-                     when 'pendente' then 'bg-yellow-50 text-yellow-600'
-                     else 'bg-gray-50 text-gray-600'
-                     end %>
-
-                  <% justification_icon = case time_sheet.justification_status 
-                     when 'aprovada' then 'check'
-                     when 'rejeitada' then 'times'
-                     when 'pendente' then 'clock'
-                     else 'question'
-                     end %>
-
-                  <% justification_text = case time_sheet.justification_status 
-                     when 'aprovada' then 'Justificado'
-                     when 'rejeitada' then 'Justificativa rejeitada'
-                     when 'pendente' then 'Justificativa pendente'
-                     else 'Sem justificativa'
-                     end %>
-
-                  <div class="<%= justification_classes %> px-2 py-1 rounded-lg text-xs inline-flex items-center">
-                    <i class="fas fa-<%= justification_icon %> mr-1"></i>
-                    <%= justification_text %>
-                  </div>
-                <% end %>
+                <p class="mt-1 text-sm text-slate-500"><%= [employee.position, employee.department].compact_blank.join(" • ") %></p>
               </div>
 
-              <% unless time_sheet.approval_status == 'aprovado' %>
-                <%= link_to time_sheet_path(time_sheet), class: "bg-indigo-50 text-indigo-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors flex items-center" do %>
-                  <i class="fas fa-edit mr-1.5"></i> Editar
-                <% end %>
+              <%= link_to approvals_path(search: employee.name), class: "inline-flex items-center gap-2 text-sm font-medium text-indigo-700 hover:text-indigo-800" do %>
+                Ver histórico deste colaborador
+                <i class="fas fa-arrow-right text-xs"></i>
+              <% end %>
+            </div>
+
+            <div class="mt-4 grid gap-3 xl:grid-cols-2">
+              <% @pending_by_employee[employee.id].each do |time_sheet| %>
+                <% item = dashboard_pending_item_meta(time_sheet) %>
+                <article class="rounded-2xl border border-border/70 bg-secondary/15 p-4">
+                  <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p class="text-sm font-semibold text-slate-900"><%= l(time_sheet.date, format: :long) %></p>
+                      <div class="mt-2 flex flex-wrap gap-2">
+                        <% item[:alerts].each do |alert| %>
+                          <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium <%= alert[:classes] %>">
+                            <%= alert[:label] %>
+                          </span>
+                        <% end %>
+                      </div>
+                    </div>
+                    <p class="text-sm font-medium text-slate-700"><%= item[:total] %></p>
+                  </div>
+
+                  <% if item[:justification] %>
+                    <p class="mt-3 text-sm leading-6 text-slate-600"><%= item[:justification] %></p>
+                  <% end %>
+
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    <%= button_to approve_approval_path(time_sheet), method: :patch, class: "inline-flex items-center gap-2 rounded-xl bg-green-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-green-700", form: { data: { turbo_confirm: "Aprovar este registro?" } } do %>
+                      <i class="fas fa-check"></i>
+                      Aprovar
+                    <% end %>
+
+                    <%= button_to reject_approval_path(time_sheet), method: :patch, class: "inline-flex items-center gap-2 rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-50", form: { data: { turbo_confirm: "Rejeitar este registro?" } } do %>
+                      <i class="fas fa-times"></i>
+                      Rejeitar
+                    <% end %>
+                  </div>
+                </article>
               <% end %>
             </div>
           </div>
         <% end %>
       </div>
-
-      <div class="mt-8 text-center">
-        <%= link_to time_sheets_path, class: "inline-flex items-center px-5 py-2.5 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-all duration-200 font-medium" do %>
-          Ver todos os registros <i class="fas fa-arrow-right ml-2"></i>
-        <% end %>
-      </div>
-    <% else %>
-      <div class="bg-white rounded-xl shadow-md border border-gray-100 p-8 text-center">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 text-gray-400 rounded-full mb-4">
-          <i class="fas fa-calendar-times text-3xl"></i>
+    </section>
+  <% elsif current_user.role != "gestor" && @pending_count.positive? %>
+    <section class="rounded-[24px] border border-amber-200 bg-amber-50/60 p-6 shadow-sm">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div class="max-w-2xl">
+          <div class="flex flex-wrap items-center gap-3">
+            <h2 class="text-xl font-semibold text-slate-950">Itens que exigem ação</h2>
+            <span class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800">
+              <%= @pending_count %> pendentes
+            </span>
+          </div>
+          <p class="mt-2 text-sm leading-6 text-slate-600">
+            Resolva os dias em aberto para manter o espelho do ponto pronto para envio e aprovação.
+          </p>
         </div>
-        <h3 class="text-xl font-semibold text-gray-800 mb-3">Nenhum registro encontrado</h3>
-        <p class="text-gray-600 mb-6 max-w-md mx-auto">Você ainda não possui registros de ponto. Comece a registrar seu ponto para visualizar seu histórico aqui.</p>
-        <%= button_to quick_register_time_entries_path(return_to: "dashboard"), method: :post, class: "inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 shadow-sm mx-auto" do %>
-          <i class="fas fa-plus mr-2"></i>
-          Registrar Primeiro Ponto
+      </div>
+
+      <div class="mt-5 grid gap-3 sm:grid-cols-3">
+        <div class="rounded-2xl border border-amber-200 bg-white p-4">
+          <p class="text-sm text-slate-500">Total</p>
+          <p class="mt-2 text-3xl font-semibold text-slate-950"><%= @pending_count %></p>
+        </div>
+        <div class="rounded-2xl border border-amber-200 bg-white p-4">
+          <p class="text-sm text-slate-500">Pendentes</p>
+          <p class="mt-2 text-3xl font-semibold text-amber-700"><%= @pending_pendente_count %></p>
+        </div>
+        <div class="rounded-2xl border border-blue-200 bg-white p-4">
+          <p class="text-sm text-slate-500">Enviados</p>
+          <p class="mt-2 text-3xl font-semibold text-blue-700"><%= @pending_enviado_count %></p>
+        </div>
+      </div>
+
+      <div class="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <% @pending_items.each do |time_sheet| %>
+          <% meta = time_sheet_status_meta(time_sheet) %>
+          <article class="rounded-[22px] border border-white/80 bg-white p-5 shadow-sm">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-base font-semibold text-slate-950"><%= l(time_sheet.date, format: :long) %></p>
+                <p class="mt-1 text-sm text-slate-500"><%= time_sheet.complete? ? "Dia completo" : "Dia ainda incompleto" %></p>
+              </div>
+              <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium <%= meta[:classes] %>">
+                <i class="fas <%= meta[:icon] %>"></i>
+                <%= meta[:label] %>
+              </span>
+            </div>
+
+            <%= link_to time_sheet_path(time_sheet), class: "mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-amber-700" do %>
+              <i class="fas fa-eye"></i>
+              Abrir registro
+            <% end %>
+          </article>
         <% end %>
       </div>
-    <% end %>
-  </div>
+    </section>
+  <% end %>
+
+  <section class="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
+    <article class="rounded-[24px] border border-border/70 bg-white p-6 shadow-sm">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 class="text-xl font-semibold text-slate-950">Dias recentes</h2>
+          <p class="mt-1 text-sm text-slate-500">Resumo rápido para revisar o que já foi concluído e o que ainda exige atenção.</p>
+        </div>
+        <% if @recent_time_sheets.any? %>
+          <%= link_to time_sheets_path, class: "inline-flex items-center gap-2 text-sm font-medium text-indigo-700 hover:text-indigo-800" do %>
+            Ver histórico completo
+            <i class="fas fa-arrow-right text-xs"></i>
+          <% end %>
+        <% end %>
+      </div>
+
+      <% if @recent_time_sheets.any? %>
+        <div class="mt-5 space-y-3">
+          <% @recent_time_sheets.each do |time_sheet| %>
+            <% meta = dashboard_recent_time_sheet_meta(time_sheet) %>
+            <div class="rounded-[22px] border p-4 <%= meta[:card_classes] %>">
+              <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <p class="text-base font-semibold text-slate-950"><%= l(time_sheet.date, format: :long) %></p>
+                    <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium <%= meta[:status][:classes] %>">
+                      <i class="fas <%= meta[:status][:icon] %>"></i>
+                      <%= meta[:status][:label] %>
+                    </span>
+                    <% if meta[:justification] %>
+                      <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium <%= meta[:justification][:classes] %>">
+                        <i class="fas <%= meta[:justification][:icon] %>"></i>
+                        <%= meta[:justification][:label] %>
+                      </span>
+                    <% end %>
+                  </div>
+
+                  <div class="mt-3 flex flex-wrap items-center gap-3 text-sm">
+                    <span class="font-medium <%= meta[:total][:tone] %>">
+                      <i class="fas fa-clock mr-1.5 text-slate-400"></i>
+                      <%= format_hours(time_sheet.total_hours) %>
+                    </span>
+                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium <%= meta[:total][:badge_classes] %>">
+                      <%= meta[:total][:badge] %>
+                    </span>
+                  </div>
+
+                  <p class="mt-3 text-sm leading-6 <%= meta[:attention] ? 'text-slate-700' : 'text-slate-600' %>"><%= meta[:next_step][:description] %></p>
+                </div>
+
+                <%= link_to time_sheet_path(time_sheet), class: "inline-flex items-center justify-center gap-2 rounded-xl border border-border/70 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700" do %>
+                  <i class="fas <%= meta[:action_icon] %>"></i>
+                  <%= meta[:action_label] %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="mt-5 rounded-2xl border border-dashed border-border bg-secondary/15 p-5 text-sm leading-6 text-slate-600">
+          Você ainda não possui dias registrados. Assim que começar a usar o ponto, o resumo recente ficará visível aqui.
+        </div>
+      <% end %>
+    </article>
+
+    <article class="rounded-[24px] border border-border/70 bg-white p-6 shadow-sm">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-semibold text-slate-950">Movimentos de hoje</h2>
+          <p class="mt-1 text-sm text-slate-500">Entradas e saídas registradas ao longo do dia.</p>
+        </div>
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-green-50 text-green-600">
+          <i class="fas fa-clipboard-list"></i>
+        </span>
+      </div>
+
+      <% if daily_has_activity %>
+        <div class="mt-5 grid gap-3 sm:grid-cols-2">
+          <% @daily_summary[:entries].each_with_index do |entry, index| %>
+            <% entry_meta = dashboard_entry_meta(entry) %>
+            <div class="rounded-2xl border border-border/70 bg-secondary/15 p-4">
+              <div class="flex items-start justify-between gap-3">
+                <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                  <i class="fas <%= entry_meta[:icon] %>"></i>
+                </span>
+                <span class="text-xs font-medium uppercase tracking-[0.12em] text-slate-400">#<%= index + 1 %></span>
+              </div>
+              <p class="mt-4 text-sm font-medium text-slate-600"><%= entry_meta[:label] %></p>
+              <p class="mt-1 text-2xl font-semibold text-slate-950"><%= entry.time.strftime("%H:%M") %></p>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="mt-5 rounded-2xl border border-dashed border-border bg-secondary/15 p-4 text-sm leading-6 text-slate-600">
+          Nenhum movimento registrado hoje. O primeiro ponto do dia vai aparecer aqui assim que for salvo.
+        </div>
+      <% end %>
+    </article>
+  </section>
 </div>
