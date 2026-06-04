@@ -35,6 +35,31 @@ O foco deste documento nao e apenas “como instalar”, mas:
 - shell autenticado extraido para componente Phlex proprio
 - sidebar desktop/mobile com comportamento via Stimulus, sem script inline
 
+### Telas ainda nao consolidadas no fluxo RubyUI
+
+Pendencias identificadas nas views atuais:
+
+- `devise/registrations/edit`
+- `layouts/application`
+- `layouts/_sidebar`
+- `time_entries/index`
+- `time_entries/show`
+- `time_entries/_entry`
+- `time_entries/create`
+- `time_sheets/show`
+- `time_sheets/pending_justifications`
+- `time_sheets/approve`
+- `justification_comments/index`
+- `user_preferences/_form`
+- `home/index`
+- partials do Kaminari em `app/views/kaminari`
+
+Leitura pratica:
+
+- parte desse backlog sao telas reais ainda nao migradas
+- parte sao shells/parciais compartilhados que precisam ser consolidados para fechar consistencia
+- `user_preferences/edit` ja foi refinada, mas o partial `_form` continua devendo fechamento explicito no plano
+
 Isso muda a leitura do plano:
 
 - as fases abaixo nao sao mais hipotese pura
@@ -237,6 +262,7 @@ Resultado real no `smart_ponto`:
 - autenticacao e shell foram migrados
 - o shell principal nao foi resolvido por um `Sidebar` oficial pronto
 - a solucao eficiente foi um componente local com RubyUI nas primitives
+- ainda falta consolidar a cobertura em `application.html.erb` e `_sidebar.html.erb` como parte do backlog remanescente
 
 Licao transferivel:
 
@@ -269,6 +295,7 @@ Justificativa:
 Status no `smart_ponto`:
 
 - concluida
+- resta `devise/registrations/edit` como tela irma nao fechada nesse grupo
 
 Licao:
 
@@ -304,6 +331,14 @@ Licao:
 - aqui o RubyUI continuou eficiente, mas o gargalo passou a ser composicao e densidade
 - o tempo economizado em primitive foi parcialmente reinvestido em hierarquia e responsividade
 
+Backlog remanescente mais proximo desta fase:
+
+1. `justification_comments/index`
+2. partials do Kaminari
+3. `time_entries/index`
+4. `time_entries/show`
+5. `time_entries/_entry`
+
 ### Fase 5 - Telas de alta complexidade
 
 Objetivo: migrar as paginas maiores com base ja estabilizada.
@@ -328,6 +363,12 @@ Licao:
 
 - dashboards e calendarios nao devem ser usados sozinhos como prova de que RubyUI e rapido ou lento
 - eles sofrem muito mais influencia de UX local do produto
+
+Backlog remanescente desta fase:
+
+1. `time_sheets/show`
+2. `time_sheets/pending_justifications`
+3. `time_sheets/approve`
 
 ## Como usar o MCP do RubyUI a favor da migracao
 
@@ -404,6 +445,157 @@ Exemplo para VS Code em `.vscode/mcp.json`:
 - Calendario/exportacao:
   - buscar `calendar`, `date picker`, `popover`, `table`
 
+## Plano objetivo para fechar as telas faltantes
+
+### Prioridade 1 - Fechar irmas e compartilhados de baixo risco
+
+1. `devise/registrations/edit`
+2. `user_preferences/_form`
+3. partials do Kaminari em `app/views/kaminari`
+
+Motivo:
+
+- baixo risco funcional
+- fecha consistencia visual do que ja foi migrado
+- reduz retrabalho em telas que dependem desses blocos
+
+### Prioridade 2 - Consolidar shell autenticado e navegacao
+
+1. `layouts/application`
+2. `layouts/_sidebar`
+3. `home/index`, se ainda fizer parte do fluxo navegavel do produto
+
+Motivo:
+
+- melhora consistencia transversal
+- garante que telas novas nao herdem markup legado na moldura principal
+- evita que a UX varie demais entre paginas ja migradas e nao migradas
+
+### Prioridade 3 - Fechar modulo de registros
+
+1. `time_entries/index`
+2. `time_entries/show`
+3. `time_entries/_entry`
+4. `time_entries/create`, se de fato for view utilizada
+
+Motivo:
+
+- fecha uma area funcional que ja comecou em `time_entries/new`
+- permite medir consistencia de formularios, listas e detalhes dentro do mesmo modulo
+
+### Prioridade 4 - Fechar modulo de espelho e aprovacoes finais
+
+1. `time_sheets/show`
+2. `time_sheets/pending_justifications`
+3. `time_sheets/approve`
+4. `justification_comments/index`
+
+Motivo:
+
+- sao telas ligadas a estados, auditoria e fluxo de aprovacao
+- dependem do padrao ja consolidado nas listagens e na exportacao
+
+## Plano de acesso das telas para testes manuais
+
+### Pre-condicoes
+
+Antes dos testes:
+
+1. subir a app Rails
+2. autenticar com um usuario de colaborador
+3. autenticar com um usuario de gestor para cobrir aprovacoes
+4. garantir massa de dados minima:
+   - registros de ponto em datas diferentes
+   - pelo menos um espelho com justificativa pendente
+   - pelo menos um espelho aprovado e um rejeitado
+
+### Rotas principais para navegar
+
+Autenticacao:
+
+- `/users/sign_in`
+- `/users/sign_up`
+- `/users/password/new`
+- `/users/password/edit?reset_password_token=TOKEN`
+- `/users/edit`
+
+Dashboard e shell:
+
+- `/`
+- validar menu lateral e shell em qualquer rota autenticada
+
+Registros:
+
+- `/registros`
+- `/registros/new`
+- `/registros/:id`
+
+Espelho de ponto:
+
+- `/meu-ponto`
+- `/meu-ponto/calendar`
+- `/meu-ponto/export_form`
+- `/meu-ponto/pending_justifications`
+- `/meu-ponto/:id`
+
+Gestao e aprovacao:
+
+- `/approvals`
+- `/manager/gestao-equipe`
+- `/meu-ponto/:time_sheet_id/comentarios`
+
+Preferencias:
+
+- `/user_preference/edit`
+
+### Como acessar telas dependentes de ID
+
+Para testes manuais, usar um registro existente do banco:
+
+1. abrir `/meu-ponto`
+2. copiar um `id` valido de um espelho listado
+3. testar:
+   - `/meu-ponto/:id`
+   - `/meu-ponto/:id/comentarios`
+4. abrir `/registros`
+5. copiar um `id` valido de registro
+6. testar:
+   - `/registros/:id`
+
+### Matriz minima de teste por perfil
+
+Colaborador:
+
+1. login
+2. dashboard
+3. `/registros/new`
+4. `/registros`
+5. `/meu-ponto`
+6. `/meu-ponto/export_form`
+7. `/user_preference/edit`
+8. `/users/edit`
+
+Gestor:
+
+1. login
+2. `/approvals`
+3. `/manager/gestao-equipe`
+4. `/meu-ponto/pending_justifications`
+5. abrir um `/meu-ponto/:id/comentarios`
+
+### Checklist manual por tela migrada ou pendente
+
+Em cada tela:
+
+1. validar desktop
+2. validar mobile
+3. validar estado vazio, se existir
+4. validar loading ou resposta assincrona, se existir
+5. validar CTA principal
+6. validar navegacao de retorno
+7. validar mensagens de sucesso/erro
+8. validar se o shell compartilhado ficou consistente com as outras telas
+
 ## Riscos e cuidados
 
 ### 1. RubyUI assume Tailwind 4 local
@@ -475,16 +667,16 @@ Mitigacao:
 
 ## Backlog tecnico sugerido
 
-1. Instalar RubyUI no projeto com `Rails + Importmaps`
-2. Criar infraestrutura `app/components`
-3. Remover Tailwind CDN e subir Tailwind local
-4. Migrar `flash` para componente base
-5. Migrar layout Devise
-6. Migrar shell principal com sidebar/topbar
-7. Migrar formularios pequenos
-8. Migrar telas com tabs e tabelas
-9. Migrar dashboard
-10. Migrar calendario e telas finais
+1. Fechar `devise/registrations/edit`
+2. Consolidar `user_preferences/_form`
+3. Migrar partials do Kaminari
+4. Consolidar `layouts/application` e `layouts/_sidebar`
+5. Fechar `time_entries/index`, `show` e `_entry`
+6. Fechar `time_sheets/show`
+7. Fechar `time_sheets/pending_justifications`
+8. Validar se `time_sheets/approve` e `time_entries/create` ainda sao views ativas, migrar ou remover do backlog
+9. Fechar `justification_comments/index`
+10. Executar rodada manual completa por perfil e dispositivo
 
 ## Criterios de aceite por fase
 
