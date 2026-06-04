@@ -222,7 +222,7 @@ module Components
         Item.new(
           label: "Dashboard",
           path: dashboard_index_path,
-          icon: "fa-house",
+          icon: "fa-tachometer-alt",
           group: :primary,
           active: ->(path) { path == dashboard_index_path || path == authenticated_root_path }
         ),
