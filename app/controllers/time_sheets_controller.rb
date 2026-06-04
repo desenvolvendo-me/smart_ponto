@@ -34,30 +34,12 @@ class TimeSheetsController < ApplicationController
   end
 
   def export_form
-    # Esta ação apenas renderiza o formulário de exportação
+    @preview_time_sheets = filtered_export_time_sheets
     render 'export'
   end
 
   def export_preview
-    # Definir datas padrão se não forem fornecidas
-    start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : Date.today.beginning_of_month
-    end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : Date.today
-
-    # Iniciar a consulta com o filtro de período
-    @time_sheets = current_user.time_sheets.where(date: start_date..end_date)
-
-    # Aplicar filtro de status de aprovação se fornecido
-    if params[:status].present?
-      @time_sheets = @time_sheets.where(approval_status: params[:status])
-    end
-
-    # Aplicar filtro de completude se fornecido
-    if params[:complete].present?
-      @time_sheets = @time_sheets.where(status: params[:complete])
-    end
-
-    # Ordenar por data decrescente - mostrar todos os registros filtrados na prévia
-    @time_sheets = @time_sheets.order(date: :desc)
+    @time_sheets = filtered_export_time_sheets
 
     respond_to do |format|
       format.json do
@@ -94,25 +76,9 @@ class TimeSheetsController < ApplicationController
   end
 
   def export
-    # Definir datas padrão se não forem fornecidas
-    start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : Date.today.beginning_of_month
-    end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : Date.today
-
-    # Iniciar a consulta com o filtro de período
-    @time_sheets = current_user.time_sheets.where(date: start_date..end_date)
-
-    # Aplicar filtro de status de aprovação se fornecido
-    if params[:status].present?
-      @time_sheets = @time_sheets.where(approval_status: params[:status])
-    end
-
-    # Aplicar filtro de completude se fornecido
-    if params[:complete].present?
-      @time_sheets = @time_sheets.where(status: params[:complete])
-    end
-
-    # Ordenar por data decrescente
-    @time_sheets = @time_sheets.order(date: :desc)
+    start_date = export_start_date
+    end_date = export_end_date
+    @time_sheets = filtered_export_time_sheets
 
     # Preparar o nome do arquivo
     filename_base = "registros-#{start_date.strftime('%d-%m-%Y')}-ate-#{end_date.strftime('%d-%m-%Y')}"
@@ -338,5 +304,20 @@ class TimeSheetsController < ApplicationController
         ]
       end
     end
+  end
+
+  def export_start_date
+    params[:start_date].present? ? Date.parse(params[:start_date]) : Date.current.beginning_of_month
+  end
+
+  def export_end_date
+    params[:end_date].present? ? Date.parse(params[:end_date]) : Date.current
+  end
+
+  def filtered_export_time_sheets
+    time_sheets = current_user.time_sheets.where(date: export_start_date..export_end_date)
+    time_sheets = time_sheets.where(approval_status: params[:status]) if params[:status].present?
+    time_sheets = time_sheets.where(status: params[:complete]) if params[:complete].present?
+    time_sheets.order(date: :desc)
   end
 end
