@@ -19,7 +19,17 @@ O foco e:
 - usar componentes RubyUI oficiais sempre que fizer sentido
 - usar o Impeccable como criterio de refinamento visual e ergonomia de interface
 
-O processo abaixo ja foi validado neste projeto na migracao das telas de autenticacao e no refinamento do shell Devise.
+O processo abaixo ja foi validado neste projeto na migracao de:
+
+- autenticacao Devise
+- `time_entries/new`
+- `approvals/index`
+- `manager/team_members/index`
+- `time_sheets/index`
+- `time_sheets/calendar`
+- `dashboard/index`
+- `user_preferences/edit`
+- `time_sheets/export`
 
 ## Quando usar este processo
 
@@ -94,6 +104,263 @@ Traducao pratica:
 3. reescrever a tela usando esses componentes, sem alterar a regra de negocio
 4. refinar hierarquia visual, espacamento, contraste, densidade e consistencia usando a mentalidade do Impeccable
 
+## Aprendizados validados no projeto
+
+### 1. A melhor ordem de migracao nao e por importancia de negocio
+
+A ordem que mais funcionou foi:
+
+1. telas simples de autenticacao
+2. tela isolada de formulario real
+3. listas operacionais medias
+4. calendario
+5. dashboard por recorte
+
+Motivo:
+
+- reduz risco tecnico
+- valida setup RubyUI em casos reais antes das telas mais densas
+- evita começar por shell ou dashboard cedo demais
+
+Sequencia real que funcionou:
+
+- `devise/sessions/new`
+- lote Devise restante
+- `time_entries/new`
+- `approvals/index`
+- `manager/team_members/index`
+- `time_sheets/index`
+- `time_sheets/calendar`
+- `dashboard/index`
+- `user_preferences/edit`
+- `time_sheets/export`
+
+### 2. Migrar tela nao e trocar classes
+
+O padrao que mais evitou retrabalho foi:
+
+1. preservar comportamento
+2. reorganizar hierarquia visual
+3. reduzir repeticao
+4. comprimir estados resolvidos
+5. destacar estados com atencao
+
+Quando a migracao foi tratada como simples troca de classes, o resultado ficou:
+
+- mais pesado do que deveria
+- com excesso de texto
+- com cards grandes demais
+- com pouca diferenca entre estados importantes
+
+### 3. Mobile precisa ser tratado como composicao propria
+
+Aprendizado forte do projeto:
+
+- algumas telas nao devem apenas "encolher"
+- elas precisam de outra composicao no mobile
+
+Casos reais:
+
+- `manager/team_members/index`: trocar tabela por lista em cards
+- `time_sheets/calendar`: trocar grade do calendario por lista diaria no mobile
+- `time_sheets/export`: trocar tabela crua por lista responsiva com rolagem controlada
+
+Regra pratica:
+
+- se o desktop depende de grade densa, tabela ou calendario, considerar uma estrutura propria para mobile
+- nao insistir em manter o mesmo layout so com `grid-cols` responsivo
+
+### 4. Estados resolvidos devem ser menores que estados com atencao
+
+Esse foi um dos aprendizados mais consistentes.
+
+Em listas operacionais:
+
+- itens resolvidos devem ficar mais compactos
+- itens com pendencia devem ganhar mais area, contraste e explicacao
+
+Aplicado com sucesso em:
+
+- `time_sheets/index`
+- `approvals/index`
+
+Regra:
+
+- nunca dar o mesmo peso visual para `ok`, `aguardando`, `pendente` e `problema`
+
+### 5. A primeira implementacao quase sempre fica explicativa demais
+
+Padrao repetido no projeto:
+
+- primeira versao tende a colocar contexto demais
+- depois a critica do Impeccable aponta excesso de blocos e texto
+
+Correcao que funcionou:
+
+- remover colunas laterais desnecessarias
+- trocar explicacao repetida por uma unica regra contextual
+- reduzir blocos auxiliares
+- concentrar a tensao visual no formulario ou na decisao principal
+
+### 6. O Impeccable foi mais util para densidade e hierarquia do que para “embelezar”
+
+Uso real mais valioso:
+
+- reduzir espaco morto
+- diferenciar estados
+- tirar cara de ERP
+- aproximar acao da informacao
+- eliminar repeticao estrutural
+
+Nao usar Impeccable so para:
+
+- inventar layout novo sem necessidade
+- adicionar decoracao
+- deixar a tela mais chamativa sem melhorar o fluxo
+
+### 7. Paginacao precisa ser resolvida na origem
+
+Aprendizado importante:
+
+- nao corrigir UI de paginacao tela por tela
+- personalizar os partials do Kaminari em `app/views/kaminari`
+
+Beneficio:
+
+- melhora global
+- consistencia visual
+- menos duplicacao
+
+Regra:
+
+- quando o problema e componente compartilhado, corrigir na origem do sistema, nao localmente na tela
+
+### 8. MCP do RubyUI nao foi o gargalo principal nas telas medias
+
+No projeto, o MCP foi mais valioso em:
+
+- setup inicial
+- consulta de primitives estruturais
+- casos com maior chance de dependencia indireta
+
+Nas telas medias ja validadas, o gargalo principal passou a ser:
+
+- composicao
+- densidade
+- mobile
+- hierarquia visual
+
+Entao:
+
+- usar MCP quando houver duvida real de primitive
+- nao transformar o MCP em etapa burocratica para telas que ja repetem stack conhecida
+
+### 9. Bugs funcionais aparecem durante a migracao visual
+
+Durante a migracao surgiram bugs reais que nao eram apenas visuais:
+
+- redirect usando `root_path` inexistente
+- tabs com estado ativo quebrado
+- paginacao lendo params diferentes dos enviados
+- CTA indevido em estado `enviado`
+- render inicial de preview diferente do endpoint dinamico
+
+Regra:
+
+- tratar bug funcional encontrado no fluxo da tela como parte da entrega
+- mas separar o commit se o ajuste merecer isolamento
+
+### 10. Artefatos de review visual nao devem ir para commit
+
+Durante a execucao foram gerados:
+
+- screenshots
+- snapshots markdown
+- arquivos de critica local
+
+Regra final:
+
+- antes de commitar, limpar artefatos temporarios
+- manter no commit apenas codigo, docs e contexto que realmente fazem parte do produto
+
+### 11. Dashboard grande deve ser tratado como triagem
+
+Aprendizado do `dashboard/index`:
+
+- a primeira migracao tende a ficar correta, mas alta demais
+- blocos vazios disputam espaco com estados reais
+- cards de resumo podem parecer vitrine em vez de painel de decisao
+
+Correcao que funcionou:
+
+- comprimir hero
+- reduzir o peso de estados vazios
+- aproximar historico recente da area util
+- tratar a tela como painel de decisao de 30 segundos
+
+Regra:
+
+- dashboard nao deve parecer pagina de showcase
+- se o usuario rola demais antes de decidir algo, a composicao ainda esta frouxa
+
+### 12. Nem toda tela com secoes precisa de tabs
+
+Aprendizado do `user_preferences/edit`:
+
+- tabs escondiam configuracoes simples
+- a tela ficou melhor como formulario linear
+- o ganho veio mais de previsibilidade do que de “navegacao”
+
+Correcao que funcionou:
+
+- remover tabs quebradas
+- organizar por secoes lineares
+- encurtar microcopy
+- compactar opcoes pequenas, como tema e assinatura
+
+Regra:
+
+- se a tela cabe em um scroll razoavel, preferir secoes lineares
+- tabs so valem quando reduzem carga cognitiva de verdade
+
+### 13. Render inicial e fetch dinamico precisam usar a mesma consulta
+
+Aprendizado do `time_sheets/export`:
+
+- a view inicial mostrava mais dados do que a previa dinamica
+- o Stimulus atualizava a lista com menos itens logo depois
+- isso gera flicker e perda de confianca
+
+Correcao que funcionou:
+
+- extrair consulta compartilhada no controller
+- usar a mesma logica em `export_form`, `export_preview` e `export`
+- render inicial da view deve usar a mesma colecao do endpoint dinamico
+
+Regra:
+
+- sempre comparar dataset inicial vs dataset do fetch dinamico
+- se houver divergencia, corrigir isso antes do polimento visual
+
+### 14. Preview ajuda, mas nao deve dominar a tela
+
+Aprendizado da exportacao:
+
+- a previa e util para confianca
+- mas nao pode competir com a acao principal
+
+Correcao que funcionou:
+
+- rebaixar contexto auxiliar
+- resumir o recorte perto do CTA
+- deixar a previa rolavel e responsiva
+- tratar preview como confirmacao contextual, nao como protagonista
+
+Regra:
+
+- em telas de exportacao, a acao principal continua sendo exportar
+- preview serve a decisao, nao lidera a pagina
+
 ## Fluxo padrao por tela
 
 ### Etapa 1 - Ler a tela real
@@ -119,6 +386,20 @@ Checklist rapido:
 - existe `data-controller` acoplado ao HTML atual?
 - a pagina tem estados condicionais importantes?
 - existe lista/tabela/empty state?
+- existe dataset inicial que depois e substituido por fetch/Stimulus?
+
+Aprendizado adicional:
+
+- abrir a rota real cedo economiza muito retrabalho
+- em especial nas telas responsivas
+- em telas com preview dinamico, observar o primeiro segundo da tela ajuda a achar divergencias de consulta
+
+Sempre que possivel:
+
+1. abrir a rota no browser
+2. revisar desktop
+3. revisar mobile
+4. so depois editar
 
 ### Etapa 2 - Mapear a tela para componentes RubyUI
 
@@ -149,6 +430,12 @@ Regra:
   - espacamento
   - semantica visual
   - estados interativos
+
+Heuristica validada no projeto:
+
+- `Card`, `Button`, `Input`, `Alert` e helpers locais resolveram boa parte das telas
+- nem todo bloco precisa virar componente Phlex novo
+- em muitos casos, helper + ERB organizado foi suficiente
 
 ### Etapa 3 - Usar o MCP do RubyUI quando houver duvida ou dependencia estrutural
 
@@ -202,6 +489,11 @@ Quando nao precisa usar MCP:
 - evolucao visual de telas que ja usam `Card`, `Input`, `Button`, `Alert`, `Checkbox`
 - refinamento de copy, densidade, hierarquia e shell
 
+Aprendizado pratico:
+
+- depois da base estar pronta, a maior parte do trabalho passa a ser layout e UX
+- nao atrasar a migracao esperando consulta de MCP para elementos ja dominados no projeto
+
 ### Etapa 3.1 - Usar o Impeccable como camada de design e consistencia
 
 Depois de descobrir os componentes corretos no RubyUI, usar o `https://impeccable.style` como referencia de execucao visual.
@@ -234,6 +526,14 @@ Perguntas extras obrigatorias no contexto deste projeto:
 - a composicao parece clara para pessoas menos fluentes digitalmente?
 - o CTA principal esta obvio?
 - a pagina comunica o proximo passo sem depender de interpretacao?
+
+Checklist de critica que mais gerou melhoria real:
+
+- os cards estao grandes demais?
+- estados resolvidos ocupam espaco demais?
+- a acao principal aparece tarde demais no mobile?
+- a pagina esta explicando demais antes de deixar agir?
+- desktop e mobile parecem duas experiencias coerentes entre si?
 
 ### Etapa 4 - Instalar apenas os componentes necessarios
 
@@ -269,6 +569,11 @@ Exemplo para tabela administrativa:
 - `Select`
 - `Table`
 - `Badge`
+
+Aprendizado:
+
+- em varias telas medias, instalar novos componentes nao foi o passo principal
+- o ganho veio mais de helpers e composicao do que de novos componentes oficiais
 
 ### Etapa 5 - Reescrever primeiro a estrutura visual
 
