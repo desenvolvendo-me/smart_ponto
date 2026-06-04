@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["form", "previewTbody", "csvRadio", "excelRadio"]
+  static targets = ["form", "previewTbody", "csvRadio", "excelRadio", "summary", "previewCount", "previewHint"]
   static values = { previewUrl: String }
 
   connect() {
@@ -36,35 +36,71 @@ export default class extends Controller {
     })
     .then(response => response.json())
     .then(data => {
-      // Limpar a tabela atual
       this.previewTbodyTarget.innerHTML = ''
+      const previewData = data.preview_data || []
 
-      // Adicionar os novos dados
-      if (data.preview_data && data.preview_data.length > 0) {
-        data.preview_data.forEach(sheet => {
-          const row = document.createElement('tr')
+      if (this.hasSummaryTarget) {
+        this.summaryTarget.textContent = `${previewData.length} registros no recorte atual`
+      }
+
+      if (this.hasPreviewCountTarget) {
+        this.previewCountTarget.textContent = `${previewData.length} linhas`
+      }
+
+      if (previewData.length > 0) {
+        if (this.hasPreviewHintTarget) {
+          this.previewHintTarget.textContent = "Confira alguns registros antes de baixar o arquivo final."
+        }
+
+        previewData.forEach(sheet => {
+          const row = document.createElement('div')
+          row.className = 'grid gap-3 px-4 py-4 lg:grid-cols-[1.2fr_repeat(4,minmax(0,0.8fr))_0.8fr_1fr] lg:items-center'
           row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${sheet.date}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheet.times[0]}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheet.times[1]}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheet.times[2]}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheet.times[3]}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sheet.total_hours}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${sheet.approval_status_class}">
+            <div>
+              <p class="text-sm font-medium text-slate-900">${sheet.date}</p>
+              <p class="mt-1 text-xs text-slate-500 lg:hidden">Referência do registro</p>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-sm text-slate-600 lg:contents">
+              <div>
+                <p class="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400 lg:hidden">Entrada 1</p>
+                <p>${sheet.times[0]}</p>
+              </div>
+              <div>
+                <p class="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400 lg:hidden">Saída 1</p>
+                <p>${sheet.times[1]}</p>
+              </div>
+              <div>
+                <p class="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400 lg:hidden">Entrada 2</p>
+                <p>${sheet.times[2]}</p>
+              </div>
+              <div>
+                <p class="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400 lg:hidden">Saída 2</p>
+                <p>${sheet.times[3]}</p>
+              </div>
+            </div>
+            <div>
+              <p class="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400 lg:hidden">Total</p>
+              <p class="text-sm font-medium text-slate-700">${sheet.total_hours}</p>
+            </div>
+            <div>
+              <p class="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400 lg:hidden">Status</p>
+              <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${sheet.approval_status_class}">
                 ${sheet.approval_status_label}
               </span>
-            </td>
+            </div>
           `
           this.previewTbodyTarget.appendChild(row)
         })
       } else {
-        // Mostrar mensagem quando não há dados
-        const row = document.createElement('tr')
+        if (this.hasPreviewHintTarget) {
+          this.previewHintTarget.textContent = "Nenhum registro encontrado. Revise período, status ou completude."
+        }
+
+        const row = document.createElement('div')
         row.innerHTML = `
-          <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
-            Nenhum registro encontrado para os filtros selecionados
-          </td>
+          <div class="px-4 py-8 text-center text-sm text-slate-500">
+            Nenhum registro encontrado para os filtros selecionados.
+          </div>
         `
         this.previewTbodyTarget.appendChild(row)
       }
